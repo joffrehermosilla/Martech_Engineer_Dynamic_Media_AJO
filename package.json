@@ -1,0 +1,35 @@
+{
+  "name": "martech-engineer-dynamic-media-ajo-hub",
+  "version": "1.0.0",
+  "description": "Agent Hub, PhotoCraft MCP Server, Flow Studio & Multi-Provider AI Router for AEM Dynamic Media & AJO",
+  "main": "agent-hub/server.mjs",
+  "type": "module",
+  "scripts": {
+    "start": "node agent-hub/server.mjs",
+    "dev": "node agent-hub/server.mjs",
+    "mcp": "node mcp-server/mcp_server.mjs",
+    "flow-studio": "node flow_studio/server.mjs",
+    "seed": "node agent-hub/db/seed_mongo_governance.mjs",
+    "test:governance": "node agent-hub/tests/test_governance.mjs",
+    "test:router": "node agent-hub/tests/test_router.mjs",
+    "test:photocraft": "node agent-hub/tests/test_photocraft_adapter.mjs"
+  },
+  "keywords": [
+    "aem",
+    "dynamic-media",
+    "ajo",
+    "mcp",
+    "photocraft",
+    "ai-agents",
+    "bcp",
+    "martech"
+  ],
+  "author": "BCP Martech Engineering",
+  "license": "Apache-2.0",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
+    "express": "^4.19.2",
+    "mongodb": "^6.8.0"
+  }
+}
