@@ -9,17 +9,19 @@
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #070B11;
-      --surface: #0E1420;
-      --surface-card: rgba(18, 25, 38, 0.9);
-      --border: #1E293B;
-      --border-focus: #0084FF;
-      --ink-1: #F8FAFC;
-      --ink-2: #94A3B8;
+      --bg: #05080E;
+      --surface: #0A0F1A;
+      --surface-2: #0E1420;
+      --border: #1A2540;
+      --ink-1: #F0F4F8;
+      --ink-2: #8899B4;
+      --ink-3: #4A5A72;
       --bcp-orange: #FF7800;
       --bcp-blue: #002A8F;
+      --success: #10B981;
       --font-ui: "Archivo", system-ui, sans-serif;
       --font-mono: "JetBrains Mono", monospace;
+      --radius: 10px;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
@@ -33,7 +35,7 @@
     header {
       background: var(--surface);
       border-bottom: 1px solid var(--border);
-      padding: 1rem 2rem;
+      padding: 0.9rem 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -50,8 +52,8 @@
     .main-layout {
       flex: 1;
       display: grid;
-      grid-template-columns: 360px 1fr;
-      height: calc(100vh - 70px);
+      grid-template-columns: 380px 1fr;
+      height: calc(100vh - 62px);
     }
     @media (max-width: 900px) {
       .main-layout { grid-template-columns: 1fr; height: auto; }
@@ -59,22 +61,23 @@
     .sidebar {
       background: var(--surface);
       border-right: 1px solid var(--border);
-      padding: 1.5rem;
+      padding: 1.25rem;
       display: flex;
       flex-direction: column;
-      gap: 1.25rem;
+      gap: 1rem;
       overflow-y: auto;
     }
-    .form-group { display: flex; flex-direction: column; gap: 0.4rem; }
-    label { font-size: 0.85rem; font-weight: 600; color: var(--ink-2); }
+    .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
+    label { font-size: 0.78rem; font-weight: 700; color: var(--ink-2); text-transform: uppercase; letter-spacing: 0.04em; }
     textarea, select, input {
-      background: #070B11;
+      background: var(--bg);
       border: 1px solid var(--border);
       color: var(--ink-1);
-      border-radius: 8px;
-      padding: 0.65rem 0.85rem;
+      border-radius: var(--radius);
+      padding: 0.6rem 0.85rem;
       font-family: inherit;
       font-size: 0.85rem;
+      transition: border-color 0.2s;
     }
     textarea:focus, select:focus, input:focus {
       outline: none;
@@ -84,8 +87,8 @@
       background: linear-gradient(135deg, var(--bcp-orange), #FF9900);
       color: #fff;
       border: none;
-      border-radius: 8px;
-      padding: 0.75rem;
+      border-radius: var(--radius);
+      padding: 0.7rem;
       font-family: inherit;
       font-weight: 700;
       cursor: pointer;
@@ -93,24 +96,69 @@
       justify-content: center;
       align-items: center;
       gap: 0.5rem;
+      font-size: 0.88rem;
+      transition: all 0.2s;
     }
-    .btn:hover { opacity: 0.9; }
+    .btn:hover { opacity: 0.9; transform: translateY(-1px); }
     .btn-secondary {
-      background: #1E293B;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
       color: var(--ink-1);
     }
+    .btn-secondary:hover { border-color: var(--ink-2); transform: none; }
+
+    /* Template cards */
+    .template-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .template-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 0.85rem;
+      cursor: pointer;
+      transition: all 0.15s;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .template-card:hover { border-color: rgba(255,120,0,0.4); background: rgba(255,120,0,0.04); }
+    .template-card.selected { border-color: var(--bcp-orange); background: rgba(255,120,0,0.08); }
+    .template-card .t-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .template-card .t-body .t-name { font-weight: 700; font-size: 0.88rem; margin-bottom: 0.15rem; }
+    .template-card .t-body .t-desc { font-size: 0.75rem; color: var(--ink-2); line-height: 1.3; }
+
     .canvas-container {
       background: #05080E;
       position: relative;
       display: flex;
       flex-direction: column;
     }
+    .canvas-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-wrap: wrap;
+    }
     iframe {
       width: 100%;
-      height: 100%;
-      border: none;
       flex: 1;
+      border: none;
     }
+
+    .section-title {
+      font-size: 0.7rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--ink-3);
+      margin-bottom: 0.3rem;
+    }
+
+    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
   </style>
 </head>
 <body>
@@ -119,59 +167,116 @@
     <div class="brand">
       <span class="badge">FLOW STUDIO</span>
       <div>
-        <strong>Entendimiento Dinámico &amp; Arquitectura</strong>
-        <div style="font-size:0.75rem; color:var(--ink-2);">Generador de Mapas Interactivos con Nodos, Carriles y Trazabilidad</div>
+        <strong>Entendimiento Dinámico & Arquitectura</strong>
+        <div style="font-size:0.72rem; color:var(--ink-2);">Diagramas Interactivos • Nodos Dinámicos • Export HTML</div>
       </div>
     </div>
     <div style="display:flex; gap:0.5rem;">
-      <button class="btn btn-secondary" onclick="downloadCurrentHtml()">📥 Descargar HTML Autónomo</button>
-      <a href="/" class="btn btn-secondary">Volver al Hub</a>
+      <button class="btn btn-secondary" onclick="downloadCurrentHtml()" style="padding:0.5rem 0.85rem; font-size:0.82rem;">⬇️ Descargar HTML</button>
+      <a href="/" class="btn btn-secondary" style="padding:0.5rem 0.85rem; font-size:0.82rem; text-decoration:none;">← Volver al Hub</a>
     </div>
   </header>
 
   <div class="main-layout">
     <div class="sidebar">
-      <div class="form-group">
-        <label>Plantilla de Flujo</label>
-        <select id="presetSelect" onchange="loadPreset()">
-          <option value="AEM_DYNAMIC_MEDIA_E2E">AEM Dynamic Media + PhotoCraft + AJO E2E</option>
-          <option value="WHATSAPP_AZURE_CDP">WhatsApp Cloud API + Azure + CDP Trazabilidad</option>
-          <option value="CUSTOM">Flujo Personalizado por IA</option>
-        </select>
+
+      <!-- Templates -->
+      <div>
+        <div class="section-title">📐 Plantilla de Flujo</div>
+        <div class="template-list" id="templateList">
+          <!-- Populated dynamically -->
+        </div>
       </div>
 
+      <!-- Title -->
       <div class="form-group">
         <label>Título del Diagrama</label>
         <input type="text" id="diagramTitle" value="Mapa E2E: Creación de Assets en AEM, PhotoCraft y Entrega AJO InWeb">
       </div>
 
+      <!-- Description -->
       <div class="form-group">
-        <label>Descripción / Parámetros / JSON para el Agente</label>
-        <textarea id="promptInput" rows="8" placeholder="Describa el flujo, adjunte parámetros o JSON...">El flujo conecta la solicitud de activos de marketing con la validación de mandamientos en Mongo Atlas. Luego PhotoCraft ejecuta transformaciones (crop, watermark) en un sandbox. El binario aprobado se envía por Direct Binary Upload a AEM DAM. Dynamic Media entrega URLs optimizadas (AVIF/WebP) consumidas por AJO InWeb y cabeceras WhatsApp. Toda la telemetría se reporta a AEP CDP.</textarea>
+        <label>Descripción / Contexto para el Agente</label>
+        <textarea id="promptInput" rows="6" placeholder="Describa el flujo, adjunte parámetros o JSON...">El flujo conecta la solicitud de activos de marketing con la validación de mandamientos en Mongo Atlas. Luego PhotoCraft ejecuta transformaciones (crop, watermark) en un sandbox. El binario aprobado se envía por Direct Binary Upload a AEM DAM. Dynamic Media entrega URLs optimizadas (AVIF/WebP) consumidas por AJO InWeb y cabeceras WhatsApp.</textarea>
       </div>
 
       <button class="btn" onclick="generateDynamicMap()">⚡ Generar Mapa Dinámico</button>
-      
-      <div style="font-size:0.8rem; color:var(--ink-2); line-height:1.4; margin-top:auto;">
-        💡 <strong>Tip de Continuidad:</strong> Cualquier otra IA puede consumir el modelo JSON generado y publicar nuevos diagramas exportables directamente.
+
+      <div style="font-size:0.78rem; color:var(--ink-3); line-height:1.4; padding:0.75rem; background:rgba(255,120,0,0.04); border:1px solid rgba(255,120,0,0.12); border-radius:8px; margin-top:auto;">
+        💡 <strong style="color:var(--ink-2);">Tip de Continuidad:</strong> Cualquier otra IA puede consumir el modelo JSON generado y publicar nuevos diagramas exportables.<br><br>
+        🖱️ <strong style="color:var(--ink-2);">Interacción:</strong> Haga click en los nodos del diagrama para ver detalles. Las rutas se iluminan al seleccionar un nodo.
       </div>
     </div>
 
     <div class="canvas-container">
+      <div class="canvas-toolbar">
+        <span style="font-size:0.8rem; color:var(--ink-2);" id="currentTemplate">Plantilla: AEM Dynamic Media E2E</span>
+        <div style="margin-left:auto; display:flex; gap:0.5rem;">
+          <button class="btn btn-secondary" onclick="reloadPreview()" style="padding:0.4rem 0.75rem; font-size:0.8rem;">🔄 Recargar</button>
+          <button class="btn btn-secondary" onclick="openInNewTab()" style="padding:0.4rem 0.75rem; font-size:0.8rem;">↗ Nueva pestaña</button>
+        </div>
+      </div>
       <iframe id="diagramFrame" src="/api/flow-studio/preview"></iframe>
     </div>
   </div>
 
   <script>
-    function loadPreset() {
-      const val = document.getElementById("presetSelect").value;
-      if (val === "WHATSAPP_AZURE_CDP") {
-        document.getElementById("diagramTitle").value = "Correlación WhatsApp Feedback Logs • Azure & AJO CDP";
-        document.getElementById("promptInput").value = "Flujo de correlación de eventos WhatsApp (Sent, Delivered, Read, Button Reply) recibidos en Azure y enriquecidos con WAMID para persistencia en AJO Streaming Ingestion y dataset custom de BCP.";
-      } else if (val === "AEM_DYNAMIC_MEDIA_E2E") {
-        document.getElementById("diagramTitle").value = "Mapa E2E: Creación de Assets en AEM, PhotoCraft y Entrega AJO InWeb";
-        document.getElementById("promptInput").value = "El flujo conecta la solicitud de activos de marketing con la validación de mandamientos en Mongo Atlas. Luego PhotoCraft ejecuta transformaciones (crop, watermark) en un sandbox. El binario aprobado se envía por Direct Binary Upload a AEM DAM. Dynamic Media entrega URLs optimizadas (AVIF/WebP) consumidas por AJO InWeb y cabeceras WhatsApp. Toda la telemetría se reporta a AEP CDP.";
+    const TEMPLATES = {};
+    let selectedTemplate = "AEM_DYNAMIC_MEDIA_E2E";
+
+    async function loadTemplates() {
+      try {
+        const res = await fetch("/api/flow-studio/templates");
+        const data = await res.json();
+        Object.assign(TEMPLATES, data.templates || {});
+        renderTemplateList();
+      } catch (err) {
+        console.warn("Templates load error:", err);
+        // Fallback hardcoded
+        const fallback = {
+          AEM_DYNAMIC_MEDIA_E2E: { label: "AEM Dynamic Media + PhotoCraft + AJO E2E", icon: "⚡", description: "Flujo completo de creación y entrega" },
+          DAM_GOVERNANCE_ROLES: { label: "Gobierno DAM por Roles", icon: "🛡️", description: "Admin/Martech/VCD y aprobaciones" },
+          EMAIL_MARKETING: { label: "Email Marketing Campaign", icon: "📧", description: "Campaña email con AJO" },
+          SOCIAL_MEDIA: { label: "Social Media Multi-formato", icon: "📱", description: "Instagram, LinkedIn, Twitter" },
+          WORKFRONT_GOVERNANCE: { label: "Workfront + DAM Governance", icon: "🏢", description: "Assets vinculados a Workfront" },
+          WHATSAPP_AZURE_CDP: { label: "WhatsApp + Azure + CDP", icon: "💬", description: "Correlación de eventos WhatsApp" }
+        };
+        Object.assign(TEMPLATES, fallback);
+        renderTemplateList();
       }
+    }
+
+    function renderTemplateList() {
+      const list = document.getElementById("templateList");
+      list.innerHTML = Object.entries(TEMPLATES).map(([key, t]) => `
+        <div class="template-card ${key === selectedTemplate ? 'selected' : ''}" onclick="selectTemplate('${key}', this)">
+          <div class="t-icon">${t.icon || "📊"}</div>
+          <div class="t-body">
+            <div class="t-name">${t.label}</div>
+            <div class="t-desc">${t.description || ""}</div>
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function selectTemplate(key, el) {
+      selectedTemplate = key;
+      document.querySelectorAll(".template-card").forEach(c => c.classList.remove("selected"));
+      el.classList.add("selected");
+
+      const t = TEMPLATES[key];
+      document.getElementById("currentTemplate").textContent = `Plantilla: ${t?.label || key}`;
+      
+      // Update title
+      const titles = {
+        AEM_DYNAMIC_MEDIA_E2E: "Mapa E2E: Creación de Assets en AEM, PhotoCraft y Entrega AJO InWeb",
+        DAM_GOVERNANCE_ROLES: "Gobierno DAM por Roles: Admin, Martech, VCD",
+        EMAIL_MARKETING: "Flujo de Campaña Email Marketing con AJO",
+        SOCIAL_MEDIA: "Social Media Multi-formato: Instagram, LinkedIn, Twitter",
+        WORKFRONT_GOVERNANCE: "Workfront + AEM DAM Asset Governance",
+        WHATSAPP_AZURE_CDP: "WhatsApp Cloud API + Azure + CDP Trazabilidad"
+      };
+      document.getElementById("diagramTitle").value = titles[key] || t?.label || "";
     }
 
     async function generateDynamicMap() {
@@ -179,31 +284,48 @@
       const title = document.getElementById("diagramTitle").value;
       const prompt = document.getElementById("promptInput").value;
 
-      iframe.srcdoc = "<div style='color:#fff; padding:2rem; font-family:sans-serif;'>Generando diagrama dinámico con IA y estructurando nodos...</div>";
+      iframe.srcdoc = `<div style='color:#fff;padding:3rem;font-family:sans-serif;background:#05080E;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;'>
+        <div style='font-size:2rem;'>⚡</div>
+        <div>Generando diagrama dinámico...</div>
+        <div style='font-size:0.85rem;color:#4A5A72;'>Procesando modelo y estructurando nodos</div>
+      </div>`;
 
       try {
         const res = await fetch("/api/flow-studio/generate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title, prompt })
+          body: JSON.stringify({ title, prompt, template: selectedTemplate })
         });
         const html = await res.text();
         iframe.srcdoc = html;
+        document.getElementById("currentTemplate").textContent = `✅ ${title}`;
       } catch (err) {
-        iframe.srcdoc = `<div style='color:red; padding:2rem;'>Error: ${err.message}</div>`;
+        iframe.srcdoc = `<div style='color:#EF4444;padding:2rem;font-family:sans-serif;background:#05080E;'>Error: ${err.message}</div>`;
       }
+    }
+
+    function reloadPreview() {
+      const iframe = document.getElementById("diagramFrame");
+      iframe.src = `/api/flow-studio/preview?template=${selectedTemplate}&t=${Date.now()}`;
+    }
+
+    function openInNewTab() {
+      window.open(`/api/flow-studio/preview?template=${selectedTemplate}`, "_blank");
     }
 
     async function downloadCurrentHtml() {
       const title = document.getElementById("diagramTitle").value;
-      const res = await fetch("/api/flow-studio/preview");
+      const res = await fetch(`/api/flow-studio/preview?template=${selectedTemplate}`);
       const html = await res.text();
       const blob = new Blob([html], { type: "text/html" });
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = `${title.toLowerCase().replace(/[^a-z0-9]/g, "_")}.html`;
+      a.download = `${title.toLowerCase().replace(/[^a-z0-9]/g, "_") || "flow_diagram"}.html`;
       a.click();
     }
+
+    // Init
+    loadTemplates();
   </script>
 </body>
 </html>

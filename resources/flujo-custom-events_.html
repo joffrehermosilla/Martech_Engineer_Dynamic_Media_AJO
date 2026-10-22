@@ -1,0 +1,1296 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Flujo Custom Events | CDP → AJO</title>
+  <style>
+    :root {
+      --bg: #0a1020;
+      --panel: #111a2d;
+      --panel2: #15213a;
+      --line: #2b3b59;
+      --text: #edf3ff;
+      --muted: #a8b6d0;
+      --cyan: #5ee7f7;
+      --violet: #b7a2ff;
+      --green: #62e6a7;
+      --orange: #ffc779;
+      --pink: #ff9ac5;
+      --shadow: 0 20px 55px rgba(0, 0, 0, .28);
+    }
+
+    * {
+      box-sizing: border-box
+    }
+
+    html {
+      scroll-behavior: smooth
+    }
+
+    #detailJsonBlock {
+      margin-bottom: 24px;
+    }
+
+    body {
+      margin: 0;
+      background:
+        radial-gradient(ellipse at 12% 0%, rgba(72, 101, 205, .20), transparent 34%),
+        radial-gradient(ellipse at 95% 15%, rgba(94, 231, 247, .11), transparent 28%), var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+      line-height: 1.5
+    }
+
+    button {
+      font: inherit
+    }
+
+    .wrap {
+      width: min(1180px, calc(100% - 32px));
+      margin: auto
+    }
+
+    .hero {
+      padding: 46px 0 26px;
+      position: relative;
+      overflow: hidden
+    }
+
+    .eyebrow {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: 1px solid #34516c;
+      background: #12263a;
+      color: var(--cyan);
+      padding: 7px 12px;
+      border-radius: 99px;
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .12em;
+      text-transform: uppercase
+    }
+
+    .pulse {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 0 0 #62e6a777;
+      animation: pulse 1.8s infinite
+    }
+
+    @keyframes pulse {
+      70% {
+        box-shadow: 0 0 0 9px #62e6a700
+      }
+
+      100% {
+        box-shadow: 0 0 0 0 #62e6a700
+      }
+    }
+
+    h1 {
+      font-size: clamp(34px, 5.4vw, 62px);
+      line-height: 1.04;
+      letter-spacing: -.045em;
+      margin: 18px 0 14px;
+      max-width: 900px
+    }
+
+    .grad {
+      background: linear-gradient(100deg, var(--cyan), #a9c7ff 45%, var(--violet));
+      -webkit-background-clip: text;
+      background-clip: text;
+      color: transparent
+    }
+
+    .subtitle {
+      max-width: 760px;
+      color: var(--muted);
+      font-size: 17px;
+      margin: 0
+    }
+
+    .hero-stats {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 24px
+    }
+
+    .stat {
+      padding: 10px 14px;
+      border: 1px solid #2a3954;
+      border-radius: 13px;
+      background: #101a2b;
+      color: #c6d4ed;
+      font-size: 13px
+    }
+
+    .stat strong {
+      color: white;
+      margin-right: 5px
+    }
+
+    .toolbar {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      align-items: center;
+      justify-content: space-between;
+      margin: 22px 0 18px
+    }
+
+    .tabs {
+      display: flex;
+      gap: 7px;
+      flex-wrap: wrap;
+      background: #0d1627;
+      padding: 6px;
+      border: 1px solid #24344f;
+      border-radius: 15px
+    }
+
+    .tab,
+    .action {
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: #b9c8e2;
+      background: transparent;
+      cursor: pointer;
+      transition: .22s
+    }
+
+    .tab:hover,
+    .action:hover {
+      transform: translateY(-1px);
+      color: white;
+      border-color: #3b5278
+    }
+
+    .tab.active {
+      color: #071420;
+      background: linear-gradient(110deg, var(--cyan), #a7dfff);
+      font-weight: 850;
+      box-shadow: 0 7px 22px #5ee7f72a
+    }
+
+    .action {
+      background: #17243b;
+      border-color: #304362;
+      color: #e4edff;
+      font-weight: 700
+    }
+
+    .action.primary {
+      background: #c4f5fb;
+      color: #071521;
+      border-color: #c4f5fb
+    }
+
+    .layout {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) 330px;
+      gap: 18px;
+      align-items: start
+    }
+
+    .flow-panel,
+    .detail-panel,
+    .responsibilities,
+    .gate-panel {
+      background: linear-gradient(160deg, rgba(20, 31, 53, .96), rgba(13, 22, 39, .96));
+      border: 1px solid #263854;
+      border-radius: 22px;
+      box-shadow: var(--shadow)
+    }
+
+    .flow-panel {
+      padding: 20px;
+      overflow: hidden
+    }
+
+    .panel-head {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 17px
+    }
+
+    .panel-head h2,
+    .detail-panel h2 {
+      font-size: 19px;
+      margin: 0;
+      letter-spacing: -.02em
+    }
+
+    .panel-head p {
+      margin: 4px 0 0;
+      color: var(--muted);
+      font-size: 13px
+    }
+
+    .live-badge {
+      white-space: nowrap;
+      font-size: 11px;
+      color: var(--green);
+      border: 1px solid #27654e;
+      background: #103226;
+      padding: 6px 9px;
+      border-radius: 99px;
+      font-weight: 800
+    }
+
+    .steps {
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      gap: 0
+    }
+
+    .steps:before {
+      content: "";
+      position: absolute;
+      left: 28px;
+      top: 35px;
+      bottom: 37px;
+      width: 2px;
+      background: linear-gradient(var(--cyan), #6f88ff 45%, var(--green));
+      opacity: .42
+    }
+
+    .step {
+      position: relative;
+      display: grid;
+      grid-template-columns: 58px minmax(0, 1fr);
+      gap: 13px;
+      padding: 0 0 14px;
+      cursor: pointer;
+      outline: none
+    }
+
+    .step:last-child {
+      padding-bottom: 0
+    }
+
+    .node {
+      position: relative;
+      z-index: 1;
+      width: 58px;
+      height: 58px;
+      display: grid;
+      place-items: center;
+      border-radius: 17px;
+      background: #15243b;
+      border: 1px solid #354c70;
+      color: var(--cyan);
+      transition: .3s;
+      box-shadow: 0 0 0 5px #101a2b;
+      font-size: 23px
+    }
+
+    .node svg {
+      width: 24px;
+      height: 24px
+    }
+
+    .step-card {
+      border: 1px solid #293a57;
+      background: #121e32;
+      border-radius: 16px;
+      padding: 14px 15px;
+      transition: .25s;
+      position: relative;
+      overflow: hidden
+    }
+
+    .step-card:after {
+      content: "";
+      position: absolute;
+      inset: 0 auto 0 0;
+      width: 3px;
+      background: var(--accent, var(--cyan));
+      opacity: .7
+    }
+
+    .step:hover .step-card,
+    .step.active .step-card {
+      border-color: var(--accent, var(--cyan));
+      background: #17263e;
+      transform: translateX(3px)
+    }
+
+    .step.active .node {
+      background: var(--accent, var(--cyan));
+      color: #081321;
+      border-color: transparent;
+      box-shadow: 0 0 0 5px #101a2b, 0 0 28px color-mix(in srgb, var(--accent, var(--cyan)) 25%, transparent)
+    }
+
+    .step-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 10px
+    }
+
+    .step-title {
+      font-weight: 850;
+      font-size: 15px;
+      letter-spacing: -.01em
+    }
+
+    .step-num {
+      font-size: 11px;
+      color: #8294b4;
+      font-weight: 850;
+      letter-spacing: .1em
+    }
+
+    .step-desc {
+      font-size: 13px;
+      color: #aebdd6;
+      margin-top: 5px
+    }
+
+    .tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 10px
+    }
+
+    .tag {
+      font-size: 10px;
+      letter-spacing: .04em;
+      font-weight: 850;
+      text-transform: uppercase;
+      padding: 4px 7px;
+      border-radius: 6px;
+      color: #cfe9ff;
+      background: #1b3550;
+      border: 1px solid #2c4d6c
+    }
+
+    .tag.cdp {
+      color: #8beeff;
+      background: #10303d;
+      border-color: #205669
+    }
+
+    .tag.ajo {
+      color: #c6b7ff;
+      background: #29234a;
+      border-color: #51447e
+    }
+
+    .tag.gate {
+      color: #8df0bb;
+      background: #123529;
+      border-color: #28654b
+    }
+
+    .detail-panel {
+      padding: 21px;
+      position: sticky;
+      top: 16px;
+      min-height: 440px
+    }
+
+    .detail-label {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: .15em;
+      color: var(--cyan);
+      font-weight: 900;
+      margin-bottom: 9px
+    }
+
+    .detail-panel h2 {
+      font-size: 23px;
+      line-height: 1.2;
+      margin-bottom: 9px
+    }
+
+    .detail-panel .desc {
+      font-size: 14px;
+      color: #b6c4dd
+    }
+
+    .detail-divider {
+      height: 1px;
+      background: #2a3a56;
+      margin: 18px 0
+    }
+
+    .detail-panel h3 {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      color: #8498b9;
+      margin: 0 0 10px
+    }
+
+    .checklist {
+      padding: 0;
+      margin: 0;
+      list-style: none;
+      display: grid;
+      gap: 10px
+    }
+
+    .checklist li {
+      display: flex;
+      gap: 9px;
+      font-size: 13px;
+      color: #d5e0f4
+    }
+
+    .check {
+      flex: 0 0 19px;
+      width: 19px;
+      height: 19px;
+      border-radius: 7px;
+      display: grid;
+      place-items: center;
+      background: #153c31;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 900
+    }
+
+    .check.error-check {
+      background: #451f2a;
+      color: #ff7b8b
+    }
+
+    .json-editor {
+      margin-top: 20px;
+      padding: 14px;
+      border: 1px solid #2a3d5b;
+      background: #0d1728;
+      border-radius: 14px
+    }
+
+    .json-editor h3 {
+      margin: 0 0 8px;
+      color: #8fa5c7;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .12em
+    }
+
+    .json-editor .helper {
+      font-size: 11px;
+      color: #879bb9;
+      margin: 0 0 8px
+    }
+
+    .json-editor textarea {
+      display: block;
+      cursor: none;
+      resize: none;
+      width: 100%;
+      min-height: 150px;
+      user-select: none;
+      resize: vertical;
+      background: #08111f;
+      color: #d9e9ff;
+      border: 1px solid #2b4262;
+      border-radius: 9px;
+      padding: 10px;
+      font: 12px/1.5 ui-monospace, SFMono-Regular, Consolas, monospace;
+      outline: none
+    }
+
+    .json-editor textarea:focus {
+      border-color: var(--cyan)
+    }
+
+    /* ---- Imágenes: título + imagen, repetibles ---- */
+    .image-list {
+      display: grid;
+      gap: 22px
+    }
+
+    .image-list:not(:first-child) {
+      margin-top: 20px
+    }
+
+    .image-item {
+      margin: 0
+    }
+
+    .image-title {
+      color: #a9bad5;
+      font-size: 11px;
+      margin: 0 0 6px
+    }
+
+    .detail-image {
+      display: block;
+      width: 100%;
+      max-height: 220px;
+      object-fit: contain;
+      margin-top: 10px;
+      border: 1px dashed #304564;
+      border-radius: 10px;
+      background: #0a1322;
+      min-height: 90px
+    }
+
+    .image-item .detail-image {
+      margin-top: 0
+    }
+
+    @media(max-width:900px) {
+      .detail-image {
+        max-height: 280px
+      }
+    }
+
+    #detailJsonBlock {
+      margin-bottom: 24px
+    }
+
+    /* ---- Visor ampliado (lightbox) ---- */
+    .image-item .detail-image {
+      cursor: zoom-in
+    }
+
+    .lightbox {
+      position: fixed;
+      inset: 0;
+      z-index: 100;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      flex-direction: column;
+      gap: 12px;
+      padding: 24px;
+      background: rgba(4, 8, 16, .92);
+      backdrop-filter: blur(4px);
+      cursor: zoom-out
+    }
+
+    .lightbox.open {
+      display: flex
+    }
+
+    .lightbox img {
+      max-width: 96vw;
+      max-height: 86vh;
+      object-fit: contain;
+      border-radius: 10px;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, .6);
+      background: #0a1322;
+      cursor: default
+    }
+
+    .lightbox-caption {
+      color: #c6d4ed;
+      font-size: 14px;
+      text-align: center
+    }
+
+    .lightbox-close {
+      position: absolute;
+      top: 16px;
+      right: 18px;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      border: 1px solid #3b5278;
+      background: #17243b;
+      color: #fff;
+      font-size: 20px;
+      cursor: pointer
+    }
+
+    .lightbox-close:hover {
+      background: #1f3354
+    }
+
+    .owner {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: #0e192b;
+      border: 1px solid #263752;
+      border-radius: 12px;
+      padding: 11px;
+      margin-top: 17px
+    }
+
+    .avatar {
+      width: 34px;
+      height: 34px;
+      border-radius: 11px;
+      display: grid;
+      place-items: center;
+      background: #1d3a4d;
+      color: var(--cyan);
+      font-weight: 900;
+      font-size: 12px
+    }
+
+    .owner small {
+      display: block;
+      color: #8295b5;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: .1em
+    }
+
+    .owner strong {
+      font-size: 13px
+    }
+
+    .progress-wrap {
+      margin-top: 17px
+    }
+
+    .progress-label {
+      display: flex;
+      justify-content: space-between;
+      color: #92a4c2;
+      font-size: 11px;
+      margin-bottom: 7px
+    }
+
+    .progress {
+      height: 6px;
+      border-radius: 20px;
+      background: #263550;
+      overflow: hidden
+    }
+
+    .progress-in {
+      height: 100%;
+      width: 12.5%;
+      background: linear-gradient(90deg, var(--cyan), var(--violet));
+      border-radius: 20px;
+      transition: width .4s
+    }
+
+    .lower {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 18px;
+      margin: 20px 0 48px
+    }
+
+    .responsibilities,
+    .gate-panel {
+      padding: 22px
+    }
+
+    .section-title {
+      font-size: 19px;
+      margin: 0 0 6px
+    }
+
+    .section-sub {
+      font-size: 13px;
+      color: var(--muted);
+      margin: 0 0 17px
+    }
+
+    .role-list {
+      display: grid;
+      gap: 10px
+    }
+
+    .role {
+      display: grid;
+      grid-template-columns: 42px 1fr;
+      gap: 11px;
+      align-items: start;
+      padding: 11px;
+      border-radius: 13px;
+      background: #101a2c;
+      border: 1px solid #263752
+    }
+
+    .role-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
+      background: #1a2c45;
+      display: grid;
+      place-items: center;
+      font-size: 18px
+    }
+
+    .role strong {
+      font-size: 13px;
+      display: block;
+      margin: 1px 0 3px
+    }
+
+    .role p {
+      font-size: 12px;
+      color: #aabbd5;
+      margin: 0
+    }
+
+    .gates {
+      display: grid;
+      gap: 11px
+    }
+
+    .gate {
+      padding: 13px 14px;
+      border-radius: 13px;
+      border: 1px solid #2b405d;
+      background: #101b2e
+    }
+
+    .gate-head {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 13px;
+      font-weight: 850
+    }
+
+    .gate-dot {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--green);
+      box-shadow: 0 0 13px #62e6a755
+    }
+
+    .gate p {
+      font-size: 12px;
+      color: #adbed7;
+      margin: 6px 0 0 17px
+    }
+
+    .footer {
+      color: #6f82a2;
+      font-size: 11px;
+      text-align: center;
+      padding: 0 0 26px
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translate(-50%, 20px);
+      opacity: 0;
+      pointer-events: none;
+      background: #d5fbff;
+      color: #071520;
+      padding: 10px 15px;
+      border-radius: 12px;
+      font-weight: 800;
+      font-size: 12px;
+      box-shadow: var(--shadow);
+      transition: .25s;
+      z-index: 9
+    }
+
+    .toast.show {
+      opacity: 1;
+      transform: translate(-50%, 0)
+    }
+
+    @keyframes arrive {
+      from {
+        opacity: 0;
+        transform: translateY(14px)
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0)
+      }
+    }
+
+    .step {
+      animation: arrive .55s both
+    }
+
+    .step:nth-child(2) {
+      animation-delay: .05s
+    }
+
+    .step:nth-child(3) {
+      animation-delay: .1s
+    }
+
+    .step:nth-child(4) {
+      animation-delay: .15s
+    }
+
+    .step:nth-child(5) {
+      animation-delay: .2s
+    }
+
+    .step:nth-child(6) {
+      animation-delay: .25s
+    }
+
+    .step:nth-child(7) {
+      animation-delay: .3s
+    }
+
+    .step:nth-child(8) {
+      animation-delay: .35s
+    }
+
+    @media(max-width:900px) {
+      .layout {
+        grid-template-columns: 1fr
+      }
+
+      .detail-panel {
+        position: static;
+        min-height: 0
+      }
+
+      .lower {
+        grid-template-columns: 1fr
+      }
+
+      .hero {
+        padding-top: 32px
+      }
+    }
+
+    @media(max-width:520px) {
+      .wrap {
+        width: min(100% - 20px, 1180px)
+      }
+
+      .flow-panel,
+      .detail-panel,
+      .responsibilities,
+      .gate-panel {
+        padding: 14px;
+        border-radius: 17px
+      }
+
+      .step {
+        grid-template-columns: 45px minmax(0, 1fr);
+        gap: 9px
+      }
+
+      .node {
+        width: 45px;
+        height: 45px;
+        border-radius: 14px;
+        font-size: 18px
+      }
+
+      .steps:before {
+        left: 22px;
+        top: 27px
+      }
+
+      .step-card {
+        padding: 12px
+      }
+
+      .step-title {
+        font-size: 13px
+      }
+
+      .step-desc {
+        font-size: 12px
+      }
+
+      .toolbar {
+        align-items: stretch
+      }
+
+      .tabs {
+        width: 100%
+      }
+
+      .tab {
+        flex: 1;
+        padding: 9px 7px;
+        font-size: 12px
+      }
+
+      .actions {
+        display: flex;
+        width: 100%
+      }
+
+      .action {
+        flex: 1
+      }
+
+      .hero-stats {
+        gap: 7px
+      }
+
+      .stat {
+        font-size: 11px;
+        padding: 8px 10px
+      }
+    }
+
+    @media(prefers-reduced-motion:reduce) {
+
+      *,
+      *:before,
+      *:after {
+        animation: none !important;
+        transition: none !important;
+        scroll-behavior: auto !important
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <header class="hero wrap">
+    <div class="eyebrow"><span class="pulse"></span> Martech Engineer / CDP / AJO</div>
+    <h1>Del evento al journey.<br><span class="grad">Sin perder el dato en el camino.</span></h1>
+    <p class="subtitle">Entendimiento Flujo para configurar y obtener un Event en Adobe Journey Optimizer, desde la
+      solicitud inicial hasta la publicación en Producción. Selecciona cada etapa para ver qué se valida, quién
+      participa y cuándo avanzar.</p>
+    <div class="hero-stats">
+      <div class="stat"><strong>08</strong> etapas</div>
+      <div class="stat"><strong>02</strong> equipos clave · CDP + AJO</div>
+      <div class="stat"><strong>03</strong> ambientes · DESA → CERTI → PROD</div>
+    </div>
+  </header>
+  <main class="wrap">
+    <div class="toolbar">
+      <div class="tabs" role="tablist" aria-label="Filtrar flujo">
+        <button class="tab active" data-filter="all" role="tab" aria-selected="true">Flujo completo</button>
+      </div>
+      <div class="actions" style="display:flex;gap:8px">
+        <button class="action" id="reset">↺ Reiniciar</button>
+        <button class="action primary" id="next">Siguiente etapa →</button>
+      </div>
+    </div>
+    <div class="layout">
+      <section class="flow-panel">
+        <div class="panel-head">
+          <div>
+            <h2>Mapa del proceso</h2>
+            <p>Haz clic en una etapa para explorar sus detalles.</p>
+          </div><span class="live-badge">● FLUJO INTERACTIVO</span>
+        </div>
+        <div class="steps" id="steps">
+          <div class="step active" tabindex="0" role="button" data-index="0" data-kind="all" style="--accent:#5ee7f7">
+            <div class="node">✦</div>
+            <div class="step-card">
+              <div class="step-top"><span class="step-title">Solicitud del Custom Event</span><span class="step-num">01
+                  / 08</span></div>
+              <div class="step-desc">Definir acción, plataforma y objetivo de negocio.</div>
+              <div class="tags"><span class="tag">Schema Events</span></div>
+            </div>
+          </div>
+          <div class="step" tabindex="0" role="button" data-index="1" data-kind="cdp" style="--accent:#5ee7f7">
+            <div class="node">⌘</div>
+            <div class="step-card">
+              <div class="step-top"><span class="step-title">Validación de datos en CDP · DESA</span><span
+                  class="step-num">02 / 08</span></div>
+              <div class="step-desc">Confirmar esquema, path y llegada real del dato.</div>
+              <div class="tags"><span class="tag cdp">CDP · Jorzon</span><span class="tag">DESA</span></div>
+            </div>
+          </div>
+          <div class="step" tabindex="0" role="button" data-index="2" data-kind="ajo" style="--accent:#b7a2ff">
+            <div class="node">⌘</div>
+            <div class="step-card">
+              <div class="step-top"><span class="step-title">Configuración y pruebas AJO · DESA</span><span
+                  class="step-num">03 / 08</span></div>
+              <div class="step-desc">Crear Custom Event, configurar Journey y probar activación.</div>
+              <div class="tags"><span class="tag ajo">AJO · Joffre</span><span class="tag">DESA</span></div>
+            </div>
+          </div>
+          <div class="step" tabindex="0" role="button" data-index="3" data-kind="all" style="--accent:#62e6a7">
+            <div class="node">✓</div>
+            <div class="step-card">
+              <div class="step-top"><span class="step-title">Conformidad de Desarrollo</span><span class="step-num">04 /
+                  08</span></div>
+              <div class="step-desc">CDP confirma datos; AJO confirma evento y Journey.</div>
+              <div class="tags"><span class="tag gate">Gate · DESA</span><span class="tag">CDP + AJO</span></div>
+            </div>
+          </div>
+          <div class="step" tabindex="0" role="button" data-index="4" data-kind="all" style="--accent:#b7a2ff">
+            <div class="node">⇢</div>
+            <div class="step-card">
+              <div class="step-top"><span class="step-title">Replicación y validación en CERTI</span><span
+                  class="step-num">05 / 08</span></div>
+              <div class="step-desc">AJO replica la configuración; CDP y AJO prueban en Certificación.</div>
+              <div class="tags"><span class="tag cdp">CDP</span><span class="tag ajo">AJO</span><span
+                  class="tag">CERTI</span></div>
+            </div>
+          </div>
+          <div class="step" tabindex="0" role="button" data-index="5" data-kind="all" style="--accent:#62e6a7">
+            <div class="node">✓</div>
+            <div class="step-card">
+              <div class="step-top"><span class="step-title">Conformidad de Certificación</span><span
+                  class="step-num">06 / 08</span></div>
+              <div class="step-desc">Ambos equipos confirman que el flujo funciona en CERTI.</div>
+              <div class="tags"><span class="tag gate">Gate · CERTI</span><span class="tag">CDP + AJO</span></div>
+            </div>
+          </div>
+          <div class="step" tabindex="0" role="button" data-index="6" data-kind="prod" style="--accent:#ffc779">
+            <div class="node">⇧</div>
+            <div class="step-card">
+              <div class="step-top"><span class="step-title">Solicitud de pase a Producción</span><span
+                  class="step-num">07 / 08</span></div>
+              <div class="step-desc">Solicitar a Fabrizio replicar en PROD lo aprobado en CERTI.</div>
+              <div class="tags"><span class="tag">Fabrizio Valdivia</span><span class="tag">CERTI → PROD</span></div>
+            </div>
+          </div>
+          <div class="step" tabindex="0" role="button" data-index="7" data-kind="prod" style="--accent:#62e6a7">
+            <div class="node">✧</div>
+            <div class="step-card">
+              <div class="step-top"><span class="step-title">Validación final en Producción</span><span
+                  class="step-num">08 / 08</span></div>
+              <div class="step-desc">Comprobar el dato recibido y el comportamiento esperado de la Journey.</div>
+              <div class="tags"><span class="tag gate">PROD</span><span class="tag">Validación final</span></div>
+            </div>
+          </div>
+        </div>
+      </section>
+      <aside class="detail-panel" aria-live="polite">
+        <div class="detail-label" id="detailLabel">ETAPA 01 · INICIO</div>
+        <h2 id="detailTitle">Solicitud del Custom Event</h2>
+        <div class="desc" id="detailDesc">Todo empieza con una necesidad de negocio: capturar una acción para utilizarla
+          como disparador o condición de una Journey.</div>
+        <div class="detail-divider"></div>
+        <h3>Qué hacer en esta etapa</h3>
+        <ul class="checklist" id="detailChecks">
+          <li><span class="check">✓</span><span>Identificar la acción que se quiere capturar.</span></li>
+          <li><span class="check">✓</span><span>Precisar donde ocurre el evento, si es Web, Mobile u otro.</span></li>
+          <li><span class="check">✓</span><span>Entender qué debería ocurrir en la Journey.</span></li>
+        </ul>
+        <section class="json-editor" id="extrasPanel">
+          <div id="detailJsonBlock">
+            <h3>Schema Web de prueba</h3>
+            <p class="helper">Json que representa el schema</p>
+            <textarea id="detailJson" spellcheck="false" aria-label="JSON de referencia"></textarea>
+          </div>
+          <!-- Las imágenes se generan desde el arreglo "images" de cada etapa (ver <script>). -->
+          <div id="detailImageBlock">
+            <div class="image-list" id="imageList"></div>
+          </div>
+        </section>
+        <div class="owner">
+          <div class="avatar" id="ownerAvatar">REQ</div>
+          <div><small>Responsable / participantes</small><strong id="ownerName">Solicitante + Martech</strong></div>
+        </div>
+        <div class="progress-wrap">
+          <div class="progress-label"><span>Progreso del flujo</span><strong id="progressText">1 de 8</strong></div>
+          <div class="progress">
+            <div class="progress-in" id="progressIn"></div>
+          </div>
+        </div>
+      </aside>
+    </div>
+    <div class="lower">
+      <section class="responsibilities">
+        <h2 class="section-title">Quién hace qué</h2>
+        <p class="section-sub">Responsabilidades separadas para evitar saltarse validaciones.</p>
+        <div class="role-list">
+          <div class="role">
+            <div class="role-icon">⌘</div>
+            <div><strong>CDP · Jorzon</strong>
+              <p>Identifica esquema y path; valida existencia del parámetro y llegada real de los datos en DESA y CERTI.
+              </p>
+            </div>
+          </div>
+          <div class="role">
+            <div class="role-icon">◈</div>
+            <div><strong>AJO · Joffre</strong>
+              <p>Crea el Custom Event, configura la Journey y valida que el evento dispare el comportamiento esperado en
+                DESA y CERTI.</p>
+            </div>
+          </div>
+          <div class="role">
+            <div class="role-icon">⌁</div>
+            <div><strong>Equipo Web / Móvil</strong>
+              <p>Define el nuevo parámetro si no existe, para que el equipo de CDP, lo implemente.</p>
+            </div>
+          </div>
+          <div class="role">
+            <div class="role-icon">⇧</div>
+            <div><strong>Fabrizio Valdivia</strong>
+              <p>Gestiona la replicación de CERTI a PROD conforme a los permisos y al procedimiento establecido.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+      <section class="gate-panel">
+        <h2 class="section-title">Puertas de control</h2>
+        <p class="section-sub">No se avanza de ambiente hasta que se cumplan las validaciones.</p>
+        <div class="gates">
+          <div class="gate">
+            <div class="gate-head"><span class="gate-dot"></span>Gate 1 · CDP en DESA</div>
+            <p>El path corresponde al parámetro esperado y el evento llega con información correcta.</p>
+          </div>
+          <div class="gate">
+            <div class="gate-head"><span class="gate-dot"></span>Gate 2 · AJO en DESA</div>
+            <p>El Custom Event recibe el evento y la Journey responde según las condiciones definidas.</p>
+          </div>
+          <div class="gate">
+            <div class="gate-head"><span class="gate-dot"></span>Gate 3 · CDP + AJO en CERTI</div>
+            <p>Se repiten las validaciones en CERTI; no se asume que DESA y CERTI se comportan igual automáticamente.
+            </p>
+          </div>
+          <div class="gate">
+            <div class="gate-head"><span class="gate-dot"></span>Gate 4 · PROD</div>
+            <p>Tras la conformidad de CERTI, Fabrizio realiza el pase y se verifica el comportamiento final.</p>
+          </div>
+        </div>
+      </section>
+    </div>
+    <div class="footer">Flujo de referencia · Confirmar con los equipos el alcance exacto de los objetos incluidos en
+      cada replicación.</div>
+  </main>
+  <div class="lightbox" id="lightbox" role="dialog" aria-modal="true" aria-label="Imagen ampliada">
+    <button class="lightbox-close" id="lightboxClose" aria-label="Cerrar">✕</button>
+    <img id="lightboxImg" alt="" />
+    <div class="lightbox-caption" id="lightboxCaption"></div>
+  </div>
+  <div class="toast" id="toast">Etapa reiniciada</div>
+  <script>
+
+    document.getElementById("detailJson").readOnly = true;
+
+    /* ==========================================================================
+       CÓMO CONFIGURAR LAS ETAPAS
+       --------------------------------------------------------------------------
+       showJson  : true/false -> muestra u oculta el bloque JSON.
+       showImage : true/false -> muestra u oculta el bloque de imágenes.
+       images    : lista de imágenes de la etapa (solo se usa si showImage es true).
+                   Cada imagen es un objeto { title, src }:
+                     title -> texto que aparece ARRIBA de la imagen.
+                     src   -> ruta o URL de la imagen.
+
+       Para AGREGAR más imágenes a una etapa, añade otra línea al arreglo images:
+         images: [
+           { title: "Primera imagen", src: "./img/etapa-01-a.png" },
+           { title: "Segunda imagen", src: "./img/etapa-01-b.png" },
+           { title: "Tercera imagen", src: "./img/etapa-01-c.png" }
+         ]
+       Cada una se muestra en orden: título, imagen, espacio, título, imagen...
+       ========================================================================== */
+    const data = [
+      {
+        showJson: false, showImage: false,
+        images: [
+          { title: "Ruta / URL de la imagen (src)", src: "./img/etapa-01.png" }, { title: "Ruta / URL de la imagen (src)", src: "./img/etapa-01.png" }
+          // , { title: "Otra imagen", src: "./img/etapa-01-b.png" }
+        ],
+        label: "ETAPA 01 · INICIO", title: "Solicitud del Custom Event", desc: "Todo empieza con una necesidad de negocio: capturar una acción para utilizarla como disparador", owner: "Solicitante + Martech", avatar: "REQ", checks: ["Identificar la acción que se quiere capturar.", "Precisar donde ocurre el evento, si es Web, Mobile u otro.", "Entender qué debería ocurrir en la Journey."]
+      },
+      { showJson: true, showImage: true, images: [{ title: "Validar el llegado de la info al CDP", src: "./img/etapa-01.png" }], label: "ETAPA 02 · CDP / DESA", title: "Validación de datos en CDP", desc: "Antes de pasar el path a AJO, CDP valida tanto la estructura como la llegada efectiva del dato en Desarrollo.", owner: "Martech Engineer CDP · Jorzon", avatar: "CDP", checks: ["Ubicar el esquema correspondiente al evento.", "Confirmar que el parámetro exista y copiar el path exacto.", "Comprobar que el evento esté llegando en DESA.", "Verificar que el valor recibido corresponda con la acción esperada.", "Si falta el parámetro, coordinar con el equipo de Mitch (Web) o Aylenne Tinoco (Móvil), para agregar este nuevo parametro."] },
+      {
+        showJson: false, showImage: true,
+        images: [
+          { title: "Paso 1", src: "./img/etapa-03.png" }, { title: "Paso 2", src: "./img/etapa-03.png" }, { title: "Paso 3", src: "./img/etapa-03.png" }
+          // , { title: "Otra imagen", src: "./img/etapa-03-b.png" }
+        ],
+        label: "ETAPA 03 · AJO / DESA", title: "Configuración y pruebas AJO", desc: "Con el path validado y compartido, AJO configura el Custom Event y lo conecta con la lógica de la Journey en Desarrollo.", owner: "Martech Engineer AJO · Joffre + solicitante", avatar: "AJO", checks: ["Crear el Custom Event usando el path proporcionado por CDP.", "Configurar las condiciones de la Journey.", "Ejecutar pruebas funcionales con un evento real.", "Confirmar que la Journey reaccione como se espera."]
+      },
+      { showJson: false, showImage: false, images: [], label: "ETAPA 04 · GATE DESA", title: "Conformidad de Desarrollo", desc: "DESA queda aprobado cuando CDP y AJO han validado sus partes. Esta conformidad habilita avanzar a Certificación.", owner: "CDP + AJO", avatar: "OK", checks: ["CDP: esquema/path correctos y datos recibidos.", "AJO: Custom Event y Journey funcionando.", "Registrar el OK de las pruebas.", "Coordinar el pase de la configuración AJO a CERTI."] },
+      { showJson: false, showImage: false, images: [], label: "ETAPA 05 · CDP + AJO / CERTI", title: "Replicación y validación en CERTI", desc: "El equipo AJO replica en Certificación la configuración creada en Desarrollo. Luego se repiten las validaciones en el ambiente de Certificación.", owner: "AJO · Joffre + CDP · Jorzon", avatar: "QA", checks: ["AJO replica el Custom Event y las configuraciones asociadas a CERTI.", "CDP confirma que el path exista en CERTI.", "CDP valida que la información llegue correctamente en CERTI.", "AJO prueba el Custom Event y la Journey en CERTI.", "Registrar cualquier diferencia antes de dar conformidad."] },
+      { showJson: false, showImage: false, images: [], label: "ETAPA 06 · GATE CERTI", title: "Conformidad de Certificación", desc: "Antes de producción, ambos equipos confirman que la integración y el comportamiento funcional están correctos en CERTI.", owner: "CDP + AJO", avatar: "OK", checks: ["CDP confirma la llegada correcta de los datos.", "AJO confirma el funcionamiento del Custom Event y la Journey.", "Solicitante/equipo involucrado confirma el resultado esperado.", "Obtener la conformidad antes de solicitar el pase a PROD."] },
+      { showJson: false, showImage: false, images: [], label: "ETAPA 07 · CERTI → PROD", title: "Solicitud de pase a Producción", desc: "Con la conformidad de Certificación, se envía una solicitud formal a Fabrizio para replicar en Producción lo que fue creado y aprobado en CERTI.", owner: "Fabrizio Valdivia · según permisos", avatar: "PROD", checks: ["Adjuntar la conformidad de CERTI.", "Indicar qué configuración debe replicarse.", "Solicitar el pase de CERTI a PROD.", "Seguir el procedimiento y los permisos vigentes."] },
+      { showJson: false, showImage: false, images: [], label: "ETAPA 08 · PROD", title: "Validación final en Producción", desc: "Después de la publicación, se hace una comprobación final para confirmar que los datos y la Journey se comporten correctamente en Producción.", owner: "CDP + AJO + solicitante", avatar: "✓", checks: ["Confirmar que el evento esté llegando en PROD.", "Validar el path y los valores recibidos según corresponda.", "Comprobar que el Custom Event active la Journey según lo diseñado.", "Comunicar el resultado y cerrar la solicitud."] }
+    ];
+    const jsonSamples = [
+      { "event": "custom_event_name", "platform": "web_or_mobile", "purpose": "Disparar una Journey", "requestedBy": "Nombre del solicitante" },
+      { "eventType": "custom_event_name", "_experience": { "example": { "parameter": "sample_value" } }, "note": "Reemplazar por el payload real y el path XDM validado en DESA" },
+      { "eventType": "custom_event_name", "customEvent": { "name": "Nombre del Custom Event", "condition": "Condición de entrada a la Journey" }, "environment": "DESA" },
+      { "environment": "DESA", "cdpValidation": "OK", "ajoValidation": "OK", "approvedBy": ["CDP", "AJO"], "status": "approved" },
+      { "environment": "CERTI", "eventType": "custom_event_name", "cdpDataReceived": true, "ajoJourneyTest": "pending", "note": "Actualizar con el payload observado en CERTI" },
+      { "environment": "CERTI", "cdpValidation": "OK", "ajoValidation": "OK", "requesterApproval": "pending", "status": "awaiting_signoff" },
+      { "from": "CERTI", "to": "PROD", "requestedTo": "Fabrizio Valdivia", "approvedInCerti": true, "itemsToReplicate": ["Custom Event", "Journey configuration"] },
+      { "environment": "PROD", "eventReceived": true, "pathValidated": true, "journeyTriggered": true, "result": "pending_final_validation" }
+    ];
+    const imageFallback = 'data:image/svg+xml;charset=UTF-8,' + encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="640" height="280" viewBox="0 0 640 280"><rect width="640" height="280" rx="18" fill="#101b2e"/><rect x="20" y="20" width="600" height="240" rx="12" fill="none" stroke="#304564" stroke-dasharray="8 7"/><text x="320" y="125" fill="#5ee7f7" font-family="Arial,sans-serif" font-size="20" text-anchor="middle">Imagen de referencia</text><text x="320" y="158" fill="#93a8c9" font-family="Arial,sans-serif" font-size="14" text-anchor="middle">Edita el src en el arreglo images del HTML</text></svg>');
+    const jsonValues = jsonSamples.map(sample => JSON.stringify(sample, null, 2));
+    let current = -1;
+    const steps = [...document.querySelectorAll(".step")];
+
+    function renderImages(list) {
+      const box = document.getElementById("imageList");
+      box.innerHTML = "";
+      (list || []).forEach(item => {
+        const figure = document.createElement("figure");
+        figure.className = "image-item";
+        if (item.title) {
+          const title = document.createElement("div");
+          title.className = "image-title";
+          title.textContent = item.title;
+          figure.appendChild(title);
+        }
+        const img = document.createElement("img");
+        img.className = "detail-image";
+        img.alt = item.alt || item.title || "Imagen de referencia de la etapa";
+        img.onerror = () => { img.onerror = null; img.src = imageFallback; };
+        img.src = item.src || imageFallback;
+        img.title = "Clic para ampliar";
+        img.addEventListener("click", () => openLightbox(img.src, item.title || ""));
+        figure.appendChild(img);
+        box.appendChild(figure);
+      });
+    }
+
+    const lightbox = document.getElementById("lightbox");
+    function openLightbox(src, caption) {
+      document.getElementById("lightboxImg").src = src;
+      document.getElementById("lightboxCaption").textContent = caption;
+      lightbox.classList.add("open");
+    }
+    function closeLightbox() { lightbox.classList.remove("open"); }
+    lightbox.addEventListener("click", e => { if (e.target !== document.getElementById("lightboxImg")) closeLightbox(); });
+    document.addEventListener("keydown", e => { if (e.key === "Escape") closeLightbox(); });
+
+    function selectStep(i) {
+      if (current >= 0) {
+        jsonValues[current] = document.getElementById("detailJson").value;
+      }
+      current = Math.max(0, Math.min(data.length - 1, i));
+      steps.forEach((s, j) => s.classList.toggle("active", j === current));
+      const d = data[current];
+      const jsonBlock = document.getElementById("detailJsonBlock");
+      const imageBlock = document.getElementById("detailImageBlock");
+      const extrasPanel = document.getElementById("extrasPanel");
+      const hasImages = d.showImage !== false && Array.isArray(d.images) && d.images.length > 0;
+      jsonBlock.style.display = d.showJson === false ? "none" : "block";
+      imageBlock.style.display = hasImages ? "block" : "none";
+      extrasPanel.style.display = (d.showJson === false && !hasImages) ? "none" : "block";
+      document.getElementById("detailLabel").textContent = d.label;
+      document.getElementById("detailTitle").textContent = d.title;
+      document.getElementById("detailDesc").textContent = d.desc;
+      document.getElementById("detailJson").value = jsonValues[current];
+      renderImages(hasImages ? d.images : []);
+      document.getElementById("ownerName").textContent = d.owner;
+      document.getElementById("ownerAvatar").textContent = d.avatar;
+      document.getElementById("detailChecks").innerHTML = d.checks.map(x => { const isError = x.startsWith("Si falta el parámetro"); return `<li><span class="check${isError ? " error-check" : ""}">${isError ? "✕" : "✓"}</span><span>${x}</span></li>` }).join("");
+      document.getElementById("progressText").textContent = `${current + 1} de ${data.length}`;
+      document.getElementById("progressIn").style.width = `${((current + 1) / data.length) * 100}%`;
+    }
+    steps.forEach((s, i) => {
+      s.addEventListener("click", () => selectStep(i));
+      s.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); selectStep(i) } });
+    });
+    document.getElementById("next").addEventListener("click", () => { selectStep((current + 1) % data.length); if (current === 0) document.querySelector(".detail-panel").scrollIntoView({ behavior: "smooth", block: "nearest" }) });
+    document.getElementById("reset").addEventListener("click", () => { steps.forEach(s => s.style.display = "grid"); selectStep(0); const toast = document.getElementById("toast"); toast.classList.add("show"); setTimeout(() => toast.classList.remove("show"), 1400) });
+    document.getElementById("detailJson").addEventListener("input", e => { jsonValues[current] = e.target.value; });
+    selectStep(0);
+  </script>
+</body>
+
+</html>

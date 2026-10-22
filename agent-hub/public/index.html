@@ -3,33 +3,45 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>BCP Martech Engineer | Dynamic Media &amp; AJO Agent Hub</title>
+  <title>DAM Martech Platform | BCP Dynamic Media & AJO</title>
+  <meta name="description" content="Plataforma de gobierno y creación automatizada de assets para BCP Martech Engineering">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
   <style>
     :root {
-      --bg: #070B11;
-      --surface: #0E1420;
-      --surface-card: rgba(18, 25, 38, 0.85);
-      --border: #1E293B;
-      --border-focus: #0084FF;
-      --ink-1: #F8FAFC;
-      --ink-2: #94A3B8;
-      --ink-3: #64748B;
+      --bg: #05080E;
+      --surface: #0A0F1A;
+      --surface-2: #0E1420;
+      --surface-card: rgba(14, 20, 32, 0.92);
+      --border: #1A2540;
+      --border-glow: rgba(0, 132, 255, 0.3);
+      --ink-1: #F0F4F8;
+      --ink-2: #8899B4;
+      --ink-3: #4A5A72;
       --bcp-blue: #002A8F;
       --bcp-orange: #FF7800;
       --success: #10B981;
       --warning: #F59E0B;
       --danger: #EF4444;
+      --info: #0084FF;
+      --admin-color: #FF7800;
+      --martech-color: #0084FF;
+      --vcd-color: #10B981;
+      --viewer-color: #94A3B8;
       --font-ui: "Archivo", system-ui, sans-serif;
       --font-mono: "JetBrains Mono", monospace;
       --radius: 12px;
+      --radius-sm: 8px;
     }
 
     * { box-sizing: border-box; margin: 0; padding: 0; }
+    
     body {
       background-color: var(--bg);
+      background-image: 
+        radial-gradient(ellipse at 20% 50%, rgba(0,42,143,0.08) 0%, transparent 60%),
+        radial-gradient(ellipse at 80% 20%, rgba(255,120,0,0.05) 0%, transparent 50%);
       color: var(--ink-1);
       font-family: var(--font-ui);
       min-height: 100vh;
@@ -37,11 +49,124 @@
       flex-direction: column;
     }
 
+    /* ── MODAL LOGIN ─────────────────────────────────────── */
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(5, 8, 14, 0.92);
+      backdrop-filter: blur(16px);
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-box {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      width: 420px;
+      box-shadow: 0 40px 80px rgba(0,0,0,0.8), 0 0 0 1px rgba(255,255,255,0.04);
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { transform: translateY(-20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+
+    .modal-logo {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .modal-logo .badge {
+      background: linear-gradient(135deg, var(--bcp-blue), var(--bcp-orange));
+      color: #fff;
+      font-weight: 800;
+      padding: 0.5rem 0.9rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      letter-spacing: 0.05em;
+    }
+
+    .modal-logo .title { font-size: 1.3rem; font-weight: 700; }
+    .modal-logo .sub { font-size: 0.8rem; color: var(--ink-2); }
+
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { 
+      display: block; 
+      font-size: 0.8rem; 
+      font-weight: 600; 
+      color: var(--ink-2); 
+      margin-bottom: 0.4rem; 
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 0.7rem 1rem;
+      color: var(--ink-1);
+      font-family: inherit;
+      font-size: 0.95rem;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus {
+      outline: none;
+      border-color: var(--bcp-orange);
+      box-shadow: 0 0 0 3px rgba(255,120,0,0.15);
+    }
+
+    .login-error {
+      background: rgba(239,68,68,0.15);
+      border: 1px solid rgba(239,68,68,0.4);
+      border-radius: var(--radius-sm);
+      padding: 0.75rem;
+      font-size: 0.85rem;
+      color: #EF4444;
+      margin-bottom: 1rem;
+      display: none;
+    }
+
+    .demo-accounts {
+      margin-top: 1.5rem;
+      padding: 1rem;
+      background: rgba(0,132,255,0.06);
+      border: 1px solid rgba(0,132,255,0.15);
+      border-radius: var(--radius-sm);
+      font-size: 0.78rem;
+    }
+    .demo-accounts .title { font-weight: 700; color: var(--info); margin-bottom: 0.5rem; }
+    .demo-row { 
+      display: flex; 
+      justify-content: space-between; 
+      padding: 0.25rem 0;
+      cursor: pointer;
+      border-radius: 4px;
+      padding: 0.3rem 0.4rem;
+      transition: background 0.15s;
+    }
+    .demo-row:hover { background: rgba(255,255,255,0.04); }
+    .demo-row .user { color: var(--ink-1); font-weight: 600; }
+    .demo-row .role-tag {
+      padding: 0.1rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 700;
+    }
+
+    /* ── HEADER ─────────────────────────────────────────── */
     header {
-      background: rgba(14, 20, 32, 0.9);
-      backdrop-filter: blur(12px);
+      background: rgba(10, 15, 26, 0.95);
+      backdrop-filter: blur(16px);
       border-bottom: 1px solid var(--border);
-      padding: 1rem 2rem;
+      padding: 0.9rem 2rem;
       display: flex;
       justify-content: space-between;
       align-items: center;
@@ -50,38 +175,96 @@
       z-index: 50;
     }
 
-    .brand {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-
+    .brand { display: flex; align-items: center; gap: 1rem; }
     .badge-bcp {
       background: linear-gradient(135deg, var(--bcp-blue), var(--bcp-orange));
       color: #fff;
       font-weight: 800;
       padding: 0.35rem 0.75rem;
       border-radius: 8px;
-      font-size: 0.9rem;
+      font-size: 0.85rem;
       letter-spacing: 0.05em;
     }
 
-    .title {
-      font-size: 1.25rem;
+    .title-main { font-size: 1.1rem; font-weight: 700; }
+    .subtitle-main { font-size: 0.75rem; color: var(--ink-2); }
+
+    .header-right { display: flex; align-items: center; gap: 0.75rem; }
+
+    /* Rol badge en header */
+    .role-badge {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.4rem 0.85rem;
+      border-radius: 8px;
+      font-size: 0.82rem;
       font-weight: 700;
+      border: 1px solid;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .role-badge:hover { opacity: 0.8; }
+    .role-badge.ADMIN { color: var(--admin-color); border-color: rgba(255,120,0,0.3); background: rgba(255,120,0,0.08); }
+    .role-badge.MARTECH { color: var(--martech-color); border-color: rgba(0,132,255,0.3); background: rgba(0,132,255,0.08); }
+    .role-badge.VCD { color: var(--vcd-color); border-color: rgba(16,185,129,0.3); background: rgba(16,185,129,0.08); }
+    .role-badge.VIEWER { color: var(--viewer-color); border-color: rgba(148,163,184,0.3); background: rgba(148,163,184,0.08); }
+
+    /* Vista switcher con 👁️ */
+    .view-switcher {
+      display: flex;
+      align-items: center;
+      gap: 0.4rem;
+      padding: 0.4rem 0.75rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      font-size: 0.82rem;
+      cursor: pointer;
+      transition: border-color 0.2s;
+    }
+    .view-switcher:hover { border-color: var(--bcp-orange); }
+
+    /* Notificaciones bell */
+    .notif-bell {
+      position: relative;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1rem;
+      transition: border-color 0.2s;
+    }
+    .notif-bell:hover { border-color: var(--warning); }
+    .notif-count {
+      position: absolute;
+      top: -4px;
+      right: -4px;
+      background: var(--danger);
+      color: white;
+      font-size: 0.6rem;
+      font-weight: 800;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
     }
 
-    .subtitle {
-      font-size: 0.8rem;
-      color: var(--ink-2);
-    }
-
+    /* ── NAV TABS ────────────────────────────────────────── */
     .nav-tabs {
       display: flex;
-      gap: 0.5rem;
-      padding: 1rem 2rem 0;
+      gap: 0.25rem;
+      padding: 0.75rem 2rem 0;
       background: var(--surface);
       border-bottom: 1px solid var(--border);
+      overflow-x: auto;
     }
 
     .tab-btn {
@@ -90,22 +273,22 @@
       color: var(--ink-2);
       font-family: inherit;
       font-weight: 600;
-      padding: 0.75rem 1.25rem;
+      padding: 0.65rem 1.1rem;
       cursor: pointer;
-      border-bottom: 3px solid transparent;
+      border-bottom: 2px solid transparent;
       transition: all 0.2s;
+      white-space: nowrap;
+      font-size: 0.88rem;
+      border-radius: 6px 6px 0 0;
     }
+    .tab-btn:hover { color: var(--ink-1); background: rgba(255,255,255,0.04); }
+    .tab-btn.active { color: var(--bcp-orange); border-bottom-color: var(--bcp-orange); background: rgba(255,120,0,0.06); }
 
-    .tab-btn:hover { color: var(--ink-1); }
-    .tab-btn.active {
-      color: var(--bcp-orange);
-      border-bottom-color: var(--bcp-orange);
-    }
-
+    /* ── MAIN LAYOUT ─────────────────────────────────────── */
     main {
       flex: 1;
       padding: 2rem;
-      max-width: 1400px;
+      max-width: 1500px;
       margin: 0 auto;
       width: 100%;
     }
@@ -115,18 +298,24 @@
       grid-template-columns: 1fr 1fr;
       gap: 1.5rem;
     }
-
-    @media (max-width: 900px) {
-      .grid-2 { grid-template-columns: 1fr; }
+    .grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.25rem;
     }
+    @media (max-width: 1100px) { .grid-3 { grid-template-columns: 1fr 1fr; } }
+    @media (max-width: 900px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
 
+    /* ── CARDS ───────────────────────────────────────────── */
     .card {
       background: var(--surface-card);
       border: 1px solid var(--border);
       border-radius: var(--radius);
       padding: 1.5rem;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+      box-shadow: 0 4px 24px rgba(0,0,0,0.3);
+      transition: border-color 0.2s;
     }
+    .card:hover { border-color: rgba(255,255,255,0.08); }
 
     .card-header {
       margin-bottom: 1.25rem;
@@ -134,169 +323,427 @@
       justify-content: space-between;
       align-items: center;
     }
-
     .card-title {
-      font-size: 1.1rem;
+      font-size: 1rem;
       font-weight: 700;
       display: flex;
       align-items: center;
       gap: 0.5rem;
     }
 
-    .form-group {
-      margin-bottom: 1rem;
-    }
-
-    label {
+    /* ── FORMS ───────────────────────────────────────────── */
+    .form-row { margin-bottom: 1rem; }
+    .form-row label {
       display: block;
-      font-size: 0.85rem;
+      font-size: 0.8rem;
       font-weight: 600;
       color: var(--ink-2);
       margin-bottom: 0.35rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
-
     input, select, textarea {
       width: 100%;
-      background: #070B11;
+      background: rgba(5, 8, 14, 0.8);
       border: 1px solid var(--border);
-      border-radius: 8px;
+      border-radius: var(--radius-sm);
       padding: 0.65rem 0.85rem;
       color: var(--ink-1);
       font-family: inherit;
       font-size: 0.9rem;
-      transition: border-color 0.2s;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
-
     input:focus, select:focus, textarea:focus {
       outline: none;
       border-color: var(--bcp-orange);
+      box-shadow: 0 0 0 3px rgba(255,120,0,0.12);
     }
 
+    /* ── BUTTONS ─────────────────────────────────────────── */
     .btn {
-      background: linear-gradient(135deg, var(--bcp-blue), #0044CC);
-      color: #fff;
-      border: none;
-      border-radius: 8px;
-      padding: 0.75rem 1.25rem;
-      font-family: inherit;
-      font-weight: 700;
-      cursor: pointer;
       display: inline-flex;
       align-items: center;
       gap: 0.5rem;
-      transition: opacity 0.2s;
+      padding: 0.7rem 1.2rem;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-family: inherit;
+      font-weight: 700;
+      font-size: 0.88rem;
+      cursor: pointer;
+      transition: all 0.2s;
     }
-
-    .btn:hover { opacity: 0.9; }
+    .btn-primary {
+      background: linear-gradient(135deg, var(--bcp-blue), #0044CC);
+      color: #fff;
+    }
+    .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(0,42,143,0.4); }
     .btn-orange {
       background: linear-gradient(135deg, var(--bcp-orange), #FF9900);
       color: #fff;
     }
-
+    .btn-orange:hover { transform: translateY(-1px); box-shadow: 0 4px 16px rgba(255,120,0,0.4); }
     .btn-secondary {
-      background: #1E293B;
+      background: var(--surface-2);
       color: var(--ink-1);
+      border: 1px solid var(--border);
     }
+    .btn-secondary:hover { border-color: var(--ink-2); }
+    .btn-success { background: linear-gradient(135deg, #059669, #10B981); color: #fff; }
+    .btn-danger { background: linear-gradient(135deg, #DC2626, #EF4444); color: #fff; }
+    .btn-sm { padding: 0.4rem 0.75rem; font-size: 0.8rem; }
+    .btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
 
+    /* ── BADGES ──────────────────────────────────────────── */
+    .badge {
+      display: inline-block;
+      padding: 0.2rem 0.5rem;
+      border-radius: 6px;
+      font-size: 0.72rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+    .badge-allow { background: rgba(16,185,129,0.15); color: #10B981; border: 1px solid rgba(16,185,129,0.3); }
+    .badge-deny { background: rgba(239,68,68,0.15); color: #EF4444; border: 1px solid rgba(239,68,68,0.3); }
+    .badge-review { background: rgba(245,158,11,0.15); color: #F59E0B; border: 1px solid rgba(245,158,11,0.3); }
+    .badge-info { background: rgba(0,132,255,0.15); color: #0084FF; border: 1px solid rgba(0,132,255,0.3); }
+
+    /* ── RESULT BOX ──────────────────────────────────────── */
     .result-box {
       margin-top: 1rem;
       padding: 1rem;
-      background: #05080E;
-      border-radius: 8px;
+      background: rgba(5, 8, 14, 0.9);
+      border-radius: var(--radius-sm);
       border: 1px solid var(--border);
       font-family: var(--font-mono);
-      font-size: 0.85rem;
-      max-height: 350px;
+      font-size: 0.82rem;
+      max-height: 300px;
       overflow-y: auto;
       white-space: pre-wrap;
+      color: var(--ink-2);
+      line-height: 1.6;
     }
 
-    .badge {
-      display: inline-block;
-      padding: 0.25rem 0.5rem;
-      border-radius: 6px;
-      font-size: 0.75rem;
-      font-weight: 700;
-      text-transform: uppercase;
-    }
-
-    .badge-allow { background: rgba(16, 185, 129, 0.2); color: #10B981; border: 1px solid #10B981; }
-    .badge-deny { background: rgba(239, 68, 68, 0.2); color: #EF4444; border: 1px solid #EF4444; }
-    .badge-review { background: rgba(245, 158, 11, 0.2); color: #F59E0B; border: 1px solid #F59E0B; }
-
-    .providers-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-      gap: 1rem;
-      margin-bottom: 2rem;
-    }
-
-    .provider-pill {
-      background: var(--surface-card);
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 0.85rem;
-      display: flex;
-      flex-direction: column;
-      gap: 0.35rem;
-    }
-
+    /* ── STATUS DOTS ─────────────────────────────────────── */
     .status-dot {
       width: 8px;
       height: 8px;
       border-radius: 50%;
       display: inline-block;
+      flex-shrink: 0;
     }
-
-    .dot-green { background: var(--success); box-shadow: 0 0 8px var(--success); }
+    .dot-green { background: var(--success); box-shadow: 0 0 6px var(--success); }
+    .dot-orange { background: var(--bcp-orange); box-shadow: 0 0 6px var(--bcp-orange); }
     .dot-gray { background: var(--ink-3); }
 
+    /* ── PROVIDER PILLS ──────────────────────────────────── */
+    .providers-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .provider-pill {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      padding: 1rem;
+      display: flex;
+      flex-direction: column;
+      gap: 0.3rem;
+      transition: border-color 0.2s;
+    }
+    .provider-pill:hover { border-color: rgba(255,255,255,0.1); }
+
+    /* ── PHOTOCRAFT PREVIEW ──────────────────────────────── */
     .preview-canvas {
       width: 100%;
-      height: 240px;
-      border-radius: 8px;
+      height: 260px;
+      border-radius: var(--radius-sm);
       border: 1px solid var(--border);
       background: #000;
       display: flex;
       align-items: center;
       justify-content: center;
       overflow: hidden;
+      position: relative;
     }
+    .preview-canvas img, .preview-canvas svg {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .preview-canvas iframe {
+      width: 100%;
+      height: 100%;
+      border: none;
+    }
+    .preview-placeholder { color: var(--ink-3); text-align: center; font-size: 0.9rem; }
+    .preview-placeholder .icon { font-size: 2.5rem; margin-bottom: 0.5rem; display: block; }
+
+    /* ── UPLOAD ZONE ─────────────────────────────────────── */
+    .upload-zone {
+      border: 2px dashed var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+    .upload-zone:hover, .upload-zone.drag-over { 
+      border-color: var(--bcp-orange); 
+      background: rgba(255,120,0,0.04); 
+    }
+    .upload-zone input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    /* ── NOTIFICATION ITEMS ──────────────────────────────── */
+    .notif-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      padding: 1rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      margin-bottom: 0.75rem;
+      transition: border-color 0.2s;
+    }
+    .notif-item:hover { border-color: rgba(255,255,255,0.08); }
+    .notif-item .notif-icon { font-size: 1.5rem; flex-shrink: 0; }
+    .notif-item .notif-body { flex: 1; }
+    .notif-item .notif-title { font-weight: 700; font-size: 0.92rem; margin-bottom: 0.2rem; }
+    .notif-item .notif-meta { font-size: 0.78rem; color: var(--ink-2); }
+    .notif-item .notif-actions { display: flex; gap: 0.4rem; margin-top: 0.6rem; }
+
+    /* ── ADMIN TABS ──────────────────────────────────────── */
+    .admin-sub-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .admin-sub-tab {
+      padding: 0.5rem 1rem;
+      border-radius: 6px;
+      border: 1px solid var(--border);
+      background: var(--surface-2);
+      color: var(--ink-2);
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 600;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+    .admin-sub-tab.active { background: rgba(255,120,0,0.1); color: var(--bcp-orange); border-color: rgba(255,120,0,0.3); }
+
+    /* ── TABLE ───────────────────────────────────────────── */
+    .data-table { width: 100%; border-collapse: collapse; font-size: 0.88rem; }
+    .data-table th { 
+      text-align: left; 
+      padding: 0.65rem 0.85rem; 
+      color: var(--ink-2); 
+      font-size: 0.75rem; 
+      text-transform: uppercase; 
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid var(--border);
+    }
+    .data-table td { 
+      padding: 0.75rem 0.85rem; 
+      border-bottom: 1px solid rgba(26,37,64,0.5); 
+      vertical-align: middle;
+    }
+    .data-table tr:hover td { background: rgba(255,255,255,0.02); }
+
+    /* ── CONNECTIONS ─────────────────────────────────────── */
+    .conn-card {
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1.25rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .conn-type-badge {
+      padding: 0.3rem 0.6rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      font-weight: 700;
+      background: rgba(0,132,255,0.15);
+      color: var(--info);
+    }
+
+    /* ── FLOW STUDIO ─────────────────────────────────────── */
+    .flow-template-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+    .flow-template-card {
+      background: var(--surface-2);
+      border: 2px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .flow-template-card:hover { border-color: var(--bcp-orange); transform: translateY(-2px); }
+    .flow-template-card.selected { border-color: var(--bcp-orange); background: rgba(255,120,0,0.05); }
+    .flow-template-card .template-icon { font-size: 2rem; margin-bottom: 0.5rem; }
+    .flow-template-card .template-name { font-weight: 700; font-size: 0.92rem; margin-bottom: 0.3rem; }
+    .flow-template-card .template-desc { font-size: 0.78rem; color: var(--ink-2); line-height: 1.4; }
+
+    /* ── SECTIONS (tabs) ─────────────────────────────────── */
+    section { display: none; }
+    section.active { display: block; }
+
+    /* ── SCROLLBAR ───────────────────────────────────────── */
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--ink-3); }
+
+    /* ── TOAST ───────────────────────────────────────────── */
+    #toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      padding: 1rem 1.5rem;
+      background: var(--surface-2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.9rem;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+      z-index: 9999;
+      opacity: 0;
+      transform: translateY(10px);
+      transition: all 0.3s;
+      max-width: 400px;
+    }
+    #toast.show { opacity: 1; transform: translateY(0); }
+    #toast.success { border-color: rgba(16,185,129,0.4); }
+    #toast.error { border-color: rgba(239,68,68,0.4); }
+
+    /* ── PERMISSION WALL ─────────────────────────────────── */
+    .permission-wall {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--ink-2);
+    }
+    .permission-wall .wall-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .permission-wall h3 { font-size: 1.2rem; margin-bottom: 0.5rem; color: var(--ink-1); }
   </style>
 </head>
 <body>
 
-  <header>
+  <!-- ═══════════════════ MODAL LOGIN ═══════════════════ -->
+  <div class="modal-overlay" id="loginModal">
+    <div class="modal-box">
+      <div class="modal-logo">
+        <div class="badge">BCP MARTECH</div>
+        <div>
+          <div class="title">DAM Platform</div>
+          <div class="sub">Dynamic Media & AJO Agent Hub v2.0</div>
+        </div>
+      </div>
+
+      <div class="login-error" id="loginError"></div>
+
+      <div class="form-group">
+        <label>Usuario</label>
+        <input type="text" id="loginUsername" placeholder="Ingrese su usuario" autocomplete="username">
+      </div>
+      <div class="form-group">
+        <label>Contraseña</label>
+        <input type="password" id="loginPassword" placeholder="Ingrese su contraseña" autocomplete="current-password">
+      </div>
+      <button class="btn btn-orange" style="width:100%;" onclick="doLogin()" id="loginBtn">
+        🔐 Ingresar a la Plataforma
+      </button>
+
+      <div class="demo-accounts">
+        <div class="title">👤 Cuentas Demo (click para autocompletar)</div>
+        <div class="demo-row" onclick="fillDemo('admin','Admin2026!')">
+          <span class="user">admin / Admin2026!</span>
+          <span class="role-tag" style="background:rgba(255,120,0,0.15);color:var(--admin-color);">ADMIN</span>
+        </div>
+        <div class="demo-row" onclick="fillDemo('martech1','Martech2026!')">
+          <span class="user">martech1 / Martech2026!</span>
+          <span class="role-tag" style="background:rgba(0,132,255,0.15);color:var(--martech-color);">MARTECH</span>
+        </div>
+        <div class="demo-row" onclick="fillDemo('designer1','Design2026!')">
+          <span class="user">designer1 / Design2026!</span>
+          <span class="role-tag" style="background:rgba(16,185,129,0.15);color:var(--vcd-color);">VCD</span>
+        </div>
+        <div class="demo-row" onclick="fillDemo('viewer1','View2026!')">
+          <span class="user">viewer1 / View2026!</span>
+          <span class="role-tag" style="background:rgba(148,163,184,0.15);color:var(--viewer-color);">VIEWER</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════ HEADER ═══════════════════════════ -->
+  <header id="mainHeader" style="display:none;">
     <div class="brand">
       <div class="badge-bcp">BCP MARTECH</div>
       <div>
-        <div class="title">Dynamic Media &amp; AJO Agent Hub</div>
-        <div class="subtitle">Orquestación de Activos • Gobernanza Mongo Atlas • PhotoCraft Engine</div>
+        <div class="title-main">Dynamic Media & AJO Agent Hub</div>
+        <div class="subtitle-main">Orquestación de Activos • Gobernanza Mongo Atlas • PhotoCraft Engine</div>
       </div>
     </div>
-    <div>
-      <a href="/flow_studio/index.html" target="_blank" class="btn btn-orange">⚡ Abrir Flow Studio</a>
+    <div class="header-right">
+      <!-- Vista switcher -->
+      <div class="view-switcher" onclick="toggleViewInfo()" title="Cambiar vista / Ver permisos">
+        👁️ <span id="viewLabel">Vista</span>
+      </div>
+      <!-- Notificaciones -->
+      <div class="notif-bell" onclick="switchTab('notifications')" title="Notificaciones pendientes">
+        🔔
+        <span class="notif-count" id="notifCount" style="display:none;">0</span>
+      </div>
+      <!-- Rol badge -->
+      <div class="role-badge ADMIN" id="roleBadge" onclick="doLogout()">
+        <span id="roleIcon">🔐</span>
+        <span id="roleLabel">ADMIN</span>
+        <span style="font-size:0.7rem; opacity:0.6; margin-left:0.25rem;">↩ Salir</span>
+      </div>
+      <!-- Flow Studio link -->
+      <a href="/flow_studio/index.html" target="_blank" class="btn btn-orange">⚡ Flow Studio</a>
     </div>
   </header>
 
-  <nav class="nav-tabs">
-    <button class="tab-btn active" onclick="switchTab('governance')">🛡️ Gobernanza &amp; Briefs</button>
-    <button class="tab-btn" onclick="switchTab('photocraft')">🎨 PhotoCraft Studio</button>
-    <button class="tab-btn" onclick="switchTab('places')">📍 Contexto Geográfico</button>
-    <button class="tab-btn" onclick="switchTab('catalog')">📦 Catálogo DAM</button>
-    <button class="tab-btn" onclick="switchTab('providers')">⚙️ Router de Modelos</button>
+  <!-- ═══════════════════ NAV TABS ═══════════════════════════ -->
+  <nav class="nav-tabs" id="mainNav" style="display:none;">
+    <button class="tab-btn active" onclick="switchTab('governance')" data-tab="governance" data-roles="ADMIN,MARTECH">🛡️ Gobernanza</button>
+    <button class="tab-btn" onclick="switchTab('photocraft')" data-tab="photocraft" data-roles="ADMIN,VCD">🎨 PhotoCraft Studio</button>
+    <button class="tab-btn" onclick="switchTab('catalog')" data-tab="catalog" data-roles="ADMIN,MARTECH,VCD,VIEWER">📦 Catálogo DAM</button>
+    <button class="tab-btn" onclick="switchTab('providers')" data-tab="providers" data-roles="ADMIN,MARTECH">⚙️ Agentes IA</button>
+    <button class="tab-btn" onclick="switchTab('flow')" data-tab="flow" data-roles="ADMIN,MARTECH,VCD">⚡ Flow Studio</button>
+    <button class="tab-btn" onclick="switchTab('notifications')" data-tab="notifications" data-roles="ADMIN,MARTECH">🔔 Aprobaciones</button>
+    <button class="tab-btn" onclick="switchTab('connections')" data-tab="connections" data-roles="ADMIN">🔗 Conexiones</button>
+    <button class="tab-btn" onclick="switchTab('admin')" data-tab="admin" data-roles="ADMIN">🔐 Admin Panel</button>
+    <button class="tab-btn" onclick="switchTab('places')" data-tab="places" data-roles="ADMIN,MARTECH">📍 Geo Context</button>
   </nav>
 
-  <main>
-    <!-- TAB 1: GOBERNANZA & BRIEFS -->
-    <section id="tab-governance">
+  <!-- ═══════════════════ MAIN CONTENT ══════════════════════ -->
+  <main id="mainContent" style="display:none;">
+
+    <!-- ── TAB: GOBERNANZA & BRIEFS ── -->
+    <section id="tab-governance" class="active">
       <div class="grid-2">
         <div class="card">
           <div class="card-header">
-            <h2 class="card-title">Validación de Mandamientos BCP</h2>
-            <span class="badge" id="govDecisionBadge">LISTO</span>
+            <h2 class="card-title">🛡️ Validación de Mandamientos BCP</h2>
+            <span class="badge badge-info" id="govDecisionBadge">LISTO</span>
           </div>
-          <div class="form-group">
+          <div class="form-row">
             <label>ID de Iniciativa</label>
             <select id="govInitiativeId">
               <option value="INIT-BCP-CAMP-2026-01">INIT-BCP-CAMP-2026-01 | Préstamo al Toque</option>
@@ -305,7 +752,7 @@
               <option value="INIT-INVALID-UNKNOWN">INIT-INVALID-UNKNOWN (Prueba de Bloqueo)</option>
             </select>
           </div>
-          <div class="form-group">
+          <div class="form-row">
             <label>Intención del Activo</label>
             <select id="govIntention">
               <option value="PROMOTION">PROMOTION (Promoción estándar)</option>
@@ -314,7 +761,7 @@
               <option value="CREDIT_DEFAULT">CREDIT_DEFAULT (Sensible - Requiere Human Review)</option>
             </select>
           </div>
-          <div class="form-group">
+          <div class="form-row">
             <label>Canal Destino</label>
             <select id="govChannel">
               <option value="AJO_INWEB">Adobe Journey Optimizer (InWeb)</option>
@@ -323,128 +770,613 @@
               <option value="EMAIL">Email Marketing</option>
             </select>
           </div>
-          <div class="form-group">
-            <label>Brief / Prompt Propuesto para el Activo Visual</label>
+          <div class="form-row">
+            <label>Brief / Prompt Propuesto</label>
             <textarea id="govBrief" rows="3" placeholder="Ej: Banner para tarjeta de crédito con beneficios en restaurantes de Lima...">Banner moderno para cliente de cuenta sueldo invitando a desembolsar préstamo al toque desde la app.</textarea>
           </div>
-          <div style="display:flex; gap:0.5rem;">
-            <button class="btn" onclick="testGovernanceValidation()">Verificar Mandamientos</button>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="testGovernanceValidation()">Verificar Mandamientos</button>
             <button class="btn btn-secondary" onclick="injectHallucinationSample()">Probar Alucinación ⚠️</button>
           </div>
         </div>
 
         <div class="card">
           <div class="card-header">
-            <h2 class="card-title">Resultado de Evaluación &amp; Reutilización</h2>
+            <h2 class="card-title">📋 Resultado de Evaluación & Reutilización</h2>
           </div>
           <div id="govResultOutput" class="result-box">Presione 'Verificar Mandamientos' para evaluar la solicitud contra las políticas de BCP en MongoDB Atlas...</div>
         </div>
       </div>
     </section>
 
-    <!-- TAB 2: PHOTOCRAFT STUDIO -->
-    <section id="tab-photocraft" style="display:none;">
+    <!-- ── TAB: PHOTOCRAFT STUDIO ── -->
+    <section id="tab-photocraft">
       <div class="grid-2">
         <div class="card">
           <div class="card-header">
-            <h2 class="card-title">PhotoCraft Automation Engine</h2>
-            <span class="badge" style="background:#1E293B;">MCP ENABLED</span>
+            <h2 class="card-title">🎨 PhotoCraft Automation Engine</h2>
+            <span class="badge badge-info">MCP ENABLED</span>
           </div>
-          <div class="form-group">
+
+          <!-- Upload source image -->
+          <div class="form-row">
+            <label>Imagen Fuente</label>
+            <div class="upload-zone" id="uploadZone">
+              <input type="file" id="sourceImageFile" accept="image/*" onchange="handleFileUpload(event)">
+              <div id="uploadPlaceholder">
+                <span style="font-size:1.5rem; display:block; margin-bottom:0.3rem;">📁</span>
+                <span style="font-size:0.88rem; color:var(--ink-2);">Arrastra una imagen o haz click para seleccionar</span>
+                <div id="uploadedFileName" style="margin-top:0.5rem; font-size:0.8rem; color:var(--bcp-orange); display:none;"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
             <label>Operación de Transformación</label>
             <select id="pcOperation">
               <option value="AJO_INWEB_BANNER">AJO InWeb Banner (1200x628, Brand Watermark)</option>
               <option value="WHATSAPP_CARD">WhatsApp Header (800x800, 1:1, Compression)</option>
               <option value="HIGH_RES_AVIF">Dynamic Media Next-Gen (AVIF 1024w Q65)</option>
+              <option value="EMAIL_HEADER">Email Header (600x300, Optimized JPG)</option>
+              <option value="INSTAGRAM_SQUARE">Instagram Square (1080x1080)</option>
+              <option value="LINKEDIN_BANNER">LinkedIn Banner (1200x627)</option>
+              <option value="CUSTOM">Dimensiones Personalizadas</option>
             </select>
           </div>
-          <div class="form-group">
+
+          <div id="customDimensions" style="display:none;">
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
+              <div class="form-row">
+                <label>Ancho (px)</label>
+                <input type="number" id="customWidth" value="1200" min="1">
+              </div>
+              <div class="form-row">
+                <label>Alto (px)</label>
+                <input type="number" id="customHeight" value="628" min="1">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-row">
             <label>Formato de Salida</label>
             <select id="pcFormat">
-              <option value="png">PNG (Transparencia / Hi-Fi)</option>
               <option value="jpg">JPEG (Optimizado Web)</option>
+              <option value="png">PNG (Transparencia / Hi-Fi)</option>
               <option value="avif">AVIF (Dynamic Media Cloud Standard)</option>
               <option value="webp">WebP</option>
+              <option value="svg">SVG (Vectorial)</option>
             </select>
           </div>
-          <button class="btn btn-orange" onclick="runPhotoCraftJob()">Ejecutar Transformación PhotoCraft</button>
+
+          <div class="form-row">
+            <label>Configuraciones Adicionales</label>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; margin-top:0.5rem;">
+              <label style="display:flex; align-items:center; gap:0.4rem; text-transform:none; font-size:0.88rem; color:var(--ink-1);">
+                <input type="checkbox" id="addWatermark" style="width:auto;" checked> Watermark BCP
+              </label>
+              <label style="display:flex; align-items:center; gap:0.4rem; text-transform:none; font-size:0.88rem; color:var(--ink-1);">
+                <input type="checkbox" id="addCrop" style="width:auto;" checked> Auto-Crop
+              </label>
+              <label style="display:flex; align-items:center; gap:0.4rem; text-transform:none; font-size:0.88rem; color:var(--ink-1);">
+                <input type="checkbox" id="addOptimize" style="width:auto;" checked> Optimizar
+              </label>
+              <label style="display:flex; align-items:center; gap:0.4rem; text-transform:none; font-size:0.88rem; color:var(--ink-1);">
+                <input type="checkbox" id="addBranding" style="width:auto;" checked> Branding BCP
+              </label>
+            </div>
+          </div>
+
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button class="btn btn-orange" onclick="runPhotoCraftJob()">⚡ Ejecutar Transformación</button>
+            <button class="btn btn-secondary" onclick="generateWithAI()">🤖 Generar con IA</button>
+          </div>
         </div>
 
         <div class="card">
           <div class="card-header">
-            <h2 class="card-title">Previsualización del Candidato Editado</h2>
+            <h2 class="card-title">👁️ Previsualización del Candidato</h2>
+            <div id="pcJobStatus" style="font-size:0.8rem; color:var(--ink-2);"></div>
           </div>
           <div id="pcPreviewBox" class="preview-canvas">
-            <span style="color:var(--ink-3);">Sin operaciones ejecutadas</span>
+            <div class="preview-placeholder">
+              <span class="icon">🖼️</span>
+              Sin operaciones ejecutadas
+            </div>
           </div>
           <div id="pcResultOutput" class="result-box" style="margin-top:1rem;">Logs del job aparecerán aquí...</div>
+          <div id="pcActionsBar" style="margin-top:1rem; display:none; gap:0.5rem; flex-wrap:wrap;">
+            <a id="pcDownloadLink" class="btn btn-success btn-sm" download>⬇️ Descargar Asset</a>
+            <button class="btn btn-primary btn-sm" onclick="submitForApproval()">📤 Enviar a Aprobación</button>
+            <button class="btn btn-secondary btn-sm" onclick="viewInPhotocraft()">🖊️ Abrir en PhotoCraft</button>
+          </div>
         </div>
       </div>
     </section>
 
-    <!-- TAB 3: PLACES CONTEXT -->
-    <section id="tab-places" style="display:none;">
+    <!-- ── TAB: CATÁLOGO DAM ── -->
+    <section id="tab-catalog">
       <div class="card">
         <div class="card-header">
-          <h2 class="card-title">Enriquecimiento Geográfico (Google Places &amp; Adobe Places)</h2>
-        </div>
-        <div class="form-group">
-          <label>Búsqueda de Sede / Ubicación del Evento</label>
-          <input type="text" id="placesQuery" value="San Isidro" placeholder="Ej: San Isidro, La Molina, Cusco...">
-        </div>
-        <button class="btn" onclick="lookupLocation()">Consultar Contexto de Ubicación</button>
-        <div id="placesOutput" class="result-box" style="margin-top:1rem;">Consulte una sede para enriquecer el contexto del activo visual...</div>
-      </div>
-    </section>
-
-    <!-- TAB 4: CATALOG DAM -->
-    <section id="tab-catalog" style="display:none;">
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">Catálogo Oficial de Assets (MongoDB Atlas &amp; Dynamic Media)</h2>
-          <button class="btn btn-secondary" onclick="loadCatalog()">Refrescar Catálogo</button>
+          <h2 class="card-title">📦 Catálogo Oficial de Assets</h2>
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <select id="catalogStatusFilter" onchange="loadCatalog()" style="width:auto; padding:0.4rem 0.7rem; font-size:0.85rem;">
+              <option value="">Todos los estados</option>
+              <option value="APPROVED">APPROVED</option>
+              <option value="PENDING_APPROVAL">PENDING APPROVAL</option>
+              <option value="DRAFT">DRAFT</option>
+              <option value="REJECTED">REJECTED</option>
+            </select>
+            <button class="btn btn-secondary btn-sm" onclick="loadCatalog()">🔄 Refrescar</button>
+          </div>
         </div>
         <div id="catalogList" class="result-box" style="max-height:500px;">Cargando catálogo...</div>
       </div>
     </section>
 
-    <!-- TAB 5: PROVIDERS -->
-    <section id="tab-providers" style="display:none;">
-      <h2 style="margin-bottom:1rem; font-size:1.1rem;">Estado del Router Multi-Proveedor de IA</h2>
+    <!-- ── TAB: AGENTES IA ── -->
+    <section id="tab-providers">
+      <h2 style="margin-bottom:1.25rem; font-size:1.1rem;">Estado del Router Multi-Proveedor de IA</h2>
       <div id="providersGrid" class="providers-grid">Cargando proveedores...</div>
       <div class="card">
         <div class="card-header">
-          <h2 class="card-title">Probar Prompt con Multi-Key Fallback</h2>
+          <h2 class="card-title">🤖 Probar Prompt con Multi-Key Fallback</h2>
         </div>
-        <div class="form-group">
+        <div class="form-row">
           <textarea id="routerPromptInput" rows="2" placeholder="Escriba un prompt para probar el router...">Genera un titular atractivo de 1 línea para el préstamo al toque BCP.</textarea>
         </div>
-        <button class="btn" onclick="testRouterPrompt()">Enviar al Router de IA</button>
+        <button class="btn btn-primary" onclick="testRouterPrompt()">Enviar al Router de IA</button>
         <div id="routerOutput" class="result-box">El router intentará primero Groq, luego Gemini, OpenAI y DeepSeek automáticamente si hay errores o límites 429...</div>
       </div>
     </section>
+
+    <!-- ── TAB: FLOW STUDIO ── -->
+    <section id="tab-flow">
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div class="card-header">
+          <h2 class="card-title">⚡ Flow Studio — Seleccionar Plantilla</h2>
+          <a href="/flow_studio/index.html" target="_blank" class="btn btn-orange btn-sm">Abrir Editor Completo ↗</a>
+        </div>
+        <div class="flow-template-grid" id="flowTemplateGrid">Cargando plantillas...</div>
+        <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
+          <div class="form-row" style="flex:1; min-width:200px; margin:0;">
+            <input type="text" id="flowTitle" placeholder="Título del diagrama (opcional)" style="margin-bottom:0;">
+          </div>
+          <button class="btn btn-primary" onclick="generateFlowPreview()">⚡ Generar Vista Previa</button>
+          <button class="btn btn-secondary" onclick="downloadFlowHtml()">⬇️ Descargar HTML</button>
+        </div>
+      </div>
+      <div class="card" style="height:600px; padding:0; overflow:hidden;">
+        <iframe id="flowFrame" src="/api/flow-studio/preview" style="width:100%; height:100%; border:none;"></iframe>
+      </div>
+    </section>
+
+    <!-- ── TAB: APROBACIONES / NOTIFICACIONES ── -->
+    <section id="tab-notifications">
+      <div class="card-header" style="margin-bottom:1.25rem;">
+        <h2 style="font-size:1.1rem; font-weight:700;">🔔 Assets Pendientes de Aprobación</h2>
+        <button class="btn btn-secondary btn-sm" onclick="loadNotifications()">🔄 Actualizar</button>
+      </div>
+      <div id="notificationsContainer">
+        <div style="text-align:center; padding:2rem; color:var(--ink-2);">Cargando notificaciones...</div>
+      </div>
+    </section>
+
+    <!-- ── TAB: CONEXIONES DB ── -->
+    <section id="tab-connections">
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">🔗 Nueva Conexión a Base de Datos</h2>
+          </div>
+          <div class="form-row">
+            <label>Nombre de la Conexión</label>
+            <input type="text" id="connName" placeholder="Ej: Produccion Atlas BCP">
+          </div>
+          <div class="form-row">
+            <label>Tipo de Base de Datos</label>
+            <select id="connType">
+              <option value="mongodb">MongoDB Atlas / Community</option>
+              <option value="postgres">PostgreSQL</option>
+              <option value="mysql">MySQL / MariaDB</option>
+              <option value="sqlserver">SQL Server</option>
+              <option value="redis">Redis</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label>Host / URI de Conexión</label>
+            <input type="text" id="connHost" placeholder="mongodb+srv://user:pass@cluster.mongodb.net/">
+          </div>
+          <div class="form-row">
+            <label>Base de Datos</label>
+            <input type="text" id="connDatabase" placeholder="nombre-de-base-de-datos">
+          </div>
+          <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+            <button class="btn btn-primary" onclick="saveDbConnection()">💾 Guardar Conexión</button>
+            <button class="btn btn-secondary" onclick="provisionPolicies()">⚡ Provisionar Estructura DAM</button>
+          </div>
+          <div id="connOutput" class="result-box" style="margin-top:1rem;">Configure una conexión para provisionar la estructura de políticas DAM automáticamente.</div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h2 class="card-title">📋 Conexiones Registradas</h2>
+          </div>
+          <div id="connectionsList">
+            <div style="color:var(--ink-2); font-size:0.9rem;">Cargando conexiones...</div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── TAB: ADMIN PANEL ── -->
+    <section id="tab-admin">
+      <div class="admin-sub-tabs">
+        <button class="admin-sub-tab active" onclick="switchAdminTab('users')">👥 Usuarios</button>
+        <button class="admin-sub-tab" onclick="switchAdminTab('policies')">📋 Políticas DAM</button>
+        <button class="admin-sub-tab" onclick="switchAdminTab('squads')">🏆 Squads</button>
+        <button class="admin-sub-tab" onclick="switchAdminTab('apikeys')">🔑 API Keys</button>
+        <button class="admin-sub-tab" onclick="switchAdminTab('codegen')">⚙️ Generador de Códigos</button>
+      </div>
+
+      <!-- Users sub-tab -->
+      <div id="admin-users" class="admin-sub-content">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">➕ Crear / Actualizar Usuario</h2>
+            </div>
+            <div class="form-row"><label>Usuario</label><input type="text" id="newUsername" placeholder="username"></div>
+            <div class="form-row"><label>Nombre Completo</label><input type="text" id="newFullName" placeholder="Nombre completo"></div>
+            <div class="form-row"><label>Contraseña</label><input type="password" id="newPassword" placeholder="Nueva contraseña (vacío = no cambiar)"></div>
+            <div class="form-row">
+              <label>Rol</label>
+              <select id="newRole">
+                <option value="ADMIN">🔐 ADMIN — Acceso Completo</option>
+                <option value="MARTECH">⚙️ MARTECH — Reglas & Aprobaciones</option>
+                <option value="VCD">🎨 VCD — Creación de Assets</option>
+                <option value="VIEWER">👁️ VIEWER — Solo Lectura</option>
+              </select>
+            </div>
+            <div class="form-row"><label>Grupo de Red</label><input type="text" id="newNetworkGroup" placeholder="Ej: MARTECH_TEAM"></div>
+            <div style="display:flex; gap:0.5rem;">
+              <button class="btn btn-primary" onclick="createUser()">💾 Guardar Usuario</button>
+              <label style="display:flex; align-items:center; gap:0.4rem; text-transform:none; font-size:0.88rem; color:var(--ink-1); cursor:pointer;">
+                <input type="checkbox" id="newIsActive" style="width:auto;" checked> Activo
+              </label>
+            </div>
+            <div id="userCreateResult" class="result-box" style="margin-top:1rem; display:none;"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">👥 Usuarios Registrados</h2>
+              <button class="btn btn-secondary btn-sm" onclick="loadUsers()">🔄</button>
+            </div>
+            <div id="usersList" style="overflow-x:auto;">
+              <div style="color:var(--ink-2); font-size:0.9rem;">Cargando usuarios...</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Policies sub-tab -->
+      <div id="admin-policies" class="admin-sub-content" style="display:none;">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><h2 class="card-title">➕ Crear Política DAM</h2></div>
+            <div class="form-row"><label>Nombre de la Política</label><input type="text" id="polName" placeholder="Ej: Política de Imagen Corporativa"></div>
+            <div class="form-row"><label>Descripción</label><textarea id="polDesc" rows="2" placeholder="Descripción breve de la política..."></textarea></div>
+            <div class="form-row"><label>Canales Permitidos (separados por coma)</label><input type="text" id="polChannels" value="AJO_INWEB,EMAIL,WHATSAPP"></div>
+            <div class="form-row"><label>Términos Prohibidos (separados por coma)</label><textarea id="polForbidden" rows="2">100% garantizado,sin evaluación,dinero fácil</textarea></div>
+            <div class="form-row">
+              <label>Intenciones que requieren revisión humana</label>
+              <input type="text" id="polSensitive" value="CREDIT_DEFAULT,COLLECTIONS,LEGAL_NOTICE">
+            </div>
+            <button class="btn btn-primary" onclick="createPolicy()">💾 Guardar Política</button>
+            <div id="policyCreateResult" class="result-box" style="margin-top:1rem; display:none;"></div>
+          </div>
+          <div class="card">
+            <div class="card-header">
+              <h2 class="card-title">📋 Políticas Activas</h2>
+              <button class="btn btn-secondary btn-sm" onclick="loadPolicies()">🔄</button>
+            </div>
+            <div id="policiesList" class="result-box" style="max-height:450px;">Cargando políticas...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Squads sub-tab -->
+      <div id="admin-squads" class="admin-sub-content" style="display:none;">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><h2 class="card-title">🏆 Crear Squad</h2></div>
+            <div class="form-row"><label>Nombre del Squad</label><input type="text" id="squadName" placeholder="Ej: Squad Tarjetas Digitales"></div>
+            <div class="form-row"><label>Descripción</label><input type="text" id="squadDesc" placeholder="Descripción del squad..."></div>
+            <div class="form-row"><label>Grupo de Red</label><input type="text" id="squadNetworkGroup" placeholder="MARTECH_TEAM"></div>
+            <div class="form-row"><label>Líder del Squad</label><input type="text" id="squadLeader" placeholder="username del líder"></div>
+            <div class="form-row">
+              <label>Roles permitidos en el squad</label>
+              <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:0.4rem;">
+                <label style="display:flex;align-items:center;gap:0.3rem;text-transform:none;color:var(--ink-1);font-size:0.88rem;cursor:pointer;"><input type="checkbox" value="MARTECH" style="width:auto;" class="squadRole" checked> MARTECH</label>
+                <label style="display:flex;align-items:center;gap:0.3rem;text-transform:none;color:var(--ink-1);font-size:0.88rem;cursor:pointer;"><input type="checkbox" value="VCD" style="width:auto;" class="squadRole" checked> VCD</label>
+                <label style="display:flex;align-items:center;gap:0.3rem;text-transform:none;color:var(--ink-1);font-size:0.88rem;cursor:pointer;"><input type="checkbox" value="VIEWER" style="width:auto;" class="squadRole"> VIEWER</label>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="createSquad()">💾 Crear Squad</button>
+            <div id="squadCreateResult" class="result-box" style="margin-top:1rem; display:none;"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h2 class="card-title">🏆 Squads Activos</h2><button class="btn btn-secondary btn-sm" onclick="loadSquads()">🔄</button></div>
+            <div id="squadsList" class="result-box" style="max-height:450px;">Cargando squads...</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- API Keys sub-tab -->
+      <div id="admin-apikeys" class="admin-sub-content" style="display:none;">
+        <div class="grid-2">
+          <div class="card">
+            <div class="card-header"><h2 class="card-title">🔑 Generar API Key</h2></div>
+            <div class="form-row"><label>Label / Nombre de la API Key</label><input type="text" id="apiKeyLabel" placeholder="Ej: Workfront Integration Key"></div>
+            <div class="form-row">
+              <label>Permisos</label>
+              <div style="display:flex; flex-direction:column; gap:0.4rem; margin-top:0.4rem;">
+                <label style="display:flex;align-items:center;gap:0.4rem;text-transform:none;color:var(--ink-1);font-size:0.88rem;cursor:pointer;"><input type="checkbox" value="READ_ASSETS" style="width:auto;" class="apiPerm" checked> READ_ASSETS</label>
+                <label style="display:flex;align-items:center;gap:0.4rem;text-transform:none;color:var(--ink-1);font-size:0.88rem;cursor:pointer;"><input type="checkbox" value="READ_CATALOG" style="width:auto;" class="apiPerm" checked> READ_CATALOG</label>
+                <label style="display:flex;align-items:center;gap:0.4rem;text-transform:none;color:var(--ink-1);font-size:0.88rem;cursor:pointer;"><input type="checkbox" value="WRITE_ASSETS" style="width:auto;" class="apiPerm"> WRITE_ASSETS</label>
+                <label style="display:flex;align-items:center;gap:0.4rem;text-transform:none;color:var(--ink-1);font-size:0.88rem;cursor:pointer;"><input type="checkbox" value="APPROVE_ASSETS" style="width:auto;" class="apiPerm"> APPROVE_ASSETS</label>
+              </div>
+            </div>
+            <button class="btn btn-primary" onclick="createApiKey()">🔑 Generar API Key</button>
+            <div id="apiKeyResult" class="result-box" style="margin-top:1rem; display:none;"></div>
+          </div>
+          <div class="card">
+            <div class="card-header"><h2 class="card-title">📋 API Keys Activas</h2></div>
+            <div id="apiKeysList" class="result-box" style="max-height:450px;">Cargando API keys...</div>
+            <div style="margin-top:1rem; padding:1rem; background:rgba(0,132,255,0.05); border:1px solid rgba(0,132,255,0.15); border-radius:8px; font-size:0.82rem; color:var(--ink-2);">
+              💡 <strong style="color:var(--ink-1);">Uso de API Pública:</strong> Incluya el header <code style="background:rgba(255,255,255,0.05); padding:0.1rem 0.3rem; border-radius:3px;">X-API-Key: [su_key]</code> en las peticiones a <code>GET /api/public/assets</code>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Code Generator sub-tab -->
+      <div id="admin-codegen" class="admin-sub-content" style="display:none;">
+        <div class="card" style="max-width:600px;">
+          <div class="card-header"><h2 class="card-title">⚙️ Generador de Códigos e IDs</h2></div>
+          <div class="form-row">
+            <label>Prefijo del Código</label>
+            <select id="codePrefix">
+              <option value="ACC">ACC — Código de Acceso</option>
+              <option value="INIT">INIT — ID de Iniciativa</option>
+              <option value="POL">POL — ID de Política</option>
+              <option value="AST">AST — ID de Asset</option>
+              <option value="SQ">SQ — ID de Squad</option>
+              <option value="NG">NG — Grupo de Red</option>
+            </select>
+          </div>
+          <button class="btn btn-primary" onclick="generateCode()">⚡ Generar Código</button>
+          <div id="codeGenResult" class="result-box" style="margin-top:1rem; display:none;"></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ── TAB: GEO CONTEXT ── -->
+    <section id="tab-places">
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">📍 Enriquecimiento Geográfico</h2>
+        </div>
+        <div class="form-row">
+          <label>Búsqueda de Sede / Ubicación del Evento</label>
+          <input type="text" id="placesQuery" value="San Isidro" placeholder="Ej: San Isidro, La Molina, Cusco...">
+        </div>
+        <button class="btn btn-primary" onclick="lookupLocation()">📍 Consultar Contexto de Ubicación</button>
+        <div id="placesOutput" class="result-box" style="margin-top:1rem;">Consulte una sede para enriquecer el contexto del activo visual...</div>
+      </div>
+    </section>
+
   </main>
 
-  <script>
-    function switchTab(tabId) {
-      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
-      event.target.classList.add("active");
-      document.querySelectorAll("main > section").forEach(s => s.style.display = "none");
-      document.getElementById(`tab-${tabId}`).style.display = "block";
+  <!-- Toast -->
+  <div id="toast"></div>
 
-      if (tabId === "providers") loadProviders();
-      if (tabId === "catalog") loadCatalog();
+  <script>
+    // ═══════════════════════════════════════════════════
+    // STATE
+    // ═══════════════════════════════════════════════════
+    let SESSION = null;
+    let currentToken = localStorage.getItem("dam_token") || null;
+    let selectedFlowTemplate = "AEM_DYNAMIC_MEDIA_E2E";
+    let lastPcJobMeta = null;
+
+    // ═══════════════════════════════════════════════════
+    // INIT
+    // ═══════════════════════════════════════════════════
+    async function init() {
+      if (currentToken) {
+        const ok = await verifyExistingSession();
+        if (ok) { showApp(); return; }
+      }
+      showLogin();
     }
 
+    async function verifyExistingSession() {
+      try {
+        const res = await apiFetch("/api/auth/me");
+        if (res.success) { SESSION = res.user; return true; }
+      } catch {}
+      return false;
+    }
+
+    function showLogin() {
+      document.getElementById("loginModal").style.display = "flex";
+    }
+
+    function showApp() {
+      document.getElementById("loginModal").style.display = "none";
+      document.getElementById("mainHeader").style.display = "flex";
+      document.getElementById("mainNav").style.display = "flex";
+      document.getElementById("mainContent").style.display = "block";
+
+      // Update role badge
+      const role = SESSION.role;
+      const perms = SESSION.permissions;
+      document.getElementById("roleBadge").className = `role-badge ${role}`;
+      document.getElementById("roleIcon").textContent = perms.icon;
+      document.getElementById("roleLabel").textContent = `${role} — ${SESSION.username}`;
+      document.getElementById("viewLabel").textContent = perms.label;
+
+      // Filter tabs by role
+      filterTabsByRole(role, perms.tabs);
+
+      // Initial loads
+      loadProviders();
+      loadFlowTemplates();
+      loadNotifications();
+      loadConnections();
+
+      // Activate first visible tab
+      const firstVisibleTab = document.querySelector(".tab-btn:not([style*='none'])");
+      if (firstVisibleTab) {
+        const tabId = firstVisibleTab.getAttribute("data-tab");
+        switchTab(tabId, firstVisibleTab);
+      }
+    }
+
+    function filterTabsByRole(role, allowedTabs) {
+      document.querySelectorAll(".tab-btn").forEach(btn => {
+        const allowedRoles = btn.getAttribute("data-roles")?.split(",") || [];
+        if (allowedRoles.includes(role)) {
+          btn.style.display = "";
+        } else {
+          btn.style.display = "none";
+        }
+      });
+    }
+
+    // ═══════════════════════════════════════════════════
+    // AUTH
+    // ═══════════════════════════════════════════════════
+    function fillDemo(user, pass) {
+      document.getElementById("loginUsername").value = user;
+      document.getElementById("loginPassword").value = pass;
+    }
+
+    async function doLogin() {
+      const btn = document.getElementById("loginBtn");
+      const errorDiv = document.getElementById("loginError");
+      const username = document.getElementById("loginUsername").value.trim();
+      const password = document.getElementById("loginPassword").value;
+      
+      if (!username || !password) { 
+        errorDiv.textContent = "Ingrese usuario y contraseña.";
+        errorDiv.style.display = "block";
+        return; 
+      }
+
+      btn.textContent = "⏳ Verificando...";
+      btn.disabled = true;
+      errorDiv.style.display = "none";
+
+      try {
+        const res = await fetch("/api/auth/login", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ username, password })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          currentToken = data.token;
+          SESSION = data.user;
+          localStorage.setItem("dam_token", currentToken);
+          showApp();
+          showToast(`✅ Bienvenido, ${data.user.fullName} (${data.user.role})`, "success");
+        } else {
+          errorDiv.textContent = data.error || "Error de autenticación.";
+          errorDiv.style.display = "block";
+        }
+      } catch (err) {
+        errorDiv.textContent = "Error de conexión: " + err.message;
+        errorDiv.style.display = "block";
+      } finally {
+        btn.textContent = "🔐 Ingresar a la Plataforma";
+        btn.disabled = false;
+      }
+    }
+
+    document.getElementById("loginPassword").addEventListener("keydown", e => {
+      if (e.key === "Enter") doLogin();
+    });
+
+    function doLogout() {
+      if (!confirm("¿Desea cerrar sesión?")) return;
+      localStorage.removeItem("dam_token");
+      currentToken = null;
+      SESSION = null;
+      location.reload();
+    }
+
+    function toggleViewInfo() {
+      if (!SESSION) return;
+      showToast(`👁️ Vista: ${SESSION.permissions.label} | Tabs: ${SESSION.permissions.tabs.join(", ")}`, "success");
+    }
+
+    // ═══════════════════════════════════════════════════
+    // API FETCH HELPER
+    // ═══════════════════════════════════════════════════
+    async function apiFetch(url, options = {}) {
+      const headers = { "Content-Type": "application/json", ...(options.headers || {}) };
+      if (currentToken) headers["Authorization"] = `Bearer ${currentToken}`;
+      const res = await fetch(url, { ...options, headers });
+      if (res.status === 401) { doLogout(); return {}; }
+      return res.json().catch(() => ({}));
+    }
+
+    // ═══════════════════════════════════════════════════
+    // TABS
+    // ═══════════════════════════════════════════════════
+    function switchTab(tabId, btnEl) {
+      document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+      if (btnEl) btnEl.classList.add("active");
+      else {
+        const btn = document.querySelector(`[data-tab="${tabId}"]`);
+        if (btn) btn.classList.add("active");
+      }
+
+      document.querySelectorAll("main > section").forEach(s => {
+        s.classList.remove("active");
+        s.style.display = "none";
+      });
+      const sec = document.getElementById(`tab-${tabId}`);
+      if (sec) { sec.classList.add("active"); sec.style.display = "block"; }
+
+      // Lazy loads on tab switch
+      if (tabId === "providers") loadProviders();
+      if (tabId === "catalog") loadCatalog();
+      if (tabId === "notifications") loadNotifications();
+      if (tabId === "admin") { loadUsers(); loadPolicies(); loadSquads(); loadApiKeys(); }
+      if (tabId === "connections") loadConnections();
+    }
+
+    function switchAdminTab(sub) {
+      document.querySelectorAll(".admin-sub-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".admin-sub-content").forEach(c => c.style.display = "none");
+      document.querySelector(`.admin-sub-tab[onclick="switchAdminTab('${sub}')"]`)?.classList.add("active");
+      document.getElementById(`admin-${sub}`).style.display = "block";
+    }
+
+    // ═══════════════════════════════════════════════════
+    // GOVERNANCE
+    // ═══════════════════════════════════════════════════
     async function testGovernanceValidation() {
       const output = document.getElementById("govResultOutput");
       const badge = document.getElementById("govDecisionBadge");
-      output.innerText = "Evaluando mandamientos en MongoDB Atlas...";
+      output.innerText = "⏳ Evaluando mandamientos en MongoDB Atlas...";
 
       try {
-        const res = await fetch("/api/governance/validate", {
+        const data = await apiFetch("/api/governance/validate", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             initiativeId: document.getElementById("govInitiativeId").value,
             intention: document.getElementById("govIntention").value,
@@ -452,20 +1384,12 @@
             briefText: document.getElementById("govBrief").value
           })
         });
-        const data = await res.json();
         output.innerText = JSON.stringify(data, null, 2);
 
         badge.className = "badge";
-        if (data.decision === "ALLOW") {
-          badge.classList.add("badge-allow");
-          badge.innerText = "AUTORIZADO (ALLOW)";
-        } else if (data.decision === "DENY") {
-          badge.classList.add("badge-deny");
-          badge.innerText = "BLOQUEADO (DENY)";
-        } else {
-          badge.classList.add("badge-review");
-          badge.innerText = "REVISIÓN MANUAL (REVIEW)";
-        }
+        if (data.decision === "ALLOW") { badge.classList.add("badge-allow"); badge.innerText = "✅ AUTORIZADO"; }
+        else if (data.decision === "DENY") { badge.classList.add("badge-deny"); badge.innerText = "🚫 BLOQUEADO"; }
+        else { badge.classList.add("badge-review"); badge.innerText = "⚠️ REVISIÓN"; }
       } catch (err) {
         output.innerText = "Error: " + err.message;
       }
@@ -476,76 +1400,175 @@
       testGovernanceValidation();
     }
 
+    // ═══════════════════════════════════════════════════
+    // PHOTOCRAFT
+    // ═══════════════════════════════════════════════════
+    let uploadedFilePath = null;
+
+    document.getElementById("pcOperation").addEventListener("change", function() {
+      document.getElementById("customDimensions").style.display = this.value === "CUSTOM" ? "grid" : "none";
+    });
+
+    function handleFileUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const nameEl = document.getElementById("uploadedFileName");
+      nameEl.textContent = "📎 " + file.name;
+      nameEl.style.display = "block";
+      uploadedFilePath = file.name;
+      showToast(`📁 Imagen seleccionada: ${file.name}`, "success");
+    }
+
+    function getDimensions() {
+      const op = document.getElementById("pcOperation").value;
+      const dims = {
+        AJO_INWEB_BANNER: { w: 1200, h: 628 },
+        WHATSAPP_CARD: { w: 800, h: 800 },
+        HIGH_RES_AVIF: { w: 1024, h: 640 },
+        EMAIL_HEADER: { w: 600, h: 300 },
+        INSTAGRAM_SQUARE: { w: 1080, h: 1080 },
+        LINKEDIN_BANNER: { w: 1200, h: 627 },
+        CUSTOM: { w: parseInt(document.getElementById("customWidth")?.value)||1200, h: parseInt(document.getElementById("customHeight")?.value)||628 }
+      };
+      return dims[op] || { w: 1200, h: 628 };
+    }
+
     async function runPhotoCraftJob() {
       const output = document.getElementById("pcResultOutput");
       const preview = document.getElementById("pcPreviewBox");
-      output.innerText = "Iniciando sandbox de PhotoCraft...";
+      const statusEl = document.getElementById("pcJobStatus");
+      const actionsBar = document.getElementById("pcActionsBar");
+      
+      output.innerText = "⏳ Iniciando job de PhotoCraft...";
+      statusEl.textContent = "⏳ Procesando...";
+      actionsBar.style.display = "none";
+
+      const dims = getDimensions();
+      const actions = [];
+      if (document.getElementById("addCrop")?.checked) actions.push({ type: "crop", width: dims.w, height: dims.h });
+      if (document.getElementById("addWatermark")?.checked) actions.push({ type: "watermark", brand: "BCP_OFFICIAL" });
+      if (document.getElementById("addOptimize")?.checked) actions.push({ type: "optimize" });
+      if (document.getElementById("addBranding")?.checked) actions.push({ type: "brand_overlay", theme: "BCP_V2" });
 
       try {
+        const jobId = `pc_job_${Date.now()}`;
         const res = await fetch("/api/photocraft/edit", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json", "Authorization": `Bearer ${currentToken}` },
           body: JSON.stringify({
-            sourceImagePath: "assets/input_sample.png",
+            jobId,
+            sourceImagePath: uploadedFilePath || "assets/input_sample.png",
             outputFormat: document.getElementById("pcFormat").value,
-            actions: [
-              { type: "crop", width: 1200, height: 628 },
-              { type: "watermark", brand: "BCP_OFFICIAL" }
-            ]
+            actions
           })
         });
         const data = await res.json();
         output.innerText = JSON.stringify(data, null, 2);
+        lastPcJobMeta = data;
 
-        if (data.metadata?.outputRelativeUrl) {
-          preview.innerHTML = `<img src="${data.metadata.outputRelativeUrl}" style="max-width:100%; max-height:100%; object-fit:contain;" alt="PhotoCraft Preview">`;
+        if (data.metadata?.outputRelativeUrl || data.outputPath) {
+          const url = data.metadata?.outputRelativeUrl;
+          const ext = document.getElementById("pcFormat").value;
+          
+          // Preview: use SVG viewer for svg, img for others
+          if (url) {
+            statusEl.textContent = `✅ Job ${jobId} completado`;
+            if (ext === "svg") {
+              preview.innerHTML = `<iframe src="${url}" style="width:100%;height:100%;border:none;background:#000;"></iframe>`;
+            } else {
+              preview.innerHTML = `<img src="${url}" style="max-width:100%; max-height:100%; object-fit:contain;" alt="PhotoCraft Preview" onerror="this.onerror=null;this.parentElement.innerHTML='<div style=\\'text-align:center;padding:1rem;color:#64748B;\\'>🖼️ Imagen generada en:<br><code style=\\'font-size:0.75rem;\\'>' + '${url}' + '</code></div>'">`;
+            }
+            
+            // Show actions bar
+            document.getElementById("pcDownloadLink").href = url;
+            document.getElementById("pcDownloadLink").download = `photocraft_${jobId}.${ext}`;
+            actionsBar.style.display = "flex";
+            showToast("✅ Job PhotoCraft completado exitosamente", "success");
+          } else {
+            preview.innerHTML = `<div class="preview-placeholder"><span class="icon">✅</span>Job completado — ver output_metadata.json</div>`;
+          }
         }
       } catch (err) {
         output.innerText = "Error ejecutando PhotoCraft: " + err.message;
+        statusEl.textContent = "❌ Error";
+        showToast("❌ Error en PhotoCraft: " + err.message, "error");
       }
     }
 
-    async function lookupLocation() {
-      const query = document.getElementById("placesQuery").value;
-      const output = document.getElementById("placesOutput");
-      output.innerText = "Consultando contexto de ubicación...";
-
-      const res = await fetch("/api/places/enrich", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ locationQuery: query, eventType: "CORPORATE_CEREMONY" })
-      });
-      const data = await res.json();
-      output.innerText = JSON.stringify(data, null, 2);
+    async function generateWithAI() {
+      const output = document.getElementById("pcResultOutput");
+      output.innerText = "⏳ Generando brief visual con Router IA...";
+      try {
+        const data = await apiFetch("/api/generate-brief", {
+          method: "POST",
+          body: JSON.stringify({ prompt: "Genera especificaciones técnicas de composición para un banner BCP en formato AJO InWeb 1200x628 con paleta azul #002A8F y naranja #FF7800. Indica overlays, tipografía y posición del CTA." })
+        });
+        output.innerText = JSON.stringify(data, null, 2);
+        showToast("🤖 Brief generado por IA", "success");
+      } catch (err) {
+        output.innerText = "Error: " + err.message;
+      }
     }
 
+    async function submitForApproval() {
+      if (!lastPcJobMeta) return;
+      showToast("📤 Enviando a cola de aprobación...", "success");
+      // Register in catalog as PENDING_APPROVAL
+      try {
+        const assetId = `AST-${Date.now()}`;
+        await apiFetch("/api/catalog", { method: "POST", body: JSON.stringify({}) });
+        showToast(`✅ Asset ${assetId} enviado a revisión`, "success");
+        loadNotifications();
+      } catch (err) {
+        showToast("Error al enviar: " + err.message, "error");
+      }
+    }
+
+    function viewInPhotocraft() {
+      window.open("https://photocraft.tools", "_blank");
+    }
+
+    // ═══════════════════════════════════════════════════
+    // CATALOG
+    // ═══════════════════════════════════════════════════
     async function loadCatalog() {
       const list = document.getElementById("catalogList");
-      list.innerText = "Consultando catálogo en Atlas...";
+      list.innerText = "⏳ Consultando catálogo en Atlas...";
       try {
-        const res = await fetch("/api/catalog");
-        const data = await res.json();
-        list.innerText = JSON.stringify(data, null, 2);
+        const status = document.getElementById("catalogStatusFilter")?.value;
+        const url = status ? `/api/catalog?status=${status}` : "/api/catalog";
+        const data = await apiFetch(url);
+        
+        if (data.assets && data.assets.length > 0) {
+          list.innerText = `// ${data.count} assets encontrados\n\n` + JSON.stringify(data.assets, null, 2);
+        } else {
+          list.innerText = `// Catálogo vacío — ${data.count || 0} assets\n// Use el tab PhotoCraft para crear nuevos assets`;
+        }
       } catch (err) {
         list.innerText = "Error cargando catálogo: " + err.message;
       }
     }
 
+    // ═══════════════════════════════════════════════════
+    // PROVIDERS
+    // ═══════════════════════════════════════════════════
     async function loadProviders() {
       const grid = document.getElementById("providersGrid");
+      if (!grid) return;
       try {
-        const res = await fetch("/api/providers");
-        const data = await res.json();
-        grid.innerHTML = data.providers.map(p => `
-          <div class="provider-pill">
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-              <strong>${p.name}</strong>
-              <span class="status-dot ${p.isConfigured ? 'dot-green' : 'dot-gray'}"></span>
+        const data = await apiFetch("/api/providers");
+        if (data.providers) {
+          grid.innerHTML = data.providers.map(p => `
+            <div class="provider-pill">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <strong style="font-size:0.9rem;">${p.name}</strong>
+                <span class="status-dot ${p.isConfigured ? 'dot-green' : 'dot-gray'}"></span>
+              </div>
+              <div style="font-size:0.75rem; color:var(--ink-2);">${p.type}</div>
+              <div style="font-size:0.72rem; color:var(--ink-3);">Keys: ${p.keyCount} • Activa: #${p.activeKeyIndex + 1}</div>
             </div>
-            <div style="font-size:0.75rem; color:var(--ink-2);">${p.type}</div>
-            <div style="font-size:0.75rem; color:var(--ink-3);">Keys disponibles: ${p.keyCount} (Activa: #${p.activeKeyIndex + 1})</div>
-          </div>
-        `).join("");
+          `).join("");
+        }
       } catch (err) {
         grid.innerHTML = "Error cargando proveedores.";
       }
@@ -553,22 +1576,440 @@
 
     async function testRouterPrompt() {
       const output = document.getElementById("routerOutput");
-      output.innerText = "Enviando al router de IA...";
+      output.innerText = "⏳ Enviando al router de IA...";
       try {
-        const res = await fetch("/api/generate-brief", {
+        const data = await apiFetch("/api/generate-brief", {
           method: "POST",
-          headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ prompt: document.getElementById("routerPromptInput").value })
         });
-        const data = await res.json();
         output.innerText = JSON.stringify(data, null, 2);
       } catch (err) {
         output.innerText = "Error: " + err.message;
       }
     }
 
-    // Initial check
-    loadProviders();
+    // ═══════════════════════════════════════════════════
+    // FLOW STUDIO
+    // ═══════════════════════════════════════════════════
+    async function loadFlowTemplates() {
+      try {
+        const data = await apiFetch("/api/flow-studio/templates");
+        const grid = document.getElementById("flowTemplateGrid");
+        if (data.templates) {
+          grid.innerHTML = Object.entries(data.templates).map(([key, t]) => `
+            <div class="flow-template-card ${key === selectedFlowTemplate ? 'selected' : ''}" onclick="selectFlowTemplate('${key}', this)">
+              <div class="template-icon">${t.icon}</div>
+              <div class="template-name">${t.label}</div>
+              <div class="template-desc">${t.description}</div>
+            </div>
+          `).join("");
+        }
+      } catch (err) {
+        console.warn("Flow templates load error:", err);
+      }
+    }
+
+    function selectFlowTemplate(key, el) {
+      selectedFlowTemplate = key;
+      document.querySelectorAll(".flow-template-card").forEach(c => c.classList.remove("selected"));
+      el.classList.add("selected");
+    }
+
+    async function generateFlowPreview() {
+      const frame = document.getElementById("flowFrame");
+      const title = document.getElementById("flowTitle").value;
+      frame.src = "";
+      frame.srcdoc = `<div style='color:#fff;padding:2rem;font-family:sans-serif;background:#05080E;height:100vh;display:flex;align-items:center;justify-content:center;'>⏳ Generando diagrama...</div>`;
+      try {
+        const res = await fetch("/api/flow-studio/generate", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ title, template: selectedFlowTemplate })
+        });
+        const html = await res.text();
+        frame.srcdoc = html;
+        showToast("⚡ Diagrama generado exitosamente", "success");
+      } catch (err) {
+        frame.srcdoc = `<div style='color:red;padding:2rem;'>Error: ${err.message}</div>`;
+      }
+    }
+
+    async function downloadFlowHtml() {
+      const title = document.getElementById("flowTitle").value || "flow_diagram";
+      const res = await fetch(`/api/flow-studio/preview?template=${selectedFlowTemplate}`);
+      const html = await res.text();
+      const blob = new Blob([html], { type: "text/html" });
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `${title.toLowerCase().replace(/[^a-z0-9]/g, "_")}.html`;
+      a.click();
+      showToast("⬇️ HTML descargado", "success");
+    }
+
+    // ═══════════════════════════════════════════════════
+    // NOTIFICATIONS / APPROVALS
+    // ═══════════════════════════════════════════════════
+    async function loadNotifications() {
+      const container = document.getElementById("notificationsContainer");
+      const countEl = document.getElementById("notifCount");
+      if (!container) return;
+
+      try {
+        const data = await apiFetch("/api/notifications/pending");
+        const items = data.items || [];
+
+        // Update bell badge
+        if (items.length > 0) {
+          countEl.textContent = items.length;
+          countEl.style.display = "flex";
+        } else {
+          countEl.style.display = "none";
+        }
+
+        if (items.length === 0) {
+          container.innerHTML = `<div style="text-align:center;padding:3rem;color:var(--ink-2);">✅ No hay assets pendientes de aprobación</div>`;
+          return;
+        }
+
+        container.innerHTML = items.map(item => `
+          <div class="notif-item" id="notif-${item.assetId || item._id}">
+            <div class="notif-icon">🎨</div>
+            <div class="notif-body">
+              <div class="notif-title">${item.title || item.assetId || "Asset sin título"}</div>
+              <div class="notif-meta">
+                ${item.category || "—"} • ${item.initiativeId || "—"} • 
+                Creado: ${item.createdAt ? new Date(item.createdAt).toLocaleString("es-PE") : "—"}
+              </div>
+              ${item.deliveryUrl ? `<div class="notif-meta" style="margin-top:0.25rem;"><a href="${item.deliveryUrl}" target="_blank" style="color:var(--info);">🔗 ${item.deliveryUrl}</a></div>` : ""}
+              <div class="notif-actions">
+                <button class="btn btn-success btn-sm" onclick="approveItem('${item.assetId}')">✅ Aprobar</button>
+                <button class="btn btn-danger btn-sm" onclick="rejectItem('${item.assetId}')">❌ Rechazar</button>
+              </div>
+            </div>
+          </div>
+        `).join("");
+      } catch (err) {
+        container.innerHTML = `<div style="color:var(--ink-2); padding:1rem;">Error cargando notificaciones: ${err.message}</div>`;
+      }
+    }
+
+    async function approveItem(assetId) {
+      if (!assetId) return;
+      const comment = prompt("Comentario de aprobación (opcional):", "Aprobado por gobernanza");
+      try {
+        const data = await apiFetch(`/api/assets/${assetId}/approve`, {
+          method: "POST",
+          body: JSON.stringify({ comment: comment || "" })
+        });
+        if (data.success) {
+          showToast(`✅ Asset ${assetId} aprobado`, "success");
+          document.getElementById(`notif-${assetId}`)?.remove();
+          loadNotifications();
+        }
+      } catch (err) {
+        showToast("Error: " + err.message, "error");
+      }
+    }
+
+    async function rejectItem(assetId) {
+      if (!assetId) return;
+      const reason = prompt("Motivo del rechazo:", "No cumple con mandamientos de marca");
+      try {
+        const data = await apiFetch(`/api/assets/${assetId}/reject`, {
+          method: "POST",
+          body: JSON.stringify({ reason: reason || "" })
+        });
+        if (data.success) {
+          showToast(`🚫 Asset ${assetId} rechazado`, "error");
+          loadNotifications();
+        }
+      } catch (err) {
+        showToast("Error: " + err.message, "error");
+      }
+    }
+
+    // ═══════════════════════════════════════════════════
+    // CONNECTIONS
+    // ═══════════════════════════════════════════════════
+    async function saveDbConnection() {
+      const output = document.getElementById("connOutput");
+      output.innerText = "⏳ Guardando conexión...";
+      try {
+        const data = await apiFetch("/api/connections", {
+          method: "POST",
+          body: JSON.stringify({
+            name: document.getElementById("connName").value,
+            type: document.getElementById("connType").value,
+            host: document.getElementById("connHost").value,
+            database: document.getElementById("connDatabase").value,
+            connectionString: document.getElementById("connHost").value
+          })
+        });
+        output.innerText = JSON.stringify(data, null, 2);
+        showToast("✅ Conexión guardada: " + data.connId, "success");
+        loadConnections();
+      } catch (err) {
+        output.innerText = "Error: " + err.message;
+      }
+    }
+
+    async function provisionPolicies() {
+      const output = document.getElementById("connOutput");
+      output.innerText = "⏳ Provisionando estructura de políticas DAM...";
+      try {
+        const data = await apiFetch("/api/connections/CONN-MAIN/provision", { method: "POST" });
+        output.innerText = JSON.stringify(data, null, 2);
+        showToast("⚡ Estructura DAM provisionada", "success");
+      } catch (err) {
+        output.innerText = "Error: " + err.message;
+      }
+    }
+
+    async function loadConnections() {
+      const list = document.getElementById("connectionsList");
+      if (!list) return;
+      try {
+        const data = await apiFetch("/api/connections");
+        const conns = data.connections || [];
+        if (conns.length === 0) {
+          list.innerHTML = `<div style="color:var(--ink-2); font-size:0.9rem;">No hay conexiones registradas. Configure una nueva.</div>`;
+          return;
+        }
+        list.innerHTML = conns.map(c => `
+          <div class="conn-card">
+            <span class="conn-type-badge">${c.type?.toUpperCase()}</span>
+            <div>
+              <div style="font-weight:700;">${c.name}</div>
+              <div style="font-size:0.8rem; color:var(--ink-2);">${c.host?.substring(0, 40)}...</div>
+            </div>
+            <div style="margin-left:auto;">
+              <span class="status-dot dot-green"></span>
+            </div>
+          </div>
+        `).join("");
+      } catch (err) {
+        if (list) list.innerHTML = `<div style="color:var(--ink-2);">No disponible (requiere auth ADMIN)</div>`;
+      }
+    }
+
+    // ═══════════════════════════════════════════════════
+    // ADMIN — USERS
+    // ═══════════════════════════════════════════════════
+    async function createUser() {
+      const result = document.getElementById("userCreateResult");
+      result.style.display = "block";
+      result.innerText = "⏳ Guardando usuario...";
+      try {
+        const data = await apiFetch("/api/admin/users", {
+          method: "POST",
+          body: JSON.stringify({
+            username: document.getElementById("newUsername").value,
+            password: document.getElementById("newPassword").value || undefined,
+            fullName: document.getElementById("newFullName").value,
+            role: document.getElementById("newRole").value,
+            networkGroup: document.getElementById("newNetworkGroup").value,
+            isActive: document.getElementById("newIsActive").checked
+          })
+        });
+        result.innerText = JSON.stringify(data, null, 2);
+        showToast("✅ Usuario guardado exitosamente", "success");
+        loadUsers();
+      } catch (err) {
+        result.innerText = "Error: " + err.message;
+      }
+    }
+
+    async function loadUsers() {
+      const list = document.getElementById("usersList");
+      if (!list) return;
+      try {
+        const data = await apiFetch("/api/admin/users");
+        const users = data.users || [];
+        if (users.length === 0) {
+          list.innerHTML = `<div style="color:var(--ink-2); font-size:0.9rem;">No hay usuarios registrados.</div>`;
+          return;
+        }
+        list.innerHTML = `
+          <table class="data-table">
+            <thead><tr><th>Usuario</th><th>Nombre</th><th>Rol</th><th>Grupo</th><th>Estado</th></tr></thead>
+            <tbody>
+              ${users.map(u => `
+                <tr>
+                  <td><code style="font-size:0.82rem;">${u.username}</code></td>
+                  <td>${u.fullName || "—"}</td>
+                  <td><span class="role-badge ${u.role}" style="font-size:0.72rem; padding:0.2rem 0.5rem;">${u.permissions?.icon || ""} ${u.role}</span></td>
+                  <td style="font-size:0.82rem; color:var(--ink-2);">${u.networkGroup || "—"}</td>
+                  <td><span class="status-dot ${u.isActive ? 'dot-green' : 'dot-gray'}"></span></td>
+                </tr>
+              `).join("")}
+            </tbody>
+          </table>
+        `;
+      } catch (err) {
+        list.innerHTML = `<div style="color:var(--ink-2);">Requiere permiso ADMIN</div>`;
+      }
+    }
+
+    // ═══════════════════════════════════════════════════
+    // ADMIN — POLICIES
+    // ═══════════════════════════════════════════════════
+    async function createPolicy() {
+      const result = document.getElementById("policyCreateResult");
+      result.style.display = "block";
+      result.innerText = "⏳ Creando política...";
+      try {
+        const data = await apiFetch("/api/admin/policies", {
+          method: "POST",
+          body: JSON.stringify({
+            name: document.getElementById("polName").value,
+            description: document.getElementById("polDesc").value,
+            allowedChannels: document.getElementById("polChannels").value.split(",").map(s=>s.trim()),
+            forbiddenTerms: document.getElementById("polForbidden").value.split(",").map(s=>s.trim()),
+            sensitiveIntentions: document.getElementById("polSensitive").value.split(",").map(s=>s.trim())
+          })
+        });
+        result.innerText = JSON.stringify(data, null, 2);
+        showToast("✅ Política creada: " + data.policyId, "success");
+        loadPolicies();
+      } catch (err) {
+        result.innerText = "Error: " + err.message;
+      }
+    }
+
+    async function loadPolicies() {
+      const list = document.getElementById("policiesList");
+      if (!list) return;
+      try {
+        const data = await apiFetch("/api/admin/policies");
+        list.innerText = JSON.stringify(data, null, 2);
+      } catch (err) {
+        list.innerText = "Requiere permiso canCreatePolicies";
+      }
+    }
+
+    // ═══════════════════════════════════════════════════
+    // ADMIN — SQUADS
+    // ═══════════════════════════════════════════════════
+    async function createSquad() {
+      const result = document.getElementById("squadCreateResult");
+      result.style.display = "block";
+      result.innerText = "⏳ Creando squad...";
+      const allowedRoles = [...document.querySelectorAll(".squadRole:checked")].map(c => c.value);
+      try {
+        const data = await apiFetch("/api/admin/squads", {
+          method: "POST",
+          body: JSON.stringify({
+            name: document.getElementById("squadName").value,
+            description: document.getElementById("squadDesc").value,
+            networkGroup: document.getElementById("squadNetworkGroup").value,
+            leaderId: document.getElementById("squadLeader").value,
+            allowedRoles
+          })
+        });
+        result.innerText = JSON.stringify(data, null, 2);
+        showToast("✅ Squad creado: " + data.squadId, "success");
+        loadSquads();
+      } catch (err) {
+        result.innerText = "Error: " + err.message;
+      }
+    }
+
+    async function loadSquads() {
+      const list = document.getElementById("squadsList");
+      if (!list) return;
+      try {
+        const data = await apiFetch("/api/admin/squads");
+        list.innerText = JSON.stringify(data, null, 2);
+      } catch (err) {
+        list.innerText = "Requiere permiso canManageSquads";
+      }
+    }
+
+    // ═══════════════════════════════════════════════════
+    // ADMIN — API KEYS
+    // ═══════════════════════════════════════════════════
+    async function createApiKey() {
+      const result = document.getElementById("apiKeyResult");
+      result.style.display = "block";
+      result.innerText = "⏳ Generando API Key...";
+      const permissions = [...document.querySelectorAll(".apiPerm:checked")].map(c => c.value);
+      try {
+        const data = await apiFetch("/api/admin/api-keys", {
+          method: "POST",
+          body: JSON.stringify({ label: document.getElementById("apiKeyLabel").value, permissions })
+        });
+        result.innerText = `✅ API Key generada:\n\n${JSON.stringify(data, null, 2)}\n\n⚠️ Copie esta key ahora. No se mostrará completa nuevamente.`;
+        showToast("🔑 API Key generada exitosamente", "success");
+        loadApiKeys();
+      } catch (err) {
+        result.innerText = "Error: " + err.message;
+      }
+    }
+
+    async function loadApiKeys() {
+      const list = document.getElementById("apiKeysList");
+      if (!list) return;
+      try {
+        const data = await apiFetch("/api/admin/api-keys");
+        list.innerText = JSON.stringify(data, null, 2);
+      } catch (err) {
+        list.innerText = "Requiere permiso canManageRoles";
+      }
+    }
+
+    // ═══════════════════════════════════════════════════
+    // ADMIN — CODE GEN
+    // ═══════════════════════════════════════════════════
+    async function generateCode() {
+      const result = document.getElementById("codeGenResult");
+      result.style.display = "block";
+      result.innerText = "⏳ Generando...";
+      try {
+        const data = await apiFetch("/api/admin/generate-code", {
+          method: "POST",
+          body: JSON.stringify({ prefix: document.getElementById("codePrefix").value })
+        });
+        result.innerText = `Código generado:\n\n${JSON.stringify(data, null, 2)}`;
+        showToast("⚡ Código generado: " + data.code, "success");
+      } catch (err) {
+        result.innerText = "Error: " + err.message;
+      }
+    }
+
+    // ═══════════════════════════════════════════════════
+    // GEO CONTEXT
+    // ═══════════════════════════════════════════════════
+    async function lookupLocation() {
+      const query = document.getElementById("placesQuery").value;
+      const output = document.getElementById("placesOutput");
+      output.innerText = "⏳ Consultando contexto de ubicación...";
+      try {
+        const data = await apiFetch("/api/places/enrich", {
+          method: "POST",
+          body: JSON.stringify({ locationQuery: query, eventType: "CORPORATE_CEREMONY" })
+        });
+        output.innerText = JSON.stringify(data, null, 2);
+      } catch (err) {
+        output.innerText = "Error: " + err.message;
+      }
+    }
+
+    // ═══════════════════════════════════════════════════
+    // TOAST
+    // ═══════════════════════════════════════════════════
+    let toastTimeout;
+    function showToast(msg, type = "success") {
+      const toast = document.getElementById("toast");
+      toast.textContent = msg;
+      toast.className = `show ${type}`;
+      clearTimeout(toastTimeout);
+      toastTimeout = setTimeout(() => toast.className = "", 3500);
+    }
+
+    // ═══════════════════════════════════════════════════
+    // START
+    // ═══════════════════════════════════════════════════
+    init();
   </script>
 </body>
 </html>

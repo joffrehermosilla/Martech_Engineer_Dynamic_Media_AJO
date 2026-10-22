@@ -815,27 +815,166 @@ footer {
 .path-btn.active { background: var(--ink-1); color: var(--bg); border-color: var(--signal); }
 .path-btn.active .num { background: var(--signal); border-color: var(--signal); color: #121824; }
 .node { cursor: pointer; }
+
+/* ── EDITED NODE BADGE ─────────────────────────────────────────────── */
+.node.node-edited { border-color: #FF7800 !important; }
+.node.node-edited::after {
+  content: 'EDITADO';
+  position: absolute;
+  top: -9px;
+  right: 6px;
+  background: #FF7800;
+  color: #fff;
+  font-size: 8px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 1px 6px;
+  border-radius: 999px;
+  pointer-events: none;
+  z-index: 10;
+}
+.node { position: relative; }
+
+/* ── DRAWER ────────────────────────────────────────────────────────── */
 .dr-backdrop { position: fixed; inset: 0; background: rgba(0,0,0,.45); opacity: 0; pointer-events: none; transition: opacity .2s; z-index: 190; }
 .dr-backdrop.open { opacity: 1; pointer-events: auto; }
-.drawer { position: fixed; top: 0; right: 0; height: 100vh; width: min(540px, 94vw); background: var(--surface); border-left: 1px solid var(--border); box-shadow: var(--shadow-lg); transform: translateX(105%); transition: transform .25s ease; z-index: 200; display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); }
+.drawer { position: fixed; top: 0; right: 0; height: 100vh; width: min(580px, 96vw); background: var(--surface); border-left: 1px solid var(--border); box-shadow: var(--shadow-lg); transform: translateX(105%); transition: transform .25s ease; z-index: 200; display: flex; flex-direction: column; padding-top: env(safe-area-inset-top, 0px); }
 .drawer.open { transform: translateX(0); }
-.dr-head { padding: 20px 22px 14px; border-bottom: 1px solid var(--border); display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; }
-.dr-head h3 { font-size: 20px; font-weight: 800; letter-spacing: -.01em; }
-.dr-sub { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
-.dr-chip { display: inline-block; margin-top: 8px; font-size: 11px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; border: 1px solid var(--lane, var(--border)); color: var(--ink-1); }
-.dr-close { background: var(--surface-2); border: 1px solid var(--border); color: var(--ink-1); border-radius: 8px; width: 34px; height: 34px; cursor: pointer; font-size: 16px; }
+.dr-head { padding: 16px 18px 12px; border-bottom: 1px solid var(--border); display: flex; gap: 12px; align-items: flex-start; justify-content: space-between; }
+.dr-head h3 { font-size: 18px; font-weight: 800; letter-spacing: -.01em; }
+.dr-sub { font-size: 12px; color: var(--ink-2); margin-top: 2px; }
+.dr-chip { display: inline-block; margin-top: 6px; font-size: 10px; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; padding: 2px 9px; border-radius: 999px; border: 1px solid var(--lane, var(--border)); color: var(--ink-1); }
+.dr-close { background: var(--surface-2); border: 1px solid var(--border); color: var(--ink-1); border-radius: 8px; width: 32px; height: 32px; cursor: pointer; font-size: 15px; flex: none; }
 .dr-close:hover { border-color: var(--border-focus); }
-.dr-body { padding: 8px 22px 40px; overflow-y: auto; flex: 1; }
-.dr-h { font-size: 11.5px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); margin: 18px 0 6px; font-weight: 700; }
-.dr-p { font-family: var(--font-read); font-size: 16px; line-height: 1.5; color: var(--ink-2); }
-.dr-list { margin-left: 18px; color: var(--ink-2); font-size: 14px; line-height: 1.5; }
-.dr-code { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 12px; overflow-x: auto; font-family: var(--font-mono); font-size: 12px; color: var(--ink-1); }
+.dr-tabs { display: flex; border-bottom: 1px solid var(--border); }
+.dr-tab { flex: 1; padding: 10px; font-size: 12px; font-weight: 700; text-align: center; cursor: pointer; color: var(--ink-3); border: none; background: none; border-bottom: 2px solid transparent; transition: all 0.2s; }
+.dr-tab.active { color: #FF7800; border-bottom-color: #FF7800; background: rgba(255,120,0,0.05); }
+.dr-tab-panel { display: none; }
+.dr-tab-panel.active { display: block; }
+.dr-body { padding: 0 18px 40px; overflow-y: auto; flex: 1; }
+.dr-h { font-size: 11px; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); margin: 16px 0 5px; font-weight: 700; }
+.dr-p { font-family: var(--font-read); font-size: 15px; line-height: 1.5; color: var(--ink-2); }
+.dr-list { margin-left: 16px; color: var(--ink-2); font-size: 13px; line-height: 1.5; }
+.dr-code { background: var(--surface-2); border: 1px solid var(--border); border-radius: 10px; padding: 12px; overflow-x: auto; font-family: var(--font-mono); font-size: 11px; color: var(--ink-1); }
 .dr-steps, .dr-links { display: flex; flex-direction: column; gap: 6px; }
-.dr-step { text-align: left; background: var(--surface-2); border: 1px solid var(--border); color: var(--ink-1); border-radius: 8px; padding: 8px 12px; font-size: 13px; cursor: pointer; }
+.dr-step { text-align: left; background: var(--surface-2); border: 1px solid var(--border); color: var(--ink-1); border-radius: 8px; padding: 8px 12px; font-size: 12px; cursor: pointer; }
 .dr-step:hover { border-color: var(--signal); }
-.dr-link { color: var(--ink-1); font-size: 13.5px; font-weight: 600; text-decoration: none; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; background: var(--surface-2); }
+.dr-link { color: var(--ink-1); font-size: 13px; font-weight: 600; text-decoration: none; border: 1px solid var(--border); border-radius: 8px; padding: 8px 12px; background: var(--surface-2); }
 .dr-link.primary { background: var(--ink-1); color: var(--bg); }
 .dr-link:hover { border-color: var(--signal); }
+
+/* ── EDIT FORM ─────────────────────────────────────────────────────── */
+.edit-form { padding: 10px 0; }
+.ef-group { margin-bottom: 14px; }
+.ef-label { display: block; font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--ink-3); margin-bottom: 4px; }
+.ef-input, .ef-textarea, .ef-select {
+  width: 100%;
+  background: rgba(5,8,14,0.8);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 8px 10px;
+  color: var(--ink-1);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  transition: border-color 0.2s;
+}
+.ef-input:focus, .ef-textarea:focus, .ef-select:focus { outline: none; border-color: #FF7800; box-shadow: 0 0 0 2px rgba(255,120,0,0.12); }
+.ef-textarea { resize: vertical; min-height: 70px; }
+.ef-hint { font-size: 10px; color: var(--ink-3); margin-top: 3px; }
+.ef-img-preview { margin-top: 8px; border-radius: 8px; max-width: 100%; max-height: 120px; display: none; border: 1px solid var(--border); }
+.ef-status-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.ef-status-pill {
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 1.5px solid var(--border);
+  background: var(--surface-2);
+  color: var(--ink-2);
+  font-size: 11px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+.ef-status-pill.sel { color: #fff; }
+.ef-status-pill[data-status="DRAFT"].sel { background: #475569; border-color: #475569; }
+.ef-status-pill[data-status="IN_REVIEW"].sel { background: #D97706; border-color: #D97706; }
+.ef-status-pill[data-status="APPROVED"].sel { background: #059669; border-color: #059669; }
+.ef-status-pill[data-status="REJECTED"].sel { background: #DC2626; border-color: #DC2626; }
+.btn-save-node {
+  width: 100%;
+  padding: 10px;
+  background: linear-gradient(135deg, #FF7800, #FF9900);
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-top: 6px;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.btn-save-node:hover { filter: brightness(1.1); transform: translateY(-1px); }
+.btn-save-node:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+.save-status {
+  margin-top: 8px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-size: 12px;
+  font-weight: 600;
+  display: none;
+  text-align: center;
+}
+.save-status.ok { background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.4); color: #10B981; display: block; }
+.save-status.err { background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #EF4444; display: block; }
+
+/* ── FLOW HEADER SAVE BAR ─────────────────────────────────────────── */
+.save-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  background: rgba(255,120,0,0.07);
+  border-bottom: 1px solid rgba(255,120,0,0.2);
+  font-size: 12px;
+  color: var(--ink-2);
+  flex-wrap: wrap;
+}
+.save-bar input[type=text] {
+  background: rgba(5,8,14,0.6);
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  color: var(--ink-1);
+  padding: 6px 10px;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  width: 240px;
+}
+.save-bar input[type=text]:focus { outline: none; border-color: #FF7800; }
+.btn-bar {
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  background: var(--surface-2);
+  color: var(--ink-1);
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.18s;
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+.btn-bar:hover { border-color: #FF7800; color: #FF7800; }
+.btn-bar.primary { background: #FF7800; border-color: #FF7800; color: #fff; }
+.btn-bar.primary:hover { filter: brightness(1.1); }
+.bar-edited-count { background: #FF7800; color: #fff; font-size: 10px; font-weight: 800; padding: 1px 7px; border-radius: 999px; }
+.save-bar-status { font-size: 11px; }
+.save-bar-status.ok { color: #10B981; }
+.save-bar-status.err { color: #EF4444; }
 </style>
 </head>
 
@@ -858,7 +997,24 @@ footer {
   </div>
 </header>
 
+<!-- ── FLOW SAVE BAR (Fase 4: edición y persistencia) ──────────────── -->
+<div class="save-bar" id="flowSaveBar">
+  <span style="font-weight:700;color:#FF7800;">💾 Flow Studio</span>
+  <input type="text" id="flowTitleInput" placeholder="Nombre del flujo..." value="Flujo AEM Dynamic Media BCP" />
+  <button class="btn-bar primary" onclick="saveFlowToAtlas()" id="btnSaveFlow" title="Guardar flujo en MongoDB Atlas">
+    💾 Guardar en Atlas
+  </button>
+  <button class="btn-bar" onclick="exportFlowHtml()" id="btnExportFlow" title="Exportar HTML con estado">
+    📤 Exportar HTML
+  </button>
+  <span id="editedCount" style="display:none">
+    <span class="bar-edited-count" id="editedCountNum">0</span> nodos editados
+  </span>
+  <span class="save-bar-status" id="saveBarStatus"></span>
+</div>
+
 <main class="wrap">
+
 
   <!-- Hero Section -->
   <section class="hero">
@@ -1300,33 +1456,137 @@ function dList(items) {
   return ul;
 }
 
+// ── ESTADO DE EDICIÓN DE NODOS ─────────────────────────────────────────────
+const nodeEdits = {}; // { nodeId: { title, subtitle, summary, inputs, outputs, rules, imageUrl, nodeStatus } }
+let currentFlowId = null; // ID del flujo guardado en Atlas (null si es nuevo)
+let activeDrawerNode = null;
+
+function getNodeDetail(nodeId) {
+  // Merge: base detail + any user edits
+  const base = DETAILS[nodeId] || {};
+  const edits = nodeEdits[nodeId] || {};
+  return { ...base, ...edits };
+}
+
+function markNodeEdited(nodeId) {
+  const el = document.querySelector(`[data-node="${nodeId}"]`);
+  if (el) el.classList.add("node-edited");
+  updateEditedCount();
+}
+
+function updateEditedCount() {
+  const count = Object.keys(nodeEdits).length;
+  const el = document.getElementById("editedCountNum");
+  const wrap = document.getElementById("editedCount");
+  if (el) el.textContent = count;
+  if (wrap) wrap.style.display = count > 0 ? "flex" : "none";
+}
+
+function setSaveBarStatus(msg, type = "") {
+  const el = document.getElementById("saveBarStatus");
+  if (!el) return;
+  el.textContent = msg;
+  el.className = "save-bar-status" + (type ? " " + type : "");
+}
+
+async function saveFlowToAtlas() {
+  const btn = document.getElementById("btnSaveFlow");
+  const title = document.getElementById("flowTitleInput")?.value?.trim() || "Flujo sin título";
+  if (btn) { btn.disabled = true; btn.textContent = "⏳ Guardando..."; }
+  setSaveBarStatus("Guardando...");
+  try {
+    const token = localStorage.getItem("dam_token");
+    if (!token) { setSaveBarStatus("⚠️ Inicia sesión en el Agent Hub para guardar", "err"); return; }
+    const body = {
+      flowId: currentFlowId || undefined,
+      templateKey: window.FLOW_TEMPLATE_KEY || "AEM_DYNAMIC_MEDIA_E2E",
+      title,
+      nodeEdits,
+      approvalStatus: window.currentFlowStatus || "DRAFT"
+    };
+    const res = await fetch("/api/flow-studio/saved-flows", {
+      method: "POST",
+      headers: { "Content-Type": "application/json", "Authorization": "Bearer " + token }
+    , body: JSON.stringify(body) });
+    const data = await res.json();
+    if (!res.ok) throw new Error(data.error || res.statusText);
+    currentFlowId = data.flow?.flowId || currentFlowId;
+    setSaveBarStatus("✅ Guardado en Atlas " + new Date().toLocaleTimeString("es-PE"), "ok");
+    setTimeout(() => setSaveBarStatus(""), 4000);
+  } catch(err) {
+    setSaveBarStatus("❌ Error: " + err.message, "err");
+  } finally {
+    if (btn) { btn.disabled = false; btn.innerHTML = "💾 Guardar en Atlas"; }
+  }
+}
+
+async function exportFlowHtml() {
+  if (!currentFlowId) {
+    setSaveBarStatus("⚠️ Guarda el flujo primero antes de exportar", "err");
+    setTimeout(() => setSaveBarStatus(""), 3000);
+    return;
+  }
+  const token = localStorage.getItem("dam_token");
+  if (!token) { setSaveBarStatus("⚠️ Inicia sesión para exportar", "err"); return; }
+  setSaveBarStatus("⏳ Generando HTML...");
+  try {
+    const res = await fetch(`/api/flow-studio/saved-flows/${currentFlowId}/export`, {
+      method: "POST",
+      headers: { "Authorization": "Bearer " + token }
+    });
+    if (!res.ok) throw new Error(await res.text());
+    const blob = await res.blob();
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `flow_${currentFlowId}.html`;
+    a.click();
+    URL.revokeObjectURL(url);
+    setSaveBarStatus("✅ HTML exportado", "ok");
+    setTimeout(() => setSaveBarStatus(""), 3000);
+  } catch(err) {
+    setSaveBarStatus("❌ Error al exportar: " + err.message, "err");
+  }
+}
+
+// ── DRAWER ─────────────────────────────────────────────────────────────────
 let lastFocus = null;
 function openDetail(nodeId) {
-  const d = DETAILS[nodeId];
-  if (!d) return;
+  const d = getNodeDetail(nodeId);
+  activeDrawerNode = nodeId;
   lastFocus = document.activeElement;
-  const body = document.getElementById("drawerBody");
-  body.replaceChildren();
-  document.getElementById("drawerTitle").textContent = d.title;
+
+  // Update header
+  document.getElementById("drawerTitle").textContent = d.title || (NODES.find(n=>n.id===nodeId)?.t || nodeId);
   document.getElementById("drawerSub").textContent = d.subtitle || "";
   const chip = document.getElementById("drawerLane");
-  chip.textContent = d.laneName || "";
-  chip.style.setProperty("--lane", "var(--" + d.lane + ")");
+  const lane = d.lane || (NODES.find(n=>n.id===nodeId)?.lane || "");
+  chip.textContent = d.laneName || lane;
+  chip.style.setProperty("--lane", "var(--" + lane + ")");
 
-  if (d.summary) body.appendChild(dSection("Qué hace", mk("p", "dr-p", d.summary)));
-  if (d.why) body.appendChild(dSection("Por qué existe", mk("p", "dr-p", d.why)));
-  if (d.inputs && d.inputs.length) body.appendChild(dSection("Entradas", dList(d.inputs)));
-  if (d.outputs && d.outputs.length) body.appendChild(dSection("Salidas", dList(d.outputs)));
-  if (d.rules && d.rules.length) body.appendChild(dSection("Reglas clave", dList(d.rules)));
-  if (d.errors && d.errors.length) body.appendChild(dSection("Qué puede fallar", dList(d.errors)));
+  // Populate READ tab
+  const readBody = document.getElementById("drawerReadBody");
+  readBody.replaceChildren();
+  if (d.summary) readBody.appendChild(dSection("Qué hace", mk("p", "dr-p", d.summary)));
+  if (d.why) readBody.appendChild(dSection("Por qué existe", mk("p", "dr-p", d.why)));
+  if (d.inputs && d.inputs.length) readBody.appendChild(dSection("Entradas", dList(d.inputs)));
+  if (d.outputs && d.outputs.length) readBody.appendChild(dSection("Salidas", dList(d.outputs)));
+  if (d.rules && d.rules.length) readBody.appendChild(dSection("Reglas clave", dList(d.rules)));
+  if (d.errors && d.errors.length) readBody.appendChild(dSection("Qué puede fallar", dList(d.errors)));
   if (d.example) {
     const pre = mk("pre", "dr-code");
     pre.appendChild(mk("code", "", JSON.stringify(d.example, null, 2)));
-    body.appendChild(dSection("Ejemplo de payload", pre));
+    readBody.appendChild(dSection("Ejemplo de payload", pre));
   }
-  if (d.owner) body.appendChild(dSection("Responsable", mk("p", "dr-p", d.owner)));
+  if (d.owner) readBody.appendChild(dSection("Responsable", mk("p", "dr-p", d.owner)));
+  if (d.imageUrl) {
+    const img = mk("img", "ef-img-preview");
+    img.src = d.imageUrl; img.style.display = "block";
+    img.alt = "Imagen del nodo";
+    readBody.appendChild(dSection("Imagen", img));
+  }
 
-  // Pasos donde participa este nodo (se calcula solo, aunque no haya detalle escrito)
+  // Steps donde aparece
   const where = mk("div", "dr-steps");
   TOURS.forEach((t, ti) => t.steps.forEach((s, si) => {
     if (s.node === nodeId || (s.route || []).includes(nodeId)) {
@@ -1336,7 +1596,7 @@ function openDetail(nodeId) {
       where.appendChild(b);
     }
   }));
-  if (where.children.length) body.appendChild(dSection("Aparece en estos pasos", where));
+  if (where.children.length) readBody.appendChild(dSection("Aparece en estos pasos", where));
 
   const links = (d.links || []).map(l => ({ label: l.label, url: safeUrl(l.url) })).filter(l => l.url);
   if (d.drilldown && safeUrl(d.drilldown)) links.unshift({ label: "Abrir flujo relacionado", url: d.drilldown, primary: true });
@@ -1347,14 +1607,134 @@ function openDetail(nodeId) {
       a.href = l.url; a.target = "_blank"; a.rel = "noopener noreferrer";
       box.appendChild(a);
     });
-    body.appendChild(dSection("Más información", box));
+    readBody.appendChild(dSection("Más información", box));
   }
+
+  // Populate EDIT tab with current values
+  populateEditTab(nodeId, d);
+
+  // Show read tab by default
+  switchDrawerTab("read");
 
   document.getElementById("detailBackdrop").classList.add("open");
   const dr = document.getElementById("detailDrawer");
   dr.classList.add("open");
   dr.setAttribute("aria-hidden", "false");
   document.getElementById("drawerClose").focus();
+}
+
+function switchDrawerTab(tab) {
+  document.querySelectorAll(".dr-tab").forEach(t => t.classList.toggle("active", t.dataset.tab === tab));
+  document.querySelectorAll(".dr-tab-panel").forEach(p => p.classList.toggle("active", p.dataset.panel === tab));
+}
+
+function populateEditTab(nodeId, d) {
+  const node = NODES.find(n => n.id === nodeId);
+  const edit = document.getElementById("editPanel");
+  const status = nodeEdits[nodeId]?.nodeStatus || "DRAFT";
+
+  edit.innerHTML = `
+    <div class="edit-form">
+      <div class="ef-group">
+        <label class="ef-label">Título del nodo</label>
+        <input class="ef-input" id="ef_title" type="text" value="${escHtml(d.title || node?.t || "")}" placeholder="Título del nodo" />
+      </div>
+      <div class="ef-group">
+        <label class="ef-label">Subtítulo / rol</label>
+        <input class="ef-input" id="ef_subtitle" type="text" value="${escHtml(d.subtitle || node?.s || "")}" placeholder="Ej: Motor Rust de Edición" />
+      </div>
+      <div class="ef-group">
+        <label class="ef-label">Descripción (qué hace)</label>
+        <textarea class="ef-textarea" id="ef_summary" rows="3" placeholder="Descripción detallada...">${escHtml(d.summary || "")}</textarea>
+      </div>
+      <div class="ef-group">
+        <label class="ef-label">Entradas (una por línea)</label>
+        <textarea class="ef-textarea" id="ef_inputs" rows="3" placeholder="campo1\ncampo2">${escHtml((d.inputs || []).join("\n"))}</textarea>
+      </div>
+      <div class="ef-group">
+        <label class="ef-label">Salidas (una por línea)</label>
+        <textarea class="ef-textarea" id="ef_outputs" rows="3" placeholder="resultado1\nresultado2">${escHtml((d.outputs || []).join("\n"))}</textarea>
+      </div>
+      <div class="ef-group">
+        <label class="ef-label">Reglas clave (una por línea)</label>
+        <textarea class="ef-textarea" id="ef_rules" rows="3" placeholder="Regla 1\nRegla 2">${escHtml((d.rules || []).join("\n"))}</textarea>
+      </div>
+      <div class="ef-group">
+        <label class="ef-label">URL de imagen del nodo</label>
+        <input class="ef-input" id="ef_imageUrl" type="url" value="${escHtml(d.imageUrl || "")}" placeholder="https://..." />
+        <p class="ef-hint">Imagen que se mostrará en el panel de detalle.</p>
+        <img class="ef-img-preview" id="ef_imgPreview" alt="Preview" />
+      </div>
+      <div class="ef-group">
+        <label class="ef-label">Estado del nodo</label>
+        <div class="ef-status-row">
+          ${["DRAFT","IN_REVIEW","APPROVED","REJECTED"].map(s =>
+            `<button type="button" class="ef-status-pill ${s === status ? "sel" : ""}" data-status="${s}" onclick="selectNodeStatus('${s}')">${s}</button>`
+          ).join("")}
+        </div>
+      </div>
+      <button class="btn-save-node" id="btnSaveNode" onclick="saveNodeEdit('${nodeId}')">
+        💾 Guardar cambios del nodo
+      </button>
+      <div class="save-status" id="nodeEditStatus"></div>
+    </div>
+  `;
+
+  // Live preview of image URL
+  const imgInput = document.getElementById("ef_imageUrl");
+  const imgPreview = document.getElementById("ef_imgPreview");
+  if (imgInput && imgPreview) {
+    const showPreview = () => {
+      const url = imgInput.value.trim();
+      if (url) { imgPreview.src = url; imgPreview.style.display = "block"; }
+      else imgPreview.style.display = "none";
+    };
+    imgInput.addEventListener("input", showPreview);
+    if (d.imageUrl) showPreview();
+  }
+}
+
+function escHtml(str) {
+  return String(str || "").replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
+}
+
+function selectNodeStatus(status) {
+  document.querySelectorAll(".ef-status-pill").forEach(p => {
+    p.classList.toggle("sel", p.dataset.status === status);
+  });
+}
+
+function saveNodeEdit(nodeId) {
+  const btn = document.getElementById("btnSaveNode");
+  const statusEl = document.getElementById("nodeEditStatus");
+  if (btn) btn.disabled = true;
+
+  const title = document.getElementById("ef_title")?.value?.trim() || "";
+  const subtitle = document.getElementById("ef_subtitle")?.value?.trim() || "";
+  const summary = document.getElementById("ef_summary")?.value?.trim() || "";
+  const inputs = (document.getElementById("ef_inputs")?.value || "").split("\n").map(s=>s.trim()).filter(Boolean);
+  const outputs = (document.getElementById("ef_outputs")?.value || "").split("\n").map(s=>s.trim()).filter(Boolean);
+  const rules = (document.getElementById("ef_rules")?.value || "").split("\n").map(s=>s.trim()).filter(Boolean);
+  const imageUrl = document.getElementById("ef_imageUrl")?.value?.trim() || "";
+  const nodeStatus = document.querySelector(".ef-status-pill.sel")?.dataset?.status || "DRAFT";
+
+  // Save locally
+  nodeEdits[nodeId] = { title, subtitle, summary, inputs, outputs, rules, imageUrl, nodeStatus };
+  markNodeEdited(nodeId);
+
+  // Update the read panel title if changed
+  if (title) document.getElementById("drawerTitle").textContent = title;
+
+  if (statusEl) {
+    statusEl.className = "save-status ok";
+    statusEl.textContent = `✅ Nodo guardado localmente. Usa "Guardar en Atlas" para persistir.`;
+    setTimeout(() => { if (statusEl) statusEl.className = "save-status"; }, 4000);
+  }
+  if (btn) btn.disabled = false;
+  
+  // Switch back to read tab to show the updated view
+  switchDrawerTab("read");
+  openDetail(nodeId);
 }
 
 function closeDetail() {
@@ -1390,7 +1770,17 @@ window.addEventListener("resize", () => {
     </div>
     <button type="button" class="dr-close" id="drawerClose" aria-label="Cerrar" onclick="closeDetail()">✕</button>
   </div>
-  <div class="dr-body" id="drawerBody"></div>
+  <!-- Tabs: Detalle | Editar -->
+  <div class="dr-tabs">
+    <button class="dr-tab active" data-tab="read" onclick="switchDrawerTab('read')">📋 Detalle</button>
+    <button class="dr-tab" data-tab="edit" onclick="switchDrawerTab('edit')">✏️ Editar Nodo</button>
+  </div>
+  <div class="dr-body">
+    <!-- READ TAB -->
+    <div class="dr-tab-panel active" data-panel="read" id="drawerReadBody"></div>
+    <!-- EDIT TAB -->
+    <div class="dr-tab-panel" data-panel="edit" id="editPanel"></div>
+  </div>
 </aside>
 </body>
 </html>
