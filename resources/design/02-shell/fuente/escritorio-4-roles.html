@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="utf-8">
+<title>Shell · los cuatro roles</title>
+<script src="55343560.javascript"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans+Condensed:wght@600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#E3E1DA;font-family:'IBM Plex Sans',system-ui,sans-serif}
+a{color:#1E3FD0}a:hover{color:#152E9E}
+*,*::before,*::after{box-sizing:border-box}
+.icon-btn{position:relative;width:44px;height:44px;display:flex;align-items:center;justify-content:center;padding:0;background:transparent;border:1px solid transparent;border-radius:2px;color:#0E0E0C;cursor:pointer}
+.icon-btn:hover{background:#E3E1DA}
+.icon-btn:focus-visible{outline:2px solid #1E3FD0;outline-offset:2px}
+.count{position:absolute;top:4px;right:2px;min-width:20px;height:18px;padding:0 5px;display:flex;align-items:center;justify-content:center;background:#0E0E0C;color:#F8F7F3;border-radius:2px;font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600}
+.view-info{display:flex;align-items:center;gap:8px;height:44px;padding:0 12px;background:transparent;border:1px solid transparent;border-radius:2px;color:#0E0E0C;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14px;font-weight:500;cursor:pointer}
+.view-info:hover{background:#E3E1DA}
+.view-info:focus-visible{outline:2px solid #1E3FD0;outline-offset:2px}
+.btn-sec{display:flex;align-items:center;gap:8px;height:44px;padding:0 14px;background:transparent;border:1px solid #0E0E0C;border-radius:2px;color:#0E0E0C;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14px;font-weight:600;cursor:pointer}
+.btn-sec:hover{background:#0E0E0C;color:#F8F7F3}
+.btn-sec:focus-visible{outline:2px solid #1E3FD0;outline-offset:2px}
+.tab-btn{position:relative;display:flex;align-items:center;gap:12px;width:100%;min-height:44px;padding:0 12px 0 16px;background:transparent;border:0;border-radius:2px;color:#0E0E0C;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:14px;font-weight:500;text-align:left;cursor:pointer}
+.tab-btn svg{flex:none;color:#4A4943}
+.tab-btn:hover{background:#E3E1DA}
+.tab-btn:focus-visible{outline:2px solid #1E3FD0;outline-offset:-2px}
+.tab-btn.is-active{background:#FFFFFF;font-weight:600;box-shadow:inset 0 0 0 1px #0E0E0C}
+.tab-btn.is-active::before{content:"";position:absolute;left:0;top:0;bottom:0;width:4px;background:#1E3FD0}
+.tab-btn.is-active svg{color:#1E3FD0}
+.ext{display:flex;align-items:center;gap:8px;min-height:44px;padding:0 12px 0 46px;color:#4A4943;font-family:'IBM Plex Mono',monospace;font-size:12px;text-decoration:none;border-radius:2px}
+.ext:hover{color:#0E0E0C;background:#E3E1DA}
+.ext:focus-visible{outline:2px solid #1E3FD0;outline-offset:-2px}
+</style>
+</helmet>
+<div style="width: 3088px; height: 2080px; padding: 64px; background: #E3E1DA; font-family: 'IBM Plex Sans', system-ui, sans-serif; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 80px">
+  <sc-for list="{{roles}}" as="r" hint-placeholder-count="4">
+    <div style="display: flex; flex-direction: column; gap: 16px">
+      <p style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 14px; font-weight: 500; color: #0E0E0C">{{r.caption}}</p>
+
+      <div style="width: 1440px; height: 900px; display: flex; flex-direction: column; background: #F8F7F3; color: #0E0E0C; border: 1px solid #0E0E0C; overflow: hidden">
+
+        <header style="height: 64px; flex: none; display: flex; align-items: center; justify-content: space-between; gap: 16px; padding: 0 16px 0 24px; background: #EEECE6; border-bottom: 1px solid #0E0E0C">
+          <div style="display: flex; align-items: center; gap: 12px">
+            <svg width="26" height="26" sc-camel-view-box="0 0 28 28" fill="none" aria-hidden="true"><rect x="1.75" y="9.75" width="6.5" height="8.5" stroke="#0E0E0C" stroke-width="1.5"></rect><rect x="10.75" y="9.75" width="6.5" height="8.5" stroke="#0E0E0C" stroke-width="1.5"></rect><rect x="19" y="9" width="8" height="10" fill="#0E0E0C"></rect></svg>
+            <span style="font-size: 17px; font-weight: 700; letter-spacing: -0.01em">DAM Platform</span>
+            <span style="padding-left: 12px; border-left: 1px solid #B9B6AC; font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 500; color: #4A4943">Agent Hub v2.0</span>
+          </div>
+          <div style="display: flex; align-items: center; gap: 8px">
+            <button type="button" class="view-info"><span style="font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: #4A4943">Vista</span><span>{{r.view}}</span><svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"></circle><path d="M12 11v5"></path><path d="M12 8h.01"></path></svg></button>
+            <sc-if value="{{r.bell}}" hint-placeholder-val="{{ true }}">
+              <button type="button" class="icon-btn" aria-label="Aprobaciones pendientes: {{r.count}}">
+                <svg width="20" height="20" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15z"></path><path d="M10 20a2 2 0 0 0 4 0"></path></svg>
+                <span class="count">{{r.count}}</span>
+              </button>
+            </sc-if>
+            <div style="display: flex; align-items: center; gap: 8px; height: 32px; padding: 0 10px; border-radius: 2px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 600; letter-spacing: 0.04em; color: {{r.badgeInk}}; background: {{r.badgeBg}}">
+              <sc-if value="{{r.isAdmin}}" hint-placeholder-val="{{ true }}"><svg width="13" height="13" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"></circle><path d="M10.8 12.2L20 3"></path><path d="M16 7l3 3"></path></svg></sc-if>
+              <sc-if value="{{r.isMartech}}" hint-placeholder-val="{{ false }}"><svg width="13" height="13" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 8l-4 4 4 4"></path><path d="M16 8l4 4-4 4"></path></svg></sc-if>
+              <sc-if value="{{r.isVcd}}" hint-placeholder-val="{{ false }}"><svg width="13" height="13" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"></path><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"></path></svg></sc-if>
+              <sc-if value="{{r.isViewer}}" hint-placeholder-val="{{ false }}"><svg width="13" height="13" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg></sc-if>
+              <span>{{r.badge}}</span>
+            </div>
+            <div aria-hidden="true" style="width: 1px; height: 28px; margin: 0 4px; background: #B9B6AC"></div>
+            <button type="button" class="btn-sec"><svg width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"></path><path d="M10 8l-4 4 4 4"></path><path d="M6 12h10"></path></svg>Cerrar sesión</button>
+          </div>
+        </header>
+
+        <div style="flex: 1; min-height: 0; display: flex">
+          <nav aria-label="Secciones" style="width: 264px; flex: none; display: flex; flex-direction: column; gap: 20px; padding: 20px 12px; background: #EEECE6; border-right: 1px solid #0E0E0C; overflow-y: auto">
+            <sc-for list="{{r.groups}}" as="g" hint-placeholder-count="5">
+              <div style="display: flex; flex-direction: column; gap: 2px">
+                <p style="margin: 0 0 6px; padding: 0 12px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 500; color: #4A4943">{{g.label}}</p>
+                <sc-for list="{{g.items}}" as="it" hint-placeholder-count="2">
+                  <button type="button" class="tab-btn {{it.cls}}" aria-current="{{it.current}}">
+                    <sc-if value="{{it.is_photocraft}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1"></rect><circle cx="9" cy="10" r="2"></circle><path d="M21 16l-5-5-8 8"></path></svg></sc-if>
+                    <sc-if value="{{it.is_places}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"></path><circle cx="12" cy="10" r="2.5"></circle></svg></sc-if>
+                    <sc-if value="{{it.is_governance}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6z"></path><path d="M9 12l2 2 4-4"></path></svg></sc-if>
+                    <sc-if value="{{it.is_notifications}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="1"></rect><path d="M8 12l3 3 5-6"></path></svg></sc-if>
+                    <sc-if value="{{it.is_catalog}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7"></rect><rect x="13.5" y="3.5" width="7" height="7"></rect><rect x="3.5" y="13.5" width="7" height="7"></rect><rect x="13.5" y="13.5" width="7" height="7"></rect></svg></sc-if>
+                    <sc-if value="{{it.is_flow}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="6" height="5"></rect><rect x="15" y="15" width="6" height="5"></rect><path d="M6 9v4a2 2 0 0 0 2 2h7"></path></svg></sc-if>
+                    <sc-if value="{{it.is_providers}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1"></rect><rect x="9.5" y="9.5" width="5" height="5"></rect><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"></path></svg></sc-if>
+                    <sc-if value="{{it.is_connections}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"></path><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"></path></svg></sc-if>
+                    <sc-if value="{{it.is_admin}}" hint-placeholder-val="{{ false }}"><svg width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"></path><circle cx="16" cy="6" r="2"></circle><circle cx="10" cy="12" r="2"></circle><circle cx="18" cy="18" r="2"></circle></svg></sc-if>
+                    <span>{{it.label}}</span>
+                  </button>
+                </sc-for>
+                <sc-if value="{{g.hasExt}}" hint-placeholder-val="{{ false }}">
+                  <a class="ext" href="/flow_studio/index.html" target="_blank" rel="noopener">Abrir en pestaña nueva<svg width="14" height="14" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"></path><path d="M20 4l-9 9"></path><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"></path></svg></a>
+                </sc-if>
+              </div>
+            </sc-for>
+          </nav>
+
+          <main style="flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 28px; padding: 40px 48px">
+            <div style="display: flex; flex-direction: column; gap: 10px; padding-bottom: 24px; border-bottom: 1px solid #0E0E0C">
+              <p style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 12px; font-weight: 500; color: #4A4943">{{r.activeStage}}</p>
+              <h1 style="margin: 0; font-size: 32px; line-height: 1.15; font-weight: 600; letter-spacing: -0.02em">{{r.activeLabel}}</h1>
+            </div>
+            <div style="flex: 1; display: flex; align-items: center; justify-content: center; border: 1px solid #D6D3CA; background: #FFFFFF">
+              <p style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: #4A4943">[Contenido de {{r.activeLabel}}]</p>
+            </div>
+          </main>
+        </div>
+      </div>
+    </div>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:3088,&quot;height&quot;:2080}}">
+class Component extends DCLogic {
+  renderVals() {
+    const ALL = ['ADMIN', 'MARTECH', 'VCD', 'VIEWER'];
+    const SECTIONS = [
+      { id: 'photocraft', label: 'PhotoCraft Studio', roles: ['ADMIN', 'VCD'], g: 'gen' },
+      { id: 'places', label: 'Contexto geográfico', roles: ['ADMIN', 'MARTECH'], g: 'gen' },
+      { id: 'governance', label: 'Gobernanza', roles: ['ADMIN', 'MARTECH'], g: 'gov' },
+      { id: 'notifications', label: 'Aprobaciones', roles: ['ADMIN', 'MARTECH'], g: 'pub' },
+      { id: 'catalog', label: 'Catálogo DAM', roles: ALL, g: 'pub' },
+      { id: 'flow', label: 'Flow Studio', roles: ['ADMIN', 'MARTECH', 'VCD'], g: 'tools' },
+      { id: 'providers', label: 'Agentes IA', roles: ['ADMIN', 'MARTECH'], g: 'cfg' },
+      { id: 'connections', label: 'Conexiones', roles: ['ADMIN'], g: 'cfg' },
+      { id: 'admin', label: 'Panel de administración', roles: ['ADMIN'], g: 'adm' }
+    ];
+    const GROUPS = [
+      { id: 'gen', label: '01 · Generar' },
+      { id: 'gov', label: '02 · Gobernar' },
+      { id: 'pub', label: '03 · Aprobar y publicar' },
+      { id: 'tools', label: 'Herramientas', hasExt: true },
+      { id: 'cfg', label: 'Configuración' },
+      { id: 'adm', label: 'Administración' }
+    ];
+    const META = [
+      { role: 'ADMIN', view: 'Administrador', badge: 'ADMIN — admin', ink: '#F8F7F3', bg: '#0E0E0C', bell: true, count: '12', active: 'governance' },
+      { role: 'MARTECH', view: 'Martech Engineer', badge: 'MARTECH — martech1', ink: '#0B5F6B', bg: '#DCEEF0', bell: true, count: '3', active: 'notifications' },
+      { role: 'VCD', view: 'Visual Content Designer', badge: 'VCD — designer1', ink: '#6B3591', bg: '#EFE5F5', bell: false, count: '0', active: 'photocraft' },
+      { role: 'VIEWER', view: 'Viewer', badge: 'VIEWER — viewer1', ink: '#4A4943', bg: '#E3E1DA', bell: false, count: '0', active: 'catalog' }
+    ];
+    const roles = META.map((m) => {
+      const visible = SECTIONS.filter((s) => s.roles.indexOf(m.role) !== -1);
+      const groups = GROUPS.map((g) => {
+        const items = visible.filter((s) => s.g === g.id).map((s) => {
+          const it = { label: s.label, cls: s.id === m.active ? 'is-active' : '', current: s.id === m.active ? 'page' : undefined };
+          SECTIONS.forEach((x) => { it['is_' + x.id] = x.id === s.id; });
+          return it;
+        });
+        return { label: g.label, hasExt: !!g.hasExt, items: items };
+      }).filter((g) => g.items.length > 0);
+      const act = SECTIONS.filter((s) => s.id === m.active)[0];
+      const actGroup = GROUPS.filter((g) => g.id === act.g)[0];
+      return {
+        caption: m.role + ' · ' + visible.length + (visible.length === 1 ? ' sección visible' : ' secciones visibles') + ' · activa: ' + act.label,
+        view: m.view, badge: m.badge, badgeInk: m.ink, badgeBg: m.bg, bell: m.bell, count: m.count,
+        isAdmin: m.role === 'ADMIN', isMartech: m.role === 'MARTECH', isVcd: m.role === 'VCD', isViewer: m.role === 'VIEWER',
+        groups: groups, activeLabel: act.label, activeStage: actGroup.label
+      };
+    });
+    return { roles: roles };
+  }
+}
+</script>
+
+
+</body></html>

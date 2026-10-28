@@ -1,0 +1,398 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Login · DAM Platform (Dirección C)</title>
+
+<!-- ============================================================
+     1) FUENTES — pegar en el <head> de agent-hub/public/index.html
+     ============================================================ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+
+<!-- ============================================================
+     2) TOKENS + ESTILOS — pegar dentro del <style> existente
+     Los tokens viven en #loginModal para no pisar las variables
+     :root actuales del dashboard (--bg, etc.). Cuando se extienda
+     la paleta al resto del hub, mover este bloque de tokens a :root.
+     ============================================================ -->
+<style>
+#loginModal {
+  /* Superficie y tinta */
+  --bg: #EEECE6;
+  --surface: #F8F7F3;
+  --field: #FFFFFF;
+  --line: #0E0E0C;
+  --line-soft: #D6D3CA;
+  --ink-1: #0E0E0C;
+  --ink-2: #4A4943;          /* 7.6:1 sobre --bg */
+  --ink-3: #8A877E;          /* solo texto ≥ 24px o decorativo */
+  --ink-on-accent: #FFFFFF;
+
+  /* Acción (único acento) */
+  --accent: #1E3FD0;         /* 7.9:1 con texto blanco */
+  --accent-hover: #1834B4;
+  --accent-press: #152E9E;
+  --accent-busy: #4A63D6;    /* :disabled, 5.2:1 con texto blanco */
+  --focus: #1E3FD0;
+
+  /* Estado */
+  --danger: #B42318;
+  --danger-bg: #FBEAE7;
+  --danger-ink: #8C1D13;
+  --success: #1C7C4A;
+  --success-bg: #E6F4EC;
+  --success-ink: #145C37;
+
+  /* Roles (color + icono + texto) */
+  --role-admin-ink: #F8F7F3;   --role-admin-bg: #0E0E0C;
+  --role-martech-ink: #0B5F6B; --role-martech-bg: #DCEEF0;
+  --role-vcd-ink: #6B3591;     --role-vcd-bg: #EFE5F5;
+  --role-viewer-ink: #4A4943;  --role-viewer-bg: #E3E1DA;
+
+  /* Tipografía y forma */
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-cond: 'IBM Plex Sans Condensed', 'IBM Plex Sans', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --radius: 2px;
+  --control-h: 52px;
+  --cta-h: 56px;
+  --ease: 150ms ease;
+}
+
+#loginModal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;             /* el JS alterna flex / none */
+  flex-direction: column;
+  overflow-y: auto;
+  background: var(--bg);
+  color: var(--ink-1);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+#loginModal *, #loginModal *::before, #loginModal *::after { box-sizing: border-box; }
+
+/* Barra superior */
+.lm-top {
+  flex: none; height: 72px;
+  display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 0 40px; border-bottom: 1px solid var(--line);
+}
+.lm-brand { display: flex; align-items: center; gap: 12px; }
+.lm-brand__name { font-size: 18px; font-weight: 700; letter-spacing: -0.01em; }
+.lm-brand__ver {
+  padding-left: 12px; border-left: 1px solid #B9B6AC;
+  font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--ink-2);
+}
+.lm-meta { font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--ink-2); }
+
+/* Tira de etapas (solo móvil) */
+.lm-strip { display: none; margin: 0; padding: 0; list-style: none; border-bottom: 1px solid var(--line); }
+.lm-strip li { display: flex; flex-direction: column; gap: 2px; padding: 10px 12px; border-right: 1px solid var(--line); }
+.lm-strip li:last-child { border-right: 0; background: var(--ink-1); color: var(--surface); }
+.lm-strip small { font-family: var(--font-mono); font-size: 11px; color: var(--ink-2); }
+.lm-strip li:last-child small { color: var(--line-soft); }
+.lm-strip span { font-size: 14px; font-weight: 600; }
+.lm-strip li:not(:last-child) span { color: var(--ink-2); }
+
+/* Cuerpo: tres etapas */
+.lm-body { flex: 1; display: grid; grid-template-columns: minmax(240px, 360px) minmax(240px, 360px) minmax(0, 1fr); }
+.lm-stage { display: flex; flex-direction: column; gap: 20px; padding: 40px; border-right: 1px solid var(--line); }
+.lm-stage--you { border-right: 0; background: var(--surface); padding: 40px 64px; gap: 24px; }
+.lm-stage__head { display: flex; align-items: center; justify-content: space-between; font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--ink-2); }
+.lm-stage__you { padding: 4px 8px; border-radius: var(--radius); background: var(--ink-1); color: var(--surface); }
+.lm-stage .lm-num { margin: 0; font-family: var(--font-cond); font-size: clamp(64px, 7vw, 96px); line-height: .9; font-weight: 600; letter-spacing: -0.03em; color: var(--ink-3); }
+.lm-stage--you .lm-num { color: var(--ink-1); }
+.lm-stage h2 { margin: 0; font-size: 24px; line-height: 1.2; font-weight: 600; }
+.lm-stage p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--ink-2); }
+.lm-stage__owner { margin-top: auto !important; font-family: var(--font-mono); font-size: 12px !important; }
+
+/* Columna de acceso */
+.lm-panel { width: 100%; max-width: 460px; display: flex; flex-direction: column; gap: 28px; }
+.lm-title { margin: 0; font-size: 32px; line-height: 1.15; font-weight: 600; letter-spacing: -0.02em; color: var(--ink-1); }
+.lm-stage .lm-lead { margin: 8px 0 0; }
+.lm-form { display: flex; flex-direction: column; gap: 20px; }
+
+/* Error: el JS pone display:block y textContent */
+.lm-error {
+  position: relative;
+  padding: 14px 16px 14px 42px;
+  background: var(--danger-bg); border: 1px solid var(--danger); border-radius: var(--radius);
+  color: var(--danger-ink); font-size: 14px; line-height: 1.45;
+}
+.lm-error::before {
+  content: ""; position: absolute; left: 14px; top: 15px; width: 18px; height: 18px;
+  background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7.5v5.5'/%3E%3Cpath d='M12 16.5h.01'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7.5v5.5'/%3E%3Cpath d='M12 16.5h.01'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+
+/* Campos */
+.lm-field { display: flex; flex-direction: column; gap: 8px; }
+.lm-field label { font-size: 14px; font-weight: 600; }
+.lm-control { position: relative; }
+.lm-control > svg { position: absolute; left: 16px; top: 16px; width: 20px; height: 20px; color: var(--ink-2); pointer-events: none; }
+.lm-input {
+  display: block; width: 100%; height: var(--control-h); margin: 0;
+  padding: 0 16px 0 48px;
+  background: var(--field); border: 1px solid var(--line); border-radius: var(--radius);
+  color: var(--ink-1); font-family: var(--font-mono); font-size: 16px;
+  outline: none; transition: border-color var(--ease), box-shadow var(--ease);
+}
+.lm-input--pw { padding-right: 56px; }
+.lm-input::placeholder { color: #6B6A63; opacity: 1; }
+.lm-input:focus-visible { border-color: var(--focus); box-shadow: 0 0 0 1px var(--focus), 0 0 0 5px rgba(30, 63, 208, .16); }
+.lm-input[aria-invalid="true"] { border-color: var(--danger); box-shadow: 0 0 0 1px var(--danger); }
+
+/* Ver / ocultar contraseña */
+.lm-eye {
+  position: absolute; right: 4px; top: 4px; width: 44px; height: 44px;
+  display: flex; align-items: center; justify-content: center; padding: 0;
+  background: transparent; border: 0; border-radius: var(--radius);
+  color: var(--ink-2); cursor: pointer; transition: color var(--ease), background-color var(--ease);
+}
+.lm-eye:hover { color: var(--ink-1); background: var(--bg); }
+.lm-eye:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.lm-eye svg { width: 20px; height: 20px; }
+.lm-eye .lm-eye__off { display: none; }
+.lm-eye[aria-pressed="true"] .lm-eye__on { display: none; }
+.lm-eye[aria-pressed="true"] .lm-eye__off { display: block; }
+
+/* Botón principal: el JS reemplaza su textContent → iconos solo con pseudo-elementos */
+#loginBtn {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  width: 100%; height: var(--cta-h); padding: 0 24px;
+  background: var(--accent); border: 0; border-radius: var(--radius);
+  color: var(--ink-on-accent); font-family: var(--font-sans); font-size: 16px; font-weight: 600;
+  cursor: pointer; transition: background-color var(--ease);
+}
+#loginBtn::after {
+  content: ""; width: 18px; height: 18px; flex: none; background: currentColor;
+  -webkit-mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'/%3E%3Cpath d='M13 6l6 6-6 6'/%3E%3C/svg%3E") center / contain no-repeat;
+          mask: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M5 12h14'/%3E%3Cpath d='M13 6l6 6-6 6'/%3E%3C/svg%3E") center / contain no-repeat;
+}
+#loginBtn:hover:not(:disabled) { background: var(--accent-hover); }
+#loginBtn:active:not(:disabled) { background: var(--accent-press); }
+#loginBtn:focus-visible { outline: 2px solid var(--ink-1); outline-offset: 3px; }
+#loginBtn:disabled { background: var(--accent-busy); cursor: progress; }
+#loginBtn:disabled::after { display: none; }
+#loginBtn:disabled::before {
+  content: ""; width: 16px; height: 16px; flex: none; border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, .35); border-top-color: #FFFFFF;
+  animation: lm-spin .8s linear infinite;
+}
+@keyframes lm-spin { to { transform: rotate(360deg); } }
+
+/* Modo demo (plegable, sin JS) */
+.lm-demo { border-top: 1px solid var(--line); }
+.lm-demo > summary {
+  list-style: none; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  min-height: 52px; cursor: pointer;
+  font-family: var(--font-mono); font-size: 13px; font-weight: 500; color: var(--ink-2);
+}
+.lm-demo > summary::-webkit-details-marker { display: none; }
+.lm-demo > summary:hover { color: var(--ink-1); }
+.lm-demo > summary:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.lm-demo > summary span { display: flex; align-items: center; gap: 10px; }
+.lm-demo > summary svg { width: 16px; height: 16px; flex: none; }
+.lm-demo .lm-chev { transition: transform 200ms ease; }
+.lm-demo[open] .lm-chev { transform: rotate(180deg); }
+.lm-demo__list { display: flex; flex-direction: column; padding-bottom: 8px; }
+.lm-demo__row {
+  display: grid; grid-template-columns: 128px minmax(0, 1fr) auto; align-items: center; column-gap: 16px;
+  width: 100%; min-height: 48px; padding: 0 12px;
+  background: transparent; border: 0; border-top: 1px solid var(--line-soft);
+  color: var(--ink-1); font-family: var(--font-mono); font-size: 14px; text-align: left;
+  cursor: pointer; transition: background-color var(--ease);
+}
+.lm-demo__row:hover { background: var(--bg); }
+.lm-demo__row:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.lm-demo__pw { color: var(--ink-2); }
+.lm-role {
+  justify-self: start; display: inline-flex; align-items: center; gap: 6px;
+  padding: 5px 8px; border-radius: var(--radius);
+  font-family: var(--font-mono); font-size: 11px; font-weight: 600; letter-spacing: .06em; line-height: 1;
+}
+.lm-role svg { width: 12px; height: 12px; }
+.lm-role--admin   { color: var(--role-admin-ink);   background: var(--role-admin-bg); }
+.lm-role--martech { color: var(--role-martech-ink); background: var(--role-martech-bg); }
+.lm-role--vcd     { color: var(--role-vcd-ink);     background: var(--role-vcd-bg); }
+.lm-role--viewer  { color: var(--role-viewer-ink);  background: var(--role-viewer-bg); }
+
+/* Pie */
+.lm-foot {
+  flex: none; min-height: 48px; display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  padding: 0 40px; border-top: 1px solid var(--line);
+  font-family: var(--font-mono); font-size: 12px; color: var(--ink-2);
+}
+
+/* Tablet y móvil: solo la etapa 03, las otras dos pasan a la tira */
+@media (max-width: 1024px) {
+  .lm-top { height: 56px; padding: 0 20px; }
+  .lm-meta { display: none; }
+  .lm-strip { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .lm-body { grid-template-columns: minmax(0, 1fr); }
+  .lm-stage--past { display: none; }
+  .lm-stage--you { padding: 28px 24px 32px; align-items: center; }
+  .lm-stage--you > .lm-stage__head, .lm-stage--you > .lm-num { display: none; }
+  .lm-title { font-size: 26px; }
+  .lm-foot { padding: 12px 24px; }
+  .lm-foot span:last-child { display: none; }
+}
+@media (max-width: 400px) {
+  .lm-demo__row { grid-template-columns: 112px minmax(0, 1fr); padding: 8px; }
+  .lm-demo__pw { grid-column: 2; font-size: 12px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #loginModal * { transition: none !important; }
+  #loginBtn:disabled::before { animation-duration: 2.4s; }
+}
+</style>
+</head>
+<body style="margin:0">
+
+<!-- ============================================================
+     3) MARKUP — reemplaza el bloque MODAL LOGIN actual
+     (si hoy el modal arranca oculto con style="display:none",
+     conserva ese atributo inline tal cual)
+     ============================================================ -->
+<div id="loginModal" role="dialog" aria-modal="true" aria-labelledby="lmTitle">
+
+  <header class="lm-top">
+    <div class="lm-brand">
+      <svg width="28" height="28" viewBox="0 0 28 28" fill="none" aria-hidden="true"><rect x="1.75" y="9.75" width="6.5" height="8.5" stroke="currentColor" stroke-width="1.5"/><rect x="10.75" y="9.75" width="6.5" height="8.5" stroke="currentColor" stroke-width="1.5"/><rect x="19" y="9" width="8" height="10" fill="currentColor"/></svg>
+      <span class="lm-brand__name">DAM Platform</span>
+      <span class="lm-brand__ver">Agent Hub v2.0</span>
+    </div>
+    <span class="lm-meta">Dynamic Media &amp; AJO</span>
+  </header>
+
+  <ol class="lm-strip" aria-label="Flujo de la plataforma">
+    <li><small>01</small><span>Generar</span></li>
+    <li><small>02</small><span>Gobernar</span></li>
+    <li aria-current="step"><small>03 · usted</small><span>Aprobar</span></li>
+  </ol>
+
+  <div class="lm-body">
+    <section class="lm-stage lm-stage--past" aria-labelledby="lmS1">
+      <div class="lm-stage__head"><span>Etapa</span><span aria-hidden="true">→</span></div>
+      <p class="lm-num" aria-hidden="true">01</p>
+      <h2 id="lmS1">Generar</h2>
+      <p>Agentes de IA generan y editan piezas gráficas de marketing.</p>
+      <p class="lm-stage__owner">Responsable · agentes</p>
+    </section>
+
+    <section class="lm-stage lm-stage--past" aria-labelledby="lmS2">
+      <div class="lm-stage__head"><span>Etapa</span><span aria-hidden="true">→</span></div>
+      <p class="lm-num" aria-hidden="true">02</p>
+      <h2 id="lmS2">Gobernar</h2>
+      <p>Un motor de gobernanza valida que cada pieza cumpla las políticas de marca de la organización.</p>
+      <p class="lm-stage__owner">Responsable · motor de gobernanza</p>
+    </section>
+
+    <section class="lm-stage lm-stage--you">
+      <div class="lm-stage__head"><span>Etapa</span><span class="lm-stage__you">Responsable · usted</span></div>
+      <p class="lm-num" aria-hidden="true">03</p>
+
+      <div class="lm-panel">
+        <div>
+          <h1 id="lmTitle" class="lm-title">Aprobar y publicar</h1>
+          <p class="lm-lead">Ninguna pieza llega a Adobe Dynamic Media sin aprobación humana. Inicie sesión para continuar.</p>
+        </div>
+
+        <div class="lm-form">
+          <div id="loginError" class="lm-error" role="alert" style="display:none"></div>
+
+          <div class="lm-field">
+            <label for="loginUsername">Usuario</label>
+            <div class="lm-control">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-6 8-6s8 2 8 6"/></svg>
+              <input id="loginUsername" class="lm-input" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" placeholder="ej. martech1">
+            </div>
+          </div>
+
+          <div class="lm-field">
+            <label for="loginPassword">Contraseña</label>
+            <div class="lm-control">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10.5" width="16" height="10.5" rx="2"/><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"/></svg>
+              <input id="loginPassword" class="lm-input lm-input--pw" type="password" autocomplete="current-password" placeholder="Contraseña">
+              <button type="button" class="lm-eye" aria-controls="loginPassword" aria-pressed="false" aria-label="Mostrar contraseña"
+                onclick="var i=document.getElementById('loginPassword'),v=i.type==='password';i.type=v?'text':'password';this.setAttribute('aria-pressed',v);this.setAttribute('aria-label',v?'Ocultar contraseña':'Mostrar contraseña');">
+                <svg class="lm-eye__on" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>
+                <svg class="lm-eye__off" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"/><path d="M10.6 5.1A10.9 10.9 0 0 1 12 5c6.4 0 10 7 10 7a17.7 17.7 0 0 1-3.2 4.2"/><path d="M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7a10.5 10.5 0 0 0 5.4-1.5"/><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"/></svg>
+              </button>
+            </div>
+          </div>
+
+          <button id="loginBtn" type="button" onclick="doLogin()">Ingresar a la Plataforma</button>
+        </div>
+
+        <details class="lm-demo">
+          <summary>
+            <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17l6-5-6-5"/><path d="M12 19h8"/></svg>Modo demo · 4 cuentas de prueba</span>
+            <svg class="lm-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg>
+          </summary>
+          <div class="lm-demo__list">
+            <button type="button" class="lm-demo__row" onclick="fillDemo('admin','Admin2026!')">
+              <span class="lm-role lm-role--admin"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="8" cy="15" r="4"/><path d="M10.8 12.2L20 3"/><path d="M16 7l3 3"/></svg>ADMIN</span>
+              <span>admin</span><span class="lm-demo__pw">Admin2026!</span>
+            </button>
+            <button type="button" class="lm-demo__row" onclick="fillDemo('martech1','Martech2026!')">
+              <span class="lm-role lm-role--martech"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 8l-4 4 4 4"/><path d="M16 8l4 4-4 4"/></svg>MARTECH</span>
+              <span>martech1</span><span class="lm-demo__pw">Martech2026!</span>
+            </button>
+            <button type="button" class="lm-demo__row" onclick="fillDemo('designer1','Design2026!')">
+              <span class="lm-role lm-role--vcd"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 20h9"/><path d="M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>VCD</span>
+              <span>designer1</span><span class="lm-demo__pw">Design2026!</span>
+            </button>
+            <button type="button" class="lm-demo__row" onclick="fillDemo('viewer1','View2026!')">
+              <span class="lm-role lm-role--viewer"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"/><circle cx="12" cy="12" r="3"/></svg>VIEWER</span>
+              <span>viewer1</span><span class="lm-demo__pw">View2026!</span>
+            </button>
+          </div>
+        </details>
+      </div>
+    </section>
+  </div>
+
+  <footer class="lm-foot">
+    <span>Acceso restringido a usuarios autorizados</span>
+    <span>Dynamic Media &amp; AJO Agent Hub · v2.0</span>
+  </footer>
+</div>
+
+<!-- ============================================================
+     4) STUB SOLO PARA PREVISUALIZAR ESTE ARCHIVO — NO COPIAR.
+     index.html ya tiene fillDemo(), doLogin() y el listener de Enter.
+     ============================================================ -->
+<script>
+(function () {
+  var ACC = { admin: 'Admin2026!', martech1: 'Martech2026!', designer1: 'Design2026!', viewer1: 'View2026!' };
+  window.fillDemo = function (u, p) {
+    document.getElementById('loginUsername').value = u;
+    document.getElementById('loginPassword').value = p;
+  };
+  window.doLogin = function () {
+    var u = document.getElementById('loginUsername').value.trim();
+    var p = document.getElementById('loginPassword').value;
+    var err = document.getElementById('loginError');
+    var btn = document.getElementById('loginBtn');
+    err.style.display = 'none';
+    if (!u || !p) { err.textContent = 'Ingrese usuario y contraseña.'; err.style.display = 'block'; return; }
+    btn.disabled = true; btn.textContent = 'Verificando…';
+    setTimeout(function () {
+      btn.disabled = false; btn.textContent = 'Ingresar a la Plataforma';
+      if (!(u in ACC)) { err.textContent = 'Usuario no encontrado.'; err.style.display = 'block'; }
+      else if (ACC[u] !== p) { err.textContent = 'Contraseña incorrecta.'; err.style.display = 'block'; }
+      else { document.getElementById('loginModal').style.display = 'none'; document.body.insertAdjacentHTML('beforeend', '<p style="font:16px system-ui;padding:40px">Sesión iniciada como ' + u + '. Recarga para volver al login.</p>'); }
+    }, 1200);
+  };
+  document.getElementById('loginPassword').addEventListener('keydown', function (e) { if (e.key === 'Enter') doLogin(); });
+})();
+</script>
+</body>
+</html>

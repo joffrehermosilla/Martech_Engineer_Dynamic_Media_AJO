@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="es"><head>
+<meta charset="utf-8">
+<title>Login C · Estados</title>
+<script src="855d2d99.javascript"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&amp;family=IBM+Plex+Sans:wght@400;500;600;700&amp;display=swap">
+<style>
+body{margin:0;background:#EEECE6;font-family:'IBM Plex Sans',system-ui,sans-serif}
+a{color:#1E3FD0}a:hover{color:#152E9E}
+*,*::before,*::after{box-sizing:border-box}
+.ico-lead{position:absolute;left:16px;top:16px;width:20px;height:20px;color:#4A4943;pointer-events:none}
+.inp{display:block;width:100%;height:52px;margin:0;padding:0 16px 0 48px;background:#FFFFFF;border:1px solid #0E0E0C;border-radius:2px;color:#0E0E0C;font-family:'IBM Plex Mono',monospace;font-size:16px;outline:none}
+.inp.pw{padding-right:56px}
+.inp::placeholder{color:#6B6A63;opacity:1}
+.inp:focus-visible,.inp.is-focus{border-color:#1E3FD0;box-shadow:0 0 0 1px #1E3FD0,0 0 0 5px rgba(30,63,208,.16)}
+.inp.is-error{border-color:#B42318;box-shadow:0 0 0 1px #B42318}
+.inp:disabled{background:#F1EFE9;color:#4A4943;cursor:not-allowed}
+.eye{position:absolute;right:4px;top:4px;width:44px;height:44px;display:flex;align-items:center;justify-content:center;padding:0;background:transparent;border:0;border-radius:2px;color:#4A4943;cursor:pointer}
+.eye.is-on{color:#0E0E0C;background:#EEECE6}
+.eye:focus-visible{outline:2px solid #1E3FD0;outline-offset:-2px}
+.eye:disabled{color:#8A877E;cursor:not-allowed}
+.btn{display:flex;align-items:center;justify-content:center;width:100%;height:56px;padding:0 24px;background:#1E3FD0;border:0;border-radius:2px;color:#FFFFFF;font-family:'IBM Plex Sans',system-ui,sans-serif;font-size:16px;font-weight:600;cursor:pointer}
+.btn:focus-visible{outline:2px solid #0E0E0C;outline-offset:3px}
+.btn:disabled{background:#4A63D6;cursor:progress}
+.demo{border-top:1px solid #0E0E0C}
+.demo>summary{list-style:none;display:flex;align-items:center;justify-content:space-between;min-height:52px;cursor:pointer;font-family:'IBM Plex Mono',monospace;font-size:13px;font-weight:500;color:#4A4943}
+.demo>summary::-webkit-details-marker{display:none}
+.demo>summary:focus-visible{outline:2px solid #1E3FD0;outline-offset:2px}
+.spin{animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation-duration:2.4s}}
+</style>
+</helmet>
+<div style="width: 2988px; height: 820px; padding: 64px; background: #EEECE6; color: #0E0E0C; font-family: 'IBM Plex Sans', system-ui, sans-serif; display: flex; gap: 40px; align-items: flex-start">
+  <sc-for list="{{states}}" as="item" hint-placeholder-count="5">
+    <div style="width: 540px; flex: none; display: flex; flex-direction: column; gap: 16px">
+      <p style="margin: 0; font-family: 'IBM Plex Mono', monospace; font-size: 13px; font-weight: 500; color: #4A4943">{{item.num}} · {{item.label}}</p>
+
+      <section style="width: 540px; padding: 40px; background: #F8F7F3; border: 1px solid #0E0E0C; display: flex; flex-direction: column; gap: 28px">
+        <div style="display: flex; flex-direction: column; gap: 8px">
+          <h2 style="margin: 0; font-size: 32px; line-height: 1.15; font-weight: 600; letter-spacing: -0.02em">Aprobar y publicar</h2>
+          <p style="margin: 0; font-size: 15px; line-height: 1.55; color: #4A4943">Ninguna pieza llega a Adobe Dynamic Media sin aprobación humana. Inicie sesión para continuar.</p>
+        </div>
+
+        <form novalidate="novalidate" style="margin: 0; display: flex; flex-direction: column; gap: 20px">
+          <sc-if value="{{item.hasError}}" hint-placeholder-val="{{ false }}">
+            <div role="alert" style="display: flex; align-items: flex-start; gap: 10px; padding: 14px 16px; background: #FBEAE7; border: 1px solid #B42318; border-radius: 2px; color: #8C1D13; font-size: 14px; line-height: 1.45">
+              <svg width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="flex: none; margin-top: 1px"><circle cx="12" cy="12" r="9"></circle><path d="M12 7.5v5.5"></path><path d="M12 16.5h.01"></path></svg>
+              <span>{{item.error}}</span>
+            </div>
+          </sc-if>
+
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <label for="c-{{item.uid}}-user" style="font-size: 14px; font-weight: 600">Usuario</label>
+            <div style="position: relative">
+              <svg class="ico-lead" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="8" r="4"></circle><path d="M4 20c0-4 3.6-6 8-6s8 2 8 6"></path></svg>
+              <input id="c-{{item.uid}}-user" class="inp {{item.userCls}}" type="text" placeholder="ej. martech1" value="{{item.user}}" sc-camel-read-only="{{ true }}" disabled="{{item.loading}}" aria-invalid="{{item.userInvalid}}">
+            </div>
+          </div>
+
+          <div style="display: flex; flex-direction: column; gap: 8px">
+            <label for="c-{{item.uid}}-pass" style="font-size: 14px; font-weight: 600">Contraseña</label>
+            <div style="position: relative">
+              <svg class="ico-lead" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="10.5" width="16" height="10.5" rx="2"></rect><path d="M8 10.5V7a4 4 0 0 1 8 0v3.5"></path></svg>
+              <input id="c-{{item.uid}}-pass" class="inp pw {{item.passCls}}" type="{{item.passType}}" placeholder="Contraseña" value="{{item.pass}}" sc-camel-read-only="{{ true }}" disabled="{{item.loading}}" aria-invalid="{{item.passInvalid}}">
+              <button type="button" class="eye {{item.eyeCls}}" disabled="{{item.loading}}" aria-pressed="{{item.show}}" aria-label="{{item.eyeLabel}}">
+                <sc-if value="{{item.hide}}" hint-placeholder-val="{{ true }}">
+                  <svg width="20" height="20" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z"></path><circle cx="12" cy="12" r="3"></circle></svg>
+                </sc-if>
+                <sc-if value="{{item.show}}" hint-placeholder-val="{{ false }}">
+                  <svg width="20" height="20" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 3l18 18"></path><path d="M10.6 5.1A10.9 10.9 0 0 1 12 5c6.4 0 10 7 10 7a17.7 17.7 0 0 1-3.2 4.2"></path><path d="M6.6 6.6C3.8 8.4 2 12 2 12s3.6 7 10 7a10.5 10.5 0 0 0 5.4-1.5"></path><path d="M9.9 9.9a3 3 0 0 0 4.2 4.2"></path></svg>
+                </sc-if>
+              </button>
+            </div>
+          </div>
+
+          <button type="button" class="btn" disabled="{{item.loading}}" aria-busy="{{item.loading}}">
+            <sc-if value="{{item.idle}}" hint-placeholder-val="{{ true }}">
+              <span style="display: flex; align-items: center; gap: 12px">Ingresar a la Plataforma<svg width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14"></path><path d="M13 6l6 6-6 6"></path></svg></span>
+            </sc-if>
+            <sc-if value="{{item.loading}}" hint-placeholder-val="{{ false }}">
+              <span style="display: flex; align-items: center; gap: 12px"><svg class="spin" width="18" height="18" sc-camel-view-box="0 0 24 24" fill="none" aria-hidden="true"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-opacity="0.3" stroke-width="2.5"></circle><path d="M21 12a9 9 0 0 0-9-9" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"></path></svg>Verificando…</span>
+            </sc-if>
+          </button>
+        </form>
+
+        <details class="demo">
+          <summary>
+            <span style="display: flex; align-items: center; gap: 10px"><svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 17l6-5-6-5"></path><path d="M12 19h8"></path></svg>Modo demo · 4 cuentas de prueba</span>
+            <svg width="16" height="16" sc-camel-view-box="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg>
+          </summary>
+        </details>
+      </section>
+    </div>
+  </sc-for>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script="" data-props="{&quot;$preview&quot;:{&quot;width&quot;:2988,&quot;height&quot;:820}}">
+class Component extends DCLogic {
+  renderVals() {
+    const base = {
+      user: '', pass: '', userCls: '', passCls: '', userInvalid: false, passInvalid: false,
+      hasError: false, error: '', loading: false, idle: true,
+      show: false, hide: true, passType: 'password', eyeLabel: 'Mostrar contraseña', eyeCls: ''
+    };
+    const states = [
+      Object.assign({}, base, { uid: 'reposo', num: '01', label: 'Reposo' }),
+      Object.assign({}, base, { uid: 'foco', num: '02', label: 'Foco en el input', user: 'admin', userCls: 'is-focus' }),
+      Object.assign({}, base, { uid: 'error', num: '03', label: 'Error', user: 'admin', pass: 'Admin2025!', passCls: 'is-error', passInvalid: true, hasError: true, error: 'Contraseña incorrecta.' }),
+      Object.assign({}, base, { uid: 'cargando', num: '04', label: 'Cargando (botón deshabilitado)', user: 'admin', pass: 'Admin2026!', loading: true, idle: false }),
+      Object.assign({}, base, { uid: 'visible', num: '05', label: 'Contraseña visible', user: 'admin', pass: 'Admin2026!', show: true, hide: false, passType: 'text', eyeLabel: 'Ocultar contraseña', eyeCls: 'is-on' })
+    ];
+    return { states: states };
+  }
+}
+</script>
+
+
+</body></html>

@@ -1,0 +1,63 @@
+/* ============================================================
+   DAM Platform · Design System "Pliego de control"
+   Origen: Claude Design, login v1 (2026-10-28)
+   Papel, tinta y un único acento cobalto para la acción principal.
+   ============================================================ */
+
+@import url("https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap");
+
+:root {
+  /* Superficie */
+  --bg: #EEECE6;              /* fondo general */
+  --surface: #F8F7F3;         /* zona de trabajo activa */
+  --field: #FFFFFF;           /* campos de formulario */
+  --field-disabled: #F1EFE9;
+
+  /* Tinta y líneas */
+  --ink-1: #0E0E0C;           /* texto principal, reglas */
+  --ink-2: #4A4943;           /* secundario, 7.6:1 sobre --bg */
+  --ink-3: #8A877E;           /* solo texto ≥ 24px o decorativo */
+  --placeholder: #6B6A63;
+  --line: #0E0E0C;            /* reglas estructurales (1px) */
+  --line-mid: #B9B6AC;        /* separadores verticales menores */
+  --line-soft: #D6D3CA;       /* separadores de filas */
+  --hover: #E3E1DA;           /* hover de ítems y botones fantasma (shell) */
+  --scrim: rgba(14, 14, 12, .45); /* velo bajo la hoja de navegación móvil */
+
+  /* Acción (único acento) */
+  --accent: #1E3FD0;          /* CTA, foco, enlaces */
+  --accent-hover: #1834B4;
+  --accent-active: #152E9E;
+  --accent-busy: #4A63D6;     /* botón :disabled en carga */
+  --focus-ring: 0 0 0 1px var(--accent), 0 0 0 5px rgba(30, 63, 208, .16);
+
+  /* Estado */
+  --danger: #B42318;          /* borde error */
+  --danger-ink: #8C1D13;      /* texto error */
+  --danger-bg: #FBEAE7;
+  --success: #1C7C4A;
+  --success-ink: #145C37;
+  --success-bg: #E6F4EC;
+
+  /* Roles: texto / fondo · icono */
+  --role-admin-fg: #F8F7F3;   --role-admin-bg: #0E0E0C;   /* llave */
+  --role-martech-fg: #0B5F6B; --role-martech-bg: #DCEEF0; /* código */
+  --role-vcd-fg: #6B3591;     --role-vcd-bg: #EFE5F5;     /* pluma */
+  --role-viewer-fg: #4A4943;  --role-viewer-bg: #E3E1DA;  /* ojo */
+
+  /* Tipografía */
+  --font-ui: "IBM Plex Sans", system-ui, sans-serif;
+  --font-mono: "IBM Plex Mono", ui-monospace, monospace;
+  --font-display: "IBM Plex Sans Condensed", "IBM Plex Sans", sans-serif;
+
+  /* Forma */
+  --radius: 2px;
+  --h-field: 52px;
+  --h-cta: 56px;
+  --h-row: 48px;
+  --h-header: 64px;           /* shell escritorio (login: 72px) */
+  --h-header-m: 56px;
+  --w-nav: 264px;             /* navegación lateral */
+  --touch: 44px;
+  --t-fast: .15s ease;
+}

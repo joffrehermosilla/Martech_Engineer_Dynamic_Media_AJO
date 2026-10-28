@@ -1,0 +1,420 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Shell · DAM Platform Agent Hub v2.0</title>
+
+<!-- ============================================================
+     1) FUENTES — las mismas del login (si ya están en el <head>, no repetir)
+     ============================================================ -->
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
+
+<!-- ============================================================
+     2) TOKENS + ESTILOS DEL SHELL — pegar en el <style> existente
+     ============================================================ -->
+<style>
+/* Tokens "Pliego de control" (los mismos del login) + los nuevos del shell (marcados NUEVO).
+   Se declaran sobre el shell, no en :root, para no pisar las variables del dashboard actual
+   mientras el contenido de cada sección siga con el estilo antiguo. */
+.app, #toast {
+  --bg: #EEECE6;
+  --surface: #F8F7F3;
+  --field: #FFFFFF;
+  --line: #0E0E0C;
+  --line-mid: #B9B6AC;        /* NUEVO: separadores verticales en cabecera */
+  --line-soft: #D6D3CA;
+  --hover: #E3E1DA;           /* NUEVO: fondo hover de ítems y botones fantasma */
+  --ink-1: #0E0E0C;
+  --ink-2: #4A4943;
+  --ink-3: #8A877E;
+  --accent: #1E3FD0;
+  --accent-hover: #1834B4;
+  --focus: #1E3FD0;
+  --danger: #B42318;   --danger-bg: #FBEAE7;   --danger-ink: #8C1D13;
+  --success: #1C7C4A;  --success-bg: #E6F4EC;  --success-ink: #145C37;
+  --role-admin-ink: #F8F7F3;   --role-admin-bg: #0E0E0C;
+  --role-martech-ink: #0B5F6B; --role-martech-bg: #DCEEF0;
+  --role-vcd-ink: #6B3591;     --role-vcd-bg: #EFE5F5;
+  --role-viewer-ink: #4A4943;  --role-viewer-bg: #E3E1DA;
+  --scrim: rgba(14, 14, 12, .45);   /* NUEVO: velo de la hoja móvil */
+  --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --radius: 2px;
+  --header-h: 64px;           /* NUEVO */
+  --nav-w: 264px;             /* NUEVO */
+  --nav-item-h: 44px;         /* NUEVO */
+  --ease: 150ms ease;
+}
+
+/* ---------- Marco ---------- */
+.app {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: var(--nav-w) minmax(0, 1fr);
+  grid-template-rows: auto minmax(0, 1fr);
+  grid-template-areas: "header header" "nav main";
+  background: var(--surface);
+  color: var(--ink-1);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+.app *, .app *::before, .app *::after { box-sizing: border-box; }
+
+/* ---------- Cabecera ---------- */
+#mainHeader {
+  grid-area: header;
+  position: sticky; top: 0; z-index: 100;
+  min-height: var(--header-h);
+  align-items: center; justify-content: space-between; gap: 16px;   /* display lo pone el JS */
+  padding: 0 16px 0 24px;
+  background: var(--bg);
+  border-bottom: 1px solid var(--line);
+}
+.brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+.brand__name { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; white-space: nowrap; }
+.brand__ver { padding-left: 12px; border-left: 1px solid var(--line-mid); font-family: var(--font-mono); font-size: 12px; font-weight: 500; color: var(--ink-2); white-space: nowrap; }
+.session { display: flex; align-items: center; gap: 8px; }
+.session__sep { width: 1px; height: 28px; margin: 0 4px; background: var(--line-mid); }
+
+.icon-btn, .view-info, .btn-sec, .menu-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  height: 44px; padding: 0 12px;
+  background: transparent; border: 1px solid transparent; border-radius: var(--radius);
+  color: var(--ink-1); font: 500 14px/1 var(--font-sans);
+  cursor: pointer; transition: background-color var(--ease), color var(--ease);
+}
+.icon-btn { position: relative; width: 44px; padding: 0; }
+.icon-btn:hover, .view-info:hover { background: var(--hover); }
+.btn-sec, .menu-btn { border-color: var(--line); font-weight: 600; }
+.btn-sec:hover, .menu-btn:hover { background: var(--ink-1); color: var(--surface); }
+.icon-btn:focus-visible, .view-info:focus-visible, .btn-sec:focus-visible, .menu-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.app svg { flex: none; }
+
+.view-info__k { font-family: var(--font-mono); font-size: 12px; color: var(--ink-2); }
+
+/* Contador: el JS alterna display flex / none */
+.count {
+  position: absolute; top: 4px; right: 2px;
+  min-width: 20px; height: 18px; padding: 0 5px;
+  align-items: center; justify-content: center;
+  background: var(--ink-1); color: var(--surface); border-radius: var(--radius);
+  font: 600 11px/1 var(--font-mono);
+}
+/* La campana solo tiene sentido para quien ve Aprobaciones */
+#mainHeader:has(#roleBadge.VCD) .bell,
+#mainHeader:has(#roleBadge.VIEWER) .bell { display: none; }
+
+/* Rol: el JS pone className = "role-badge ROL" y escribe un emoji en #roleIcon */
+.role-badge {
+  display: inline-flex; align-items: center; gap: 8px;
+  height: 32px; padding: 0 10px; border-radius: var(--radius);
+  font: 600 12px/1 var(--font-mono); letter-spacing: .04em; white-space: nowrap;
+  color: var(--ink-2); background: var(--hover);
+}
+#roleIcon {
+  width: 13px; height: 13px; flex: none;
+  font-size: 0; line-height: 0; color: transparent; overflow: hidden;   /* oculta el emoji */
+  background: currentColor;
+}
+.role-badge #roleIcon { background: var(--role-ink, var(--ink-2)); -webkit-mask: var(--role-ico) center / contain no-repeat; mask: var(--role-ico) center / contain no-repeat; }
+.role-badge.ADMIN   { --role-ink: var(--role-admin-ink);   color: var(--role-admin-ink);   background: var(--role-admin-bg);
+  --role-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='8' cy='15' r='4'/%3E%3Cpath d='M10.8 12.2L20 3'/%3E%3Cpath d='M16 7l3 3'/%3E%3C/svg%3E"); }
+.role-badge.MARTECH { --role-ink: var(--role-martech-ink); color: var(--role-martech-ink); background: var(--role-martech-bg);
+  --role-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M8 8l-4 4 4 4'/%3E%3Cpath d='M16 8l4 4-4 4'/%3E%3C/svg%3E"); }
+.role-badge.VCD     { --role-ink: var(--role-vcd-ink);     color: var(--role-vcd-ink);     background: var(--role-vcd-bg);
+  --role-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M12 20h9'/%3E%3Cpath d='M16.5 3.5a2.1 2.1 0 0 1 3 3L7 19l-4 1 1-4z'/%3E%3C/svg%3E"); }
+.role-badge.VIEWER  { --role-ink: var(--role-viewer-ink);  color: var(--role-viewer-ink);  background: var(--role-viewer-bg);
+  --role-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M2 12s3.6-7 10-7 10 7 10 7-3.6 7-10 7S2 12 2 12z'/%3E%3Ccircle cx='12' cy='12' r='3'/%3E%3C/svg%3E"); }
+
+.menu-btn { display: none; }
+
+/* ---------- Navegación lateral ---------- */
+#mainNav {
+  grid-area: nav;
+  position: sticky; top: var(--header-h);
+  height: calc(100vh - var(--header-h));
+  flex-direction: column; gap: 20px;              /* display:flex lo pone el JS */
+  padding: 20px 12px;
+  background: var(--bg);
+  border-right: 1px solid var(--line);
+  overflow-y: auto;
+}
+.nav-sheet__head { display: none; }
+.nav-group { display: flex; flex-direction: column; gap: 2px; }
+.nav-group[hidden] { display: none; }
+/* Sin JS: un grupo cuyos ítems están todos ocultos desaparece */
+.nav-group:not(:has(.tab-btn:not([style*="none"]))) { display: none; }
+.nav-group__label { margin: 0 0 6px; padding: 0 12px; font: 500 12px/1.4 var(--font-mono); color: var(--ink-2); }
+
+.tab-btn {
+  position: relative;
+  display: flex; align-items: center; gap: 12px;
+  width: 100%; min-height: var(--nav-item-h); padding: 0 12px 0 16px;
+  background: transparent; border: 0; border-radius: var(--radius);
+  color: var(--ink-1); font: 500 14px/1.3 var(--font-sans); text-align: left;
+  cursor: pointer; transition: background-color var(--ease);
+}
+.tab-btn svg { width: 18px; height: 18px; color: var(--ink-2); }
+.tab-btn:hover { background: var(--hover); }
+.tab-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.tab-btn.active { background: var(--field); font-weight: 600; box-shadow: inset 0 0 0 1px var(--line); }
+.tab-btn.active::before { content: ""; position: absolute; left: 0; top: 0; bottom: 0; width: 4px; background: var(--accent); }
+.tab-btn.active svg { color: var(--accent); }
+
+.nav-ext {
+  display: flex; align-items: center; gap: 8px;
+  min-height: 44px; padding: 0 12px 0 46px; border-radius: var(--radius);
+  color: var(--ink-2); font: 400 12px/1.3 var(--font-mono); text-decoration: none;
+}
+.nav-ext:hover { color: var(--ink-1); background: var(--hover); }
+.nav-ext:focus-visible { outline: 2px solid var(--focus); outline-offset: -2px; }
+.nav-ext svg { width: 14px; height: 14px; }
+
+/* ---------- Contenido ---------- */
+#mainContent { grid-area: main; min-width: 0; padding: 40px 48px; }
+.section-head { display: flex; flex-direction: column; gap: 10px; padding-bottom: 24px; margin-bottom: 28px; border-bottom: 1px solid var(--line); }
+.section-head__stage { margin: 0; font: 500 12px/1.4 var(--font-mono); color: var(--ink-2); }
+.section-head h1 { margin: 0; font-size: 32px; line-height: 1.15; font-weight: 600; letter-spacing: -0.02em; }
+.section-empty { min-height: 480px; display: flex; align-items: center; justify-content: center; border: 1px solid var(--line-soft); background: var(--field); font: 400 13px/1.4 var(--font-mono); color: var(--ink-2); }
+
+/* ---------- Toast: el JS pone className = "show success" | "show error" ---------- */
+#toast {
+  position: fixed; right: 24px; bottom: 24px; z-index: 1100;
+  width: max-content; max-width: min(420px, calc(100vw - 32px));
+  padding: 14px 16px 14px 44px;
+  background: var(--surface); border: 1px solid var(--line); border-radius: var(--radius);
+  color: var(--ink-1); font: 400 14px/1.45 var(--font-sans);
+  opacity: 0; visibility: hidden; transform: translateY(8px);
+  transition: opacity 200ms ease, transform 200ms ease, visibility 0s linear 200ms;
+}
+#toast.show { opacity: 1; visibility: visible; transform: none; transition: opacity 200ms ease, transform 200ms ease; }
+#toast:empty { opacity: 0; visibility: hidden; }
+#toast::before {
+  content: ""; position: absolute; left: 16px; top: 15px; width: 18px; height: 18px; background: currentColor;
+  -webkit-mask: var(--toast-ico) center / contain no-repeat; mask: var(--toast-ico) center / contain no-repeat;
+}
+#toast.success { background: var(--success-bg); border-color: var(--success); color: var(--success-ink);
+  --toast-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M8.5 12.5l2.5 2.5 4.5-5'/%3E%3C/svg%3E"); }
+#toast.error { background: var(--danger-bg); border-color: var(--danger); color: var(--danger-ink);
+  --toast-ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M12 7.5v5.5'/%3E%3Cpath d='M12 16.5h.01'/%3E%3C/svg%3E"); }
+
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+.nav-scrim { display: none; }
+
+/* ---------- Tablet y móvil: la navegación pasa a hoja inferior ---------- */
+@media (max-width: 960px) {
+  .app { grid-template-columns: minmax(0, 1fr); grid-template-areas: "header" "main"; }
+  #mainHeader { flex-wrap: wrap; gap: 0; padding: 0; }
+  .brand { height: 56px; padding: 0 16px; flex: 1; }
+  .brand__ver { display: none; }
+  .menu-btn { display: inline-flex; margin-right: 12px; order: 2; }
+  .session { order: 3; width: 100%; height: 48px; padding: 0 8px 0 16px; gap: 4px; border-top: 1px solid var(--line-soft); }
+  .session__sep { display: none; }
+  .role-badge { order: -1; margin-right: auto; }
+  .view-info { width: 44px; padding: 0; }
+  .view-info__k, #viewLabel { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .btn-sec { width: 44px; padding: 0; }
+  .btn-sec .btn-sec__txt { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+
+  #mainNav {
+    position: fixed; left: 0; right: 0; bottom: 0; top: auto; z-index: 200;
+    height: auto; max-height: 80vh; padding: 0 8px 24px;
+    border-right: 0; border-top: 1px solid var(--line);
+    transform: translateY(100%); visibility: hidden;
+    transition: transform 220ms ease, visibility 0s linear 220ms;
+  }
+  .nav-open #mainNav { transform: none; visibility: visible; transition: transform 220ms ease; }
+  .nav-sheet__head { display: flex; align-items: center; justify-content: space-between; position: sticky; top: 0; height: 52px; margin: 0 -8px 4px; padding: 0 8px 0 16px; background: var(--bg); border-bottom: 1px solid var(--line-soft); font: 500 12px/1 var(--font-mono); color: var(--ink-2); }
+  .tab-btn { min-height: 48px; font-size: 15px; }
+  .nav-open .nav-scrim { display: block; position: fixed; inset: 0; z-index: 150; background: var(--scrim); }
+  #mainContent { padding: 24px 16px; }
+  .section-head h1 { font-size: 26px; }
+  .section-empty { min-height: 320px; }
+  #toast { left: 16px; right: 16px; bottom: 16px; width: auto; max-width: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .app *, #toast, #mainNav { transition: none !important; }
+}
+</style>
+</head>
+<body style="margin:0">
+
+<!-- ============================================================
+     3) MARKUP DEL SHELL
+     Envuelve cabecera, navegación y contenido en <div class="app">.
+     Copia data-roles con el MISMO formato que usa hoy tu JS.
+     ============================================================ -->
+<div class="app">
+
+  <header id="mainHeader" style="display:none">
+    <div class="brand">
+      <svg width="26" height="26" viewBox="0 0 28 28" fill="none" aria-hidden="true"><rect x="1.75" y="9.75" width="6.5" height="8.5" stroke="currentColor" stroke-width="1.5"/><rect x="10.75" y="9.75" width="6.5" height="8.5" stroke="currentColor" stroke-width="1.5"/><rect x="19" y="9" width="8" height="10" fill="currentColor"/></svg>
+      <span class="brand__name">DAM Platform</span>
+      <span class="brand__ver">Agent Hub v2.0</span>
+    </div>
+
+    <button type="button" class="menu-btn" aria-controls="mainNav" aria-expanded="false"
+      onclick="var o=document.body.classList.toggle('nav-open');this.setAttribute('aria-expanded',o)">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M4 7h16M4 12h16M4 17h16"/></svg>Secciones
+    </button>
+
+    <div class="session">
+      <button type="button" class="view-info" onclick="toggleViewInfo()" title="Ver secciones de esta vista">
+        <span class="view-info__k">Vista</span><span id="viewLabel"></span>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="9"/><path d="M12 11v5"/><path d="M12 8h.01"/></svg>
+      </button>
+
+      <button type="button" class="icon-btn bell" onclick="switchTab('notifications')" aria-label="Aprobaciones pendientes">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 16v-5a6 6 0 0 1 12 0v5l1.5 2h-15z"/><path d="M10 20a2 2 0 0 0 4 0"/></svg>
+        <span id="notifCount" class="count" style="display:none">0</span>
+      </button>
+
+      <div id="roleBadge" class="role-badge"><span id="roleIcon"></span><span id="roleLabel"></span></div>
+
+      <span class="session__sep" aria-hidden="true"></span>
+
+      <button type="button" class="btn-sec" onclick="doLogout()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h3a2 2 0 0 1 2 2v12a2 2 0 0 1-2 2h-3"/><path d="M10 8l-4 4 4 4"/><path d="M6 12h10"/></svg>
+        <span class="btn-sec__txt">Cerrar sesión</span>
+      </button>
+    </div>
+  </header>
+
+  <div class="nav-scrim" aria-hidden="true" onclick="document.body.classList.remove('nav-open')"></div>
+
+  <nav id="mainNav" aria-label="Secciones" style="display:none">
+    <div class="nav-sheet__head"><span>Secciones</span>
+      <button type="button" class="icon-btn" aria-label="Cerrar menú" onclick="document.body.classList.remove('nav-open')"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+    </div>
+
+    <div class="nav-group" role="group" aria-labelledby="ng-gen">
+      <p class="nav-group__label" id="ng-gen">01 · Generar</p>
+      <button class="tab-btn" data-tab="photocraft" data-roles="ADMIN,VCD" onclick="switchTab('photocraft')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 8"/></svg><span>PhotoCraft Studio</span></button>
+      <button class="tab-btn" data-tab="places" data-roles="ADMIN,MARTECH" onclick="switchTab('places')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Contexto geográfico</span></button>
+    </div>
+
+    <div class="nav-group" role="group" aria-labelledby="ng-gov">
+      <p class="nav-group__label" id="ng-gov">02 · Gobernar</p>
+      <button class="tab-btn" data-tab="governance" data-roles="ADMIN,MARTECH" onclick="switchTab('governance')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6z"/><path d="M9 12l2 2 4-4"/></svg><span>Gobernanza</span></button>
+    </div>
+
+    <div class="nav-group" role="group" aria-labelledby="ng-pub">
+      <p class="nav-group__label" id="ng-pub">03 · Aprobar y publicar</p>
+      <button class="tab-btn" data-tab="notifications" data-roles="ADMIN,MARTECH" onclick="switchTab('notifications')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="1"/><path d="M8 12l3 3 5-6"/></svg><span>Aprobaciones</span></button>
+      <button class="tab-btn" data-tab="catalog" data-roles="ADMIN,MARTECH,VCD,VIEWER" onclick="switchTab('catalog')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7"/><rect x="13.5" y="3.5" width="7" height="7"/><rect x="3.5" y="13.5" width="7" height="7"/><rect x="13.5" y="13.5" width="7" height="7"/></svg><span>Catálogo DAM</span></button>
+    </div>
+
+    <div class="nav-group" role="group" aria-labelledby="ng-tools">
+      <p class="nav-group__label" id="ng-tools">Herramientas</p>
+      <button class="tab-btn" data-tab="flow" data-roles="ADMIN,MARTECH,VCD" onclick="switchTab('flow')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="6" height="5"/><rect x="15" y="15" width="6" height="5"/><path d="M6 9v4a2 2 0 0 0 2 2h7"/></svg><span>Flow Studio</span></button>
+      <a class="nav-ext" href="/flow_studio/index.html" target="_blank" rel="noopener">Abrir en pestaña nueva
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14 4h6v6"/><path d="M20 4l-9 9"/><path d="M18 14v5a1 1 0 0 1-1 1H5a1 1 0 0 1-1-1V7a1 1 0 0 1 1-1h5"/></svg><span class="sr-only">(Flow Studio, se abre en otra pestaña)</span></a>
+    </div>
+
+    <div class="nav-group" role="group" aria-labelledby="ng-cfg">
+      <p class="nav-group__label" id="ng-cfg">Configuración</p>
+      <button class="tab-btn" data-tab="providers" data-roles="ADMIN,MARTECH" onclick="switchTab('providers')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="6" width="12" height="12" rx="1"/><rect x="9.5" y="9.5" width="5" height="5"/><path d="M9 2v4M15 2v4M9 18v4M15 18v4M2 9h4M2 15h4M18 9h4M18 15h4"/></svg><span>Agentes IA</span></button>
+      <button class="tab-btn" data-tab="connections" data-roles="ADMIN" onclick="switchTab('connections')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1"/><path d="M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"/></svg><span>Conexiones</span></button>
+    </div>
+
+    <div class="nav-group" role="group" aria-labelledby="ng-adm">
+      <p class="nav-group__label" id="ng-adm">Administración</p>
+      <button class="tab-btn" data-tab="admin" data-roles="ADMIN" onclick="switchTab('admin')">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 6h10M18 6h2M4 12h4M12 12h8M4 18h12"/><circle cx="16" cy="6" r="2"/><circle cx="10" cy="12" r="2"/><circle cx="18" cy="18" r="2"/></svg><span>Panel de administración</span></button>
+    </div>
+  </nav>
+
+  <main id="mainContent">
+    <!-- Sección de ejemplo. Cada <section id="tab-…"> existente adopta la misma cabecera .section-head -->
+    <section id="tab-catalog" style="display:none">
+      <div class="section-head">
+        <p class="section-head__stage">03 · Aprobar y publicar</p>
+        <h1>Catálogo DAM</h1>
+      </div>
+      <div class="section-empty">[Contenido de Catálogo DAM]</div>
+    </section>
+  </main>
+</div>
+
+<div id="toast" role="status" aria-live="polite"></div>
+
+<!-- ============================================================
+     4) JS MÍNIMO NUEVO (declarado) — pegar después del JS existente.
+     No toca la lógica actual; solo observa lo que ya hace:
+       · sincroniza aria-current="page" con la clase .active
+       · oculta el encabezado de grupo si todos sus ítems están ocultos (respaldo de :has)
+       · cierra la hoja móvil al elegir una sección
+     ============================================================ -->
+<script>
+(function () {
+  var nav = document.getElementById('mainNav');
+  function sync() {
+    nav.querySelectorAll('.tab-btn').forEach(function (b) {
+      if (b.classList.contains('active')) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+    });
+    nav.querySelectorAll('.nav-group').forEach(function (g) {
+      g.hidden = !Array.prototype.some.call(g.querySelectorAll('.tab-btn'), function (b) { return b.style.display !== 'none'; });
+    });
+  }
+  new MutationObserver(sync).observe(nav, { subtree: true, attributes: true, attributeFilter: ['class', 'style'] });
+  nav.addEventListener('click', function (e) { if (e.target.closest('.tab-btn')) document.body.classList.remove('nav-open'); });
+  sync();
+})();
+</script>
+
+<!-- ============================================================
+     5) STUB SOLO PARA PREVISUALIZAR ESTE ARCHIVO — NO COPIAR.
+     Simula lo que ya hace tu index.html. Cambia el rol con ?rol=ADMIN|MARTECH|VCD|VIEWER
+     ============================================================ -->
+<script>
+(function () {
+  var P = { ADMIN: ['Administrador', 'admin', '🔑'], MARTECH: ['Martech Engineer', 'martech1', '⚙️'], VCD: ['Visual Content Designer', 'designer1', '🎨'], VIEWER: ['Viewer', 'viewer1', '👁️'] };
+  var STAGE = { photocraft: '01 · Generar', places: '01 · Generar', governance: '02 · Gobernar', notifications: '03 · Aprobar y publicar', catalog: '03 · Aprobar y publicar', flow: 'Herramientas', providers: 'Configuración', connections: 'Configuración', admin: 'Administración' };
+  var role = (new URLSearchParams(location.search).get('rol') || 'ADMIN').toUpperCase();
+  var main = document.getElementById('mainContent');
+  document.querySelectorAll('.tab-btn').forEach(function (b) {
+    var id = b.dataset.tab;
+    if (!document.getElementById('tab-' + id)) {
+      var s = document.createElement('section'); s.id = 'tab-' + id; s.style.display = 'none';
+      s.innerHTML = '<div class="section-head"><p class="section-head__stage">' + STAGE[id] + '</p><h1>' + b.textContent.trim() + '</h1></div><div class="section-empty">[Contenido de ' + b.textContent.trim() + ']</div>';
+      main.appendChild(s);
+    }
+    if (b.dataset.roles.split(',').indexOf(role) === -1) b.style.display = 'none';
+  });
+  window.switchTab = function (id) {
+    document.querySelectorAll('.tab-btn').forEach(function (b) { b.classList.toggle('active', b.dataset.tab === id); });
+    main.querySelectorAll(':scope > section').forEach(function (s) { s.style.display = s.id === 'tab-' + id ? 'block' : 'none'; });
+  };
+  var t;
+  function toast(msg, kind) { var el = document.getElementById('toast'); el.textContent = msg; el.className = 'show ' + kind; clearTimeout(t); t = setTimeout(function () { el.textContent = ''; el.className = ''; }, 3500); }
+  window.toggleViewInfo = function () {
+    var names = Array.prototype.filter.call(document.querySelectorAll('.tab-btn'), function (b) { return b.style.display !== 'none'; }).map(function (b) { return b.textContent.trim(); });
+    toast('Vista ' + P[role][0] + ': ' + names.join(', ') + '.', 'success');
+  };
+  window.doLogout = function () { if (confirm('¿Cerrar sesión?')) location.reload(); };
+  document.getElementById('mainHeader').style.display = 'flex';
+  document.getElementById('mainNav').style.display = 'flex';
+  document.getElementById('roleBadge').className = 'role-badge ' + role;
+  document.getElementById('roleIcon').textContent = P[role][2];
+  document.getElementById('roleLabel').textContent = role + ' — ' + P[role][1];
+  document.getElementById('viewLabel').textContent = P[role][0];
+  var n = document.getElementById('notifCount'); n.textContent = role === 'ADMIN' ? '12' : '3'; n.style.display = (role === 'ADMIN' || role === 'MARTECH') ? 'flex' : 'none';
+  var first = Array.prototype.filter.call(document.querySelectorAll('.tab-btn'), function (b) { return b.style.display !== 'none'; })[0];
+  switchTab(first.dataset.tab);
+  if (new URLSearchParams(location.search).get('toast') === 'error') toast('Error de conexión: no se pudo contactar con el servidor.', 'error');
+  if (new URLSearchParams(location.search).get('menu')) document.body.classList.add('nav-open');
+})();
+</script>
+</body>
+</html>
