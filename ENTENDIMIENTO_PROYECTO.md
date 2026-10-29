@@ -142,6 +142,32 @@ Todo vive en `agent-hub/public/index.html` (una sola página; las "pantallas" so
 
 ---
 
+## 7.1 OmniRoute (TEMPORAL)
+
+Gateway de IA local compatible con OpenAI ([diegosouzapw/OmniRoute](https://github.com/diegosouzapw/OmniRoute)). **No elimina la dependencia de APIs: la reparte** entre muchos proveedores y sus planes gratuitos, para no quedarnos sin tokens con una sola clave. Se retirará cuando haya proveedor aprobado (Adobe Firefly).
+
+**Encender**
+
+```bash
+# 1) Levantar OmniRoute (elige una)
+docker compose --env-file .env.local --profile omniroute up -d omniroute   # dashboard: http://localhost:20128
+npm install -g omniroute && omniroute                                      # sin Docker
+
+# 2) En el dashboard: conectar proveedores (Free Tiers) y copiar la API key (Dashboard → Endpoints)
+
+# 3) En .env.local
+OMNIROUTE_BASE_URL=http://localhost:20128/v1     # dentro de docker compose: http://omniroute:20128/v1
+OMNIROUTE_API_KEY=<key del dashboard>
+OMNIROUTE_MODEL=auto                              # auto | auto/fast | auto/cheap | proveedor/modelo
+OMNIROUTE_INITIAL_PASSWORD=<contraseña del dashboard>
+```
+
+**Cómo actúa:** `executePromptWithFallback()` (usado por `/api/generate-brief` y el MCP `router_generate_creative_brief`) intenta OmniRoute primero; si responde error, 429 o está caído, sigue con Groq → Gemini → OpenAI → respaldo local. En `/api/providers` aparece como "OmniRoute Gateway (temporal)".
+
+**Apagar / retirar:** vaciar `OMNIROUTE_BASE_URL` → todo vuelve a funcionar como antes. Para eliminarlo del todo: bloque `OmniRoute (TEMPORAL)` y su entrada en `PROVIDER_REGISTRY` en `agent-hub/services/providerRouter.mjs`, el servicio `omniroute` de `docker-compose.yml` y las variables de `.env.example`.
+
+---
+
 ## 7. Documentos de referencia en el repo
 
 - `HANDOFF_v2_2026-10-21.md` — estado más reciente (v2: roles, APIs, Flow Studio).
@@ -162,6 +188,9 @@ Todo vive en `agent-hub/public/index.html` (una sola página; las "pantallas" so
 - [x] Recibir diseño del login y extraer el design system "Pliego de control"
 - [x] Aplicar el rediseño del login y del shell en `agent-hub/public/index.html` (rama `feat/ui-login-shell`)
 - [ ] Probar login + shell con el servidor real (requiere `.env.local` / MongoDB)
+- [x] OmniRoute como gateway temporal (rama `feat/omniroute`)
+- [ ] Levantar OmniRoute, conectar proveedores y poner `OMNIROUTE_*` en `.env.local`
+- [ ] (Bug previo) DeepSeek está en la cascada del router pero no tiene llamada implementada: hoy nunca responde
 - [x] Pasar el prompt del shell a Claude Design y revisar el resultado (`resources/design/02-shell/REVISION.md`)
 - [ ] Decidir quién manda en los permisos de MARTECH sobre `places` (front `data-roles` vs. `authService.mjs`)
 - [ ] Prompt de la siguiente pantalla
@@ -185,3 +214,4 @@ Todo vive en `agent-hub/public/index.html` (una sola página; las "pantallas" so
 | 2026-10-28 | ⚠️ Seguridad: `agent-hub/services/governanceEngine.mjs:10` tiene una URI de MongoDB Atlas **con usuario y contraseña** como valor por defecto, y está en el historial de git. Sin `.env.local`, la app usa ese cluster. Pendiente: crear `.env.local` propio, quitar la credencial del código y rotarla. `node_modules` ya instalado. |
 | 2026-10-28 | Decisión: el rediseño de UI será **progresivo** (conviven partes claras y oscuras). Recibido `resources/design/02-shell/shell-C.html`: HTML + CSS + JS final del shell, listo para integrar. Revisión en `02-shell/REVISION.md` (v2): un ajuste importante (choque de tokens con las secciones antiguas) que se resuelve al integrar. |
 | 2026-10-28 | **Integrados login y shell** en `agent-hub/public/index.html`, rama `feat/ui-login-shell`, a partir de `login-modal-C.html` y `shell-C.html`. Fuentes IBM Plex añadidas; CSS antiguo del login, header, pestañas y toast reemplazado; tokens nuevos acotados a `#loginModal` y `.app/#toast`; tokens oscuros restaurados en `#mainContent` para el contenido sin migrar; cabecera de sección (etapa + título) en las 9 secciones; textos sin emojis en el botón de login y el toast de bienvenida; `toggleViewInfo()` muestra nombres legibles. Verificado con capturas (Chrome headless, sesión simulada sin tocar la base de datos): login escritorio/móvil/error, shell ADMIN/VCD/MARTECH, móvil con menú y toasts. Pendiente: prueba con servidor real. |
+| 2026-10-29 | **OmniRoute (temporal)** en rama `feat/omniroute` (parte de `feat/ui-login-shell`): primer intento del router si `OMNIROUTE_BASE_URL` está definido, con timeout de 30 s y caída a la cascada normal; servicio opcional en `docker-compose.yml` (`--profile omniroute`, solo en 127.0.0.1); variables en `.env.example`. Probado con un servidor simulado: desactivado, responde, 429 y caído. Encontrado: DeepSeek figura en la cascada pero no tiene llamada implementada. Ver §7.1. |
