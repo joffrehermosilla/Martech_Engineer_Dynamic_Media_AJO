@@ -10,6 +10,8 @@
     "mcp": "node mcp-server/mcp_server.mjs",
     "flow-studio": "node flow_studio/server.mjs",
     "seed": "node agent-hub/db/seed_mongo_governance.mjs",
+    "test": "node agent-hub/tests/test_storage_modes.mjs && node agent-hub/tests/test_governance.mjs && node agent-hub/tests/test_photocraft_adapter.mjs && node agent-hub/tests/test_router.mjs",
+    "test:storage": "node agent-hub/tests/test_storage_modes.mjs",
     "test:governance": "node agent-hub/tests/test_governance.mjs",
     "test:router": "node agent-hub/tests/test_router.mjs",
     "test:photocraft": "node agent-hub/tests/test_photocraft_adapter.mjs"

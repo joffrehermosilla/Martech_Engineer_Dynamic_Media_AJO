@@ -119,3 +119,4 @@ Cargo.lock.bak
 photocraft/jobs/
 .env
 crx-quickstart/
+agent-hub/data/local_storage.json

@@ -6,7 +6,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, "../../.env.local") });
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
-const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY || "AIzaSyD6xFLEqbLGqzeOgqKxbo8sI7ueDNsSRAg";
+const GOOGLE_MAPS_API_KEY = process.env.GOOGLE_MAPS_API_KEY || "";
 
 /**
  * Pre-approved BCP Corporate & Event Locations (Internal Ground Truth)
@@ -45,6 +45,8 @@ const BCP_LOCATIONS = [
  * Enriches asset creation brief with geographical context (Google Places + Adobe Places POI)
  */
 export async function getGeographicContext(query = "San Isidro", eventType = "CORPORATE_CEREMONY") {
+  const isLocalMode = (process.env.APP_EXECUTION_MODE || "auto").toLowerCase() === "local";
+
   // First match against pre-approved internal directory
   const matched = BCP_LOCATIONS.find(l =>
     l.name.toLowerCase().includes(query.toLowerCase()) ||
@@ -64,7 +66,22 @@ export async function getGeographicContext(query = "San Isidro", eventType = "CO
     };
   }
 
-  // If not matched, query Google Places Search (New API / Geocoding with minimal FieldMask)
+  // In Local mode, never attempt external Google network calls (Mandamiento 5 y 7)
+  if (isLocalMode || !GOOGLE_MAPS_API_KEY) {
+    const defaultLoc = BCP_LOCATIONS[0];
+    return {
+      success: true,
+      source: isLocalMode ? "LOCAL_DETERMINISTIC_DIRECTORY" : "DEFAULT_FALLBACK",
+      placeId: `local_${encodeURIComponent(query.toLowerCase().replace(/\s+/g, "_"))}`,
+      name: `${query} (Ubicación Regional BCP)`,
+      category: "REGIONAL_BRANCH",
+      environmentStyle: `Sede regional BCP en ${query}. Arquitectura moderna con colores institucionales azul y naranja.`,
+      promptSuggestion: `Setting: Sede regional BCP en ${query}. Modern, clean banking atmosphere for ${eventType}.`,
+      isSimulated: true
+    };
+  }
+
+  // If not in local mode and API key is present, query Google Places Search
   try {
     const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query + " Peru")}&key=${GOOGLE_MAPS_API_KEY}&language=es`;
     const res = await fetch(url);

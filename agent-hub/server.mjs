@@ -5,7 +5,7 @@ import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
 import { getProviderStatus, executePromptWithFallback } from "./services/providerRouter.mjs";
-import { validateAssetRequest, getDb, registerAssetInCatalog } from "./services/governanceEngine.mjs";
+import { validateAssetRequest, getDb, registerAssetInCatalog, getStorageStatus } from "./services/governanceEngine.mjs";
 import { executePhotoCraftEdit } from "./services/photocraftAdapter.mjs";
 import { getGeographicContext } from "./services/placesService.mjs";
 import {
@@ -312,11 +312,16 @@ app.get("/api/health", (req, res) => {
   res.json({
     status: "UP",
     project: "Martech Engineer Dynamic Media AJO - Agent Hub",
-    version: "2.0.0-ROLES",
+    version: "2.0.0-LOCAL-FIRST",
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || "development",
-    features: ["RBAC", "PhotoCraft", "FlowStudio", "MultiDB", "ApprovalAPI", "Workfront-Ready"]
+    features: ["RBAC", "LocalFirst", "DeterministicData", "PhotoCraft", "FlowStudio", "MultiDB", "ApprovalAPI"],
+    storage: getStorageStatus()
   });
+});
+
+app.get("/api/system/mode", (req, res) => {
+  res.json(getStorageStatus());
 });
 
 app.get("/api/providers", (req, res) => {

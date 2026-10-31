@@ -653,6 +653,7 @@
         </div>
       </div>
 
+      <div id="loginModeBadge" style="display:inline-block; font-size:0.75rem; padding:0.35rem 0.75rem; border-radius:6px; margin-bottom:1rem; font-weight:700; background:rgba(16,185,129,0.15); color:#10B981; border:1px solid rgba(16,185,129,0.3);">● MODO: LOCAL (OFFLINE DETERMINISTA)</div>
       <div class="login-error" id="loginError"></div>
 
       <div class="form-group">
@@ -699,6 +700,10 @@
       </div>
     </div>
     <div class="header-right">
+      <!-- Mode indicator -->
+      <div id="storageModeBadge" class="view-switcher" style="cursor:default;" title="Política de Ejecución Activa">
+        ● MODO: LOCAL
+      </div>
       <!-- Vista switcher -->
       <div class="view-switcher" onclick="toggleViewInfo()" title="Cambiar vista / Ver permisos">
         👁️ <span id="viewLabel">Vista</span>
@@ -1193,11 +1198,43 @@
     // INIT
     // ═══════════════════════════════════════════════════
     async function init() {
+      await loadSystemMode();
       if (currentToken) {
         const ok = await verifyExistingSession();
         if (ok) { showApp(); return; }
       }
       showLogin();
+    }
+
+    async function loadSystemMode() {
+      try {
+        const res = await fetch("/api/system/mode");
+        const data = await res.json();
+        const isSim = data.isSimulated || data.mode === "LOCAL" || data.fallbackActive;
+        const text = data.mode === "LOCAL" 
+          ? "● MODO: LOCAL (DETERMINISTA OFFLINE)" 
+          : (data.fallbackActive ? "● MODO: AUTO (FALLBACK LOCAL)" : "● MODO: CLOUD (ATLAS)");
+        const color = isSim ? "#10B981" : "#0084FF";
+        const bg = isSim ? "rgba(16,185,129,0.15)" : "rgba(0,132,255,0.15)";
+        const border = isSim ? "rgba(16,185,129,0.3)" : "rgba(0,132,255,0.3)";
+
+        const headerBadge = document.getElementById("storageModeBadge");
+        if (headerBadge) {
+          headerBadge.textContent = text;
+          headerBadge.style.color = color;
+          headerBadge.style.background = bg;
+          headerBadge.style.borderColor = border;
+        }
+        const loginBadge = document.getElementById("loginModeBadge");
+        if (loginBadge) {
+          loginBadge.textContent = text;
+          loginBadge.style.color = color;
+          loginBadge.style.background = bg;
+          loginBadge.style.border = `1px solid ${border}`;
+        }
+      } catch (err) {
+        console.warn("No se pudo consultar el modo del sistema:", err);
+      }
     }
 
     async function verifyExistingSession() {

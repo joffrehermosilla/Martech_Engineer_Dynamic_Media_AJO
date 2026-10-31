@@ -1,28 +1,13 @@
-import { MongoClient } from "mongodb";
 import dotenv from "dotenv";
 import path from "path";
 import { fileURLToPath } from "url";
+import { getDb, getStorageStatus } from "./storageAdapter.mjs";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 dotenv.config({ path: path.resolve(__dirname, "../../.env.local") });
 dotenv.config({ path: path.resolve(__dirname, "../../.env") });
 
-const MONGODB_URI = process.env.MONGODB_URI || "mongodb+srv://joffre:joffre@bootcamp-microservicios.c9yhl.mongodb.net/ajo-cdp-meta-db?retryWrites=true&w=majority";
-const DB_NAME = process.env.DB_NAME || "ajo-cdp-meta-db";
-
-let cachedClient = null;
-
-export async function getDb() {
-  if (!cachedClient) {
-    cachedClient = new MongoClient(MONGODB_URI, {
-      maxPoolSize: 10,
-      serverSelectionTimeoutMS: 5000
-    });
-    await cachedClient.connect();
-    console.log(`[MongoDB Atlas] Connected successfully to database: ${DB_NAME}`);
-  }
-  return cachedClient.db(DB_NAME);
-}
+export { getDb, getStorageStatus };
 
 /**
  * Validates an Asset Request against BCP Governance Mandamientos

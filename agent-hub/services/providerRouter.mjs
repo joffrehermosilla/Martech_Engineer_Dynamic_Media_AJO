@@ -118,6 +118,18 @@ export const PROVIDER_REGISTRY = [
  * Execute Text Reasoning with automatic multi-key rotation and multi-provider fallback
  */
 export async function executePromptWithFallback(prompt, systemInstruction = "Eres un asistente de ingeniería Martech BCP.") {
+  const isLocalMode = (process.env.APP_EXECUTION_MODE || "auto").toLowerCase() === "local";
+  if (isLocalMode) {
+    return {
+      success: true,
+      provider: "local-deterministic",
+      latencyMs: 5,
+      content: `[Respuesta Local Determinista - Modo Local]\nPropuesta de Brief para: "${prompt.slice(0, 80)}..."\nTitular: Préstamo al Toque BCP — Aprobación en minutos y dinero directo a tu cuenta.\nCanales: AJO InWeb & App BCP.\nDisclaimer: Sujeto a evaluación crediticia. TCEA referencial calculada en viabcp.com.`,
+      isSimulated: true,
+      fallbackLogs: [{ provider: "local", status: "OFFLINE_DETERMINISTIC_ACTIVE" }]
+    };
+  }
+
   const providers = ["groq", "gemini", "openai", "deepseek"];
   const logs = [];
 
@@ -223,12 +235,26 @@ export async function executePromptWithFallback(prompt, systemInstruction = "Ere
     }
   }
 
-  // Deterministic local fallback if all external models are offline
+  const isCloudMode = (process.env.APP_EXECUTION_MODE || "auto").toLowerCase() === "cloud";
+  if (isCloudMode) {
+    return {
+      success: false,
+      provider: "none",
+      latencyMs: 0,
+      content: "Error en modo CLOUD: Todos los proveedores remotos configurados fallaron o no están disponibles.",
+      fallbackLogs: logs,
+      isSimulated: false,
+      error: "ALL_REMOTE_PROVIDERS_FAILED"
+    };
+  }
+
+  // Deterministic local fallback if all external models are offline (modo AUTO)
   return {
     success: false,
     provider: "local-fallback",
     latencyMs: 0,
     content: "Aviso de Contingencia: El router de IA ha operado en modo determinista local para proteger la gobernanza.",
+    isSimulated: true,
     fallbackLogs: logs
   };
 }
