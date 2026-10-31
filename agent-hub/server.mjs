@@ -7,6 +7,10 @@ import dotenv from "dotenv";
 import { getProviderStatus, executePromptWithFallback } from "./services/providerRouter.mjs";
 import { validateAssetRequest, getDb, registerAssetInCatalog, getStorageStatus } from "./services/governanceEngine.mjs";
 import { executePhotoCraftEdit } from "./services/photocraftAdapter.mjs";
+import {
+  executeAssetTransform, listAssetVersions, getAssetDetails,
+  SUPPORTED_FORMATS, BCP_ASPECT_RATIOS
+} from "./services/assetEditorService.mjs";
 import { getGeographicContext } from "./services/placesService.mjs";
 import {
   loginUser, logoutUser, verifyToken, requireAuth, requirePermission,
@@ -354,9 +358,77 @@ app.get("/api/catalog", async (req, res) => {
   }
 });
 
+app.post("/api/catalog", requireAuth, async (req, res) => {
+  try {
+    const db = await getDb();
+    const assetData = {
+      assetId: req.body.assetId || `AST-${Date.now()}`,
+      initiativeId: req.body.initiativeId || "INIT-BCP-CAMP-2026-01",
+      title: req.body.title || "Activo DAM",
+      category: req.body.category || "GENERAL",
+      deliveryUrl: req.body.deliveryUrl || "",
+      mimeType: req.body.mimeType || "image/png",
+      dimensions: req.body.dimensions || { width: 1200, height: 628 },
+      status: req.body.status || "PENDING_APPROVAL",
+      createdBy: req.session?.username || "designer1",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      operations: req.body.operations || []
+    };
+    await db.collection("asset_catalog").insertOne(assetData);
+    await db.collection("audit_log").insertOne({
+      action: "ASSET_SAVED_TO_CATALOG",
+      assetId: assetData.assetId,
+      actor: req.session?.username || "designer1",
+      status: assetData.status,
+      timestamp: new Date()
+    });
+    res.json({ success: true, asset: assetData });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.post("/api/photocraft/edit", async (req, res) => {
   try {
     const result = await executePhotoCraftEdit(req.body);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── ASSET EDITOR DOMAIN ENDPOINTS (Fase 2) ──────────────────────────────────
+
+app.get("/api/editor/presets", (req, res) => {
+  res.json({
+    supportedFormats: SUPPORTED_FORMATS,
+    aspectRatios: BCP_ASPECT_RATIOS
+  });
+});
+
+app.post("/api/editor/transform", async (req, res) => {
+  try {
+    const actor = req.session?.username || req.body.actor || "web-user";
+    const result = await executeAssetTransform({ ...req.body, actor });
+    res.json(result);
+  } catch (err) {
+    res.status(400).json({ error: err.message });
+  }
+});
+
+app.get("/api/editor/assets/:assetId/versions", async (req, res) => {
+  try {
+    const result = await listAssetVersions(req.params.assetId);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get("/api/editor/assets/:assetId", async (req, res) => {
+  try {
+    const result = await getAssetDetails(req.params.assetId);
     res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
