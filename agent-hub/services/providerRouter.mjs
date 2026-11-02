@@ -52,44 +52,6 @@ class KeyPool {
   }
 }
 
-/**
- * OmniRoute (TEMPORAL)
- * Gateway local compatible con OpenAI que reparte entre muchos proveedores para no
- * depender de las cuotas de una sola API. Solo se activa si OMNIROUTE_BASE_URL está
- * definido; si falla, el router sigue con la cascada normal. Para retirarlo basta con
- * quitar OMNIROUTE_BASE_URL del entorno (y luego este bloque y su entrada en el registro).
- */
-const OMNIROUTE_BASE_URL = (process.env.OMNIROUTE_BASE_URL || "").trim().replace(/\/+$/, "");
-const OMNIROUTE_API_KEY = (process.env.OMNIROUTE_API_KEY || "").trim();
-const OMNIROUTE_MODEL = (process.env.OMNIROUTE_MODEL || "auto").trim();
-const OMNIROUTE_TIMEOUT_MS = 30000;
-
-async function callOmniRoute(prompt, systemInstruction) {
-  const headers = { "Content-Type": "application/json" };
-  if (OMNIROUTE_API_KEY) headers["Authorization"] = `Bearer ${OMNIROUTE_API_KEY}`;
-
-  const res = await fetch(`${OMNIROUTE_BASE_URL}/chat/completions`, {
-    method: "POST",
-    headers,
-    signal: AbortSignal.timeout(OMNIROUTE_TIMEOUT_MS),
-    body: JSON.stringify({
-      model: OMNIROUTE_MODEL,
-      messages: [
-        { role: "system", content: systemInstruction },
-        { role: "user", content: prompt }
-      ],
-      temperature: 0.2,
-      max_tokens: 1500
-    })
-  });
-
-  if (!res.ok) {
-    return { ok: false, status: res.status, error: await res.text() };
-  }
-  const data = await res.json();
-  return { ok: true, content: data.choices?.[0]?.message?.content, model: data.model };
-}
-
 // Initialize key pools from environment
 const pools = {
   gemini: new KeyPool("Gemini", `${process.env.GEMINI_API_KEY || ""},${process.env.GOOGLE_AI_API_KEY || ""}`),
@@ -110,14 +72,6 @@ export const CAPABILITIES = {
 };
 
 export const PROVIDER_REGISTRY = [
-  {
-    providerId: "omniroute",
-    name: `OmniRoute Gateway (temporal · ${OMNIROUTE_MODEL})`,
-    type: "GATEWAY",
-    capabilities: [CAPABILITIES.TEXT_REASONING],
-    isAvailable: () => Boolean(OMNIROUTE_BASE_URL),
-    priority: 0 // Se intenta primero cuando está configurado
-  },
   {
     providerId: "adobe-firefly",
     name: "Adobe Firefly Services (Embedded)",
@@ -178,28 +132,6 @@ export async function executePromptWithFallback(prompt, systemInstruction = "Ere
 
   const providers = ["groq", "gemini", "openai", "deepseek"];
   const logs = [];
-
-  // OmniRoute (temporal): primer intento si está configurado; si falla, sigue la cascada
-  if (OMNIROUTE_BASE_URL) {
-    const startTime = Date.now();
-    try {
-      const r = await callOmniRoute(prompt, systemInstruction);
-      if (r.ok && r.content) {
-        return {
-          success: true,
-          provider: "omniroute",
-          model: r.model,
-          latencyMs: Date.now() - startTime,
-          content: r.content.trim(),
-          fallbackLogs: logs
-        };
-      }
-      logs.push({ provider: "omniroute", status: r.status, error: r.error || "Respuesta vacía" });
-    } catch (err) {
-      logs.push({ provider: "omniroute", error: err.message });
-      console.warn(`[ProviderRouter] Error with omniroute: ${err.message}`);
-    }
-  }
 
   for (const prov of providers) {
     const pool = pools[prov];

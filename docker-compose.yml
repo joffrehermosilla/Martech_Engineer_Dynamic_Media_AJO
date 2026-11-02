@@ -19,24 +19,6 @@ services:
       - photocraft_jobs:/app/photocraft/jobs
     restart: unless-stopped
 
-  # TEMPORAL: gateway de IA para no depender de las cuotas de una sola API.
-  # Solo arranca si se pide: docker compose --env-file .env.local --profile omniroute up -d
-  # Dashboard en http://localhost:20128 (solo accesible desde esta máquina).
-  omniroute:
-    image: diegosouzapw/omniroute:latest
-    container_name: martech-omniroute
-    profiles: ["omniroute"]
-    ports:
-      - "127.0.0.1:20128:20128"
-    environment:
-      - DATA_DIR=/data
-      - INITIAL_PASSWORD=${OMNIROUTE_INITIAL_PASSWORD:-}
-    volumes:
-      - omniroute_data:/data
-    restart: unless-stopped
-
 volumes:
   photocraft_jobs:
-    driver: local
-  omniroute_data:
     driver: local
