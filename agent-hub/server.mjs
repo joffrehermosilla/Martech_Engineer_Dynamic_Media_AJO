@@ -6,7 +6,10 @@ import dotenv from "dotenv";
 
 import { getProviderStatus, executePromptWithFallback } from "./services/providerRouter.mjs";
 import { validateAssetRequest, getDb, registerAssetInCatalog, getStorageStatus } from "./services/governanceEngine.mjs";
-import { executePhotoCraftEdit } from "./services/photocraftAdapter.mjs";
+import { executePhotoCraftEdit, executeDamCraftEdit } from "./services/photocraftAdapter.mjs";
+import {
+  getWorkfrontMetadata, processWorkfrontWebhook, executeFusionAction, getRecentWorkfrontEvents
+} from "./services/workfrontService.mjs";
 import {
   executeAssetTransform, listAssetVersions, getAssetDetails,
   SUPPORTED_FORMATS, BCP_ASPECT_RATIOS
@@ -41,6 +44,7 @@ import { renderFlowToHtml, DEFAULT_AEM_FLOW_MODEL, FLOW_TEMPLATES } from "../flo
 // ─── STATIC ASSETS ─────────────────────────────────────────────────────────────
 // Serve PhotoCraft job artifacts (images, metadata)
 app.use("/photocraft/jobs", express.static(path.resolve(__dirname, "../photocraft/jobs")));
+app.use("/damcraft/jobs", express.static(path.resolve(__dirname, "../photocraft/jobs")));
 // Serve agent-hub public assets
 app.use("/public", express.static(path.resolve(__dirname, "public")));
 // Serve Flow Studio
@@ -389,9 +393,198 @@ app.post("/api/catalog", requireAuth, async (req, res) => {
   }
 });
 
+
+// ─── BATCH ASSET UPLOAD (Fase 2 — Carga Masiva) ──────────────────────────────
+app.post("/api/catalog/batch-upload", requireAuth, async (req, res) => {
+  try {
+    const db = await getDb();
+    const assets = Array.isArray(req.body.assets) ? req.body.assets : [req.body];
+    const inserted = [];
+    const now = new Date();
+
+    for (const item of assets) {
+      const doc = {
+        assetId: item.assetId || `AST-BATCH-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+        initiativeId: item.initiativeId || "INIT-BCP-CAMP-2026-01",
+        title: item.title || "Activo DAM Cargado",
+        category: item.category || "GENERAL",
+        deliveryUrl: item.deliveryUrl || "",
+        mimeType: item.mimeType || "image/png",
+        dimensions: item.dimensions || { width: 1200, height: 628 },
+        status: item.status || "APPROVED",
+        isComponent: Boolean(item.isComponent),
+        createdBy: req.session?.username || "designer1",
+        createdAt: now,
+        updatedAt: now,
+        operations: item.operations || []
+      };
+      await db.collection("asset_catalog").insertOne(doc);
+      inserted.push(doc);
+    }
+
+    await db.collection("audit_log").insertOne({
+      action: "BATCH_ASSETS_UPLOADED",
+      count: inserted.length,
+      actor: req.session?.username || "designer1",
+      timestamp: now
+    }).catch(() => {});
+
+    res.json({ success: true, count: inserted.length, assets: inserted });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+// ─── COMPOSITE ASSETS (Fase 2 — Traslape de Piezas Aprobadas) ───────────────
+app.post("/api/editor/composite", requireAuth, async (req, res) => {
+  try {
+    const db = await getDb();
+    const {
+      title = "Nuevo Activo Compuesto",
+      initiativeId = "INIT-BCP-CAMP-2026-01",
+      canvasWidth = 1200,
+      canvasHeight = 628,
+      layers = [],
+      outputFormat = "png"
+    } = req.body;
+
+    if (!layers || layers.length === 0) {
+      return res.status(400).json({ error: "Se requiere al menos una capa para componer el activo." });
+    }
+
+    const jobId = `comp_${Date.now()}_${Math.random().toString(36).slice(2, 6)}`;
+    const compositeAssetId = `AST-COMP-${Date.now()}`;
+    const sortedLayers = [...layers].sort((a, b) => (a.zIndex || 0) - (b.zIndex || 0));
+
+    const svgLayers = sortedLayers.map((layer, idx) => {
+      const lx = layer.x || 0;
+      const ly = layer.y || 0;
+      const lw = layer.width || canvasWidth;
+      const lh = layer.height || canvasHeight;
+      const op = layer.opacity !== undefined ? layer.opacity : 1.0;
+      const blend = layer.blendMode || "normal";
+
+      if (layer.deliveryUrl && (layer.deliveryUrl.startsWith("http") || layer.deliveryUrl.startsWith("data:") || layer.deliveryUrl.startsWith("/"))) {
+        return `<image href="${layer.deliveryUrl}" x="${lx}" y="${ly}" width="${lw}" height="${lh}" opacity="${op}" style="mix-blend-mode: ${blend};" preserveAspectRatio="xMidYMid slice"/>`;
+      }
+      return `<g transform="translate(${lx}, ${ly})" opacity="${op}" style="mix-blend-mode: ${blend};">
+        <rect width="${lw}" height="${lh}" rx="12" fill="rgba(0, 42, 143, 0.4)" stroke="#FF7800" stroke-width="2"/>
+        <text x="20" y="35" font-family="'Archivo', sans-serif" font-weight="bold" font-size="18" fill="#FFFFFF">${layer.title || `Pieza ${idx + 1}`}</text>
+        <text x="20" y="60" font-family="'JetBrains Mono', monospace" font-size="12" fill="#FF7800">Capa #${idx + 1} (${layer.assetId || "Sin ID"})</text>
+      </g>`;
+    }).join("\n");
+
+    const compositeSvg = `<svg width="${canvasWidth}" height="${canvasHeight}" xmlns="http://www.w3.org/2000/svg">
+      <rect width="100%" height="100%" fill="#05080E" />
+      ${svgLayers}
+      <g transform="translate(${canvasWidth - 140}, ${canvasHeight - 60})">
+        <rect width="120" height="40" rx="8" fill="#FF7800" opacity="0.9" />
+        <text x="60" y="26" font-family="'Archivo', sans-serif" font-weight="900" font-size="16" fill="#FFFFFF" text-anchor="middle">DAM CRAFT</text>
+      </g>
+    </svg>`.trim();
+
+    const jobsDir = path.resolve(__dirname, "../photocraft/jobs", jobId);
+    await fs.promises.mkdir(jobsDir, { recursive: true });
+    const fileName = `composite_${compositeAssetId}.${outputFormat}`;
+    await fs.promises.writeFile(path.join(jobsDir, fileName), compositeSvg, "utf-8");
+
+    const deliveryUrl = `/photocraft/jobs/${jobId}/${fileName}`;
+    const compositeDoc = {
+      assetId: compositeAssetId,
+      initiativeId,
+      title,
+      category: "COMPOSITE_LAYERED",
+      deliveryUrl,
+      mimeType: `image/${outputFormat}`,
+      dimensions: { width: canvasWidth, height: canvasHeight },
+      status: "PENDING_APPROVAL",
+      isComposite: true,
+      sourcePieces: sortedLayers.map(l => ({ assetId: l.assetId, title: l.title, zIndex: l.zIndex })),
+      createdBy: req.session?.username || "designer1",
+      createdAt: new Date(),
+      updatedAt: new Date()
+    };
+
+    await db.collection("asset_catalog").insertOne(compositeDoc);
+    await db.collection("audit_log").insertOne({
+      action: "COMPOSITE_ASSET_CREATED",
+      assetId: compositeAssetId,
+      layersCount: sortedLayers.length,
+      actor: req.session?.username || "designer1",
+      timestamp: new Date()
+    }).catch(() => {});
+
+    res.json({ success: true, compositeAsset: compositeDoc, jobId, deliveryUrl });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/damcraft/edit", async (req, res) => {
+  try {
+    const result = await executeDamCraftEdit(req.body);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.post("/api/photocraft/edit", async (req, res) => {
   try {
     const result = await executePhotoCraftEdit(req.body);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// ─── WORKFRONT & FUSION WEBHOOKS API ─────────────────────────────────────────
+
+app.get("/api/workfront/metadata", (req, res) => {
+  res.json(getWorkfrontMetadata());
+});
+
+app.post("/api/workfront/webhook", async (req, res) => {
+  try {
+    const result = await processWorkfrontWebhook(req.body, req.headers);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/workfront/fusion/trigger", async (req, res) => {
+  try {
+    const result = await executeFusionAction(req.body);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.get("/api/workfront/events", async (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit, 10) || 30;
+    const data = await getRecentWorkfrontEvents(limit);
+    res.json(data);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/workfront/simulate-event", requireAuth, async (req, res) => {
+  try {
+    const { type = "document.approval", documentId, status = "APPROVED", comment } = req.body;
+    const simulatedPayload = {
+      eventType: type,
+      documentId,
+      status,
+      actor: req.session?.username ? `${req.session.username}@viabcp.com` : "approver.workfront@viabcp.com",
+      comment: comment || `Aprobación simulada desde DAM Craft para activo ${documentId}`,
+      timestamp: new Date().toISOString()
+    };
+    const result = await processWorkfrontWebhook(simulatedPayload, { "user-agent": "DAMCraft-Workfront-Simulator/2.0" });
     res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });

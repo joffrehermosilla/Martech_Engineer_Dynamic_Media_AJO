@@ -191,13 +191,13 @@
       <!-- Title -->
       <div class="form-group">
         <label>Título del Diagrama</label>
-        <input type="text" id="diagramTitle" value="Mapa E2E: Creación de Assets en AEM, PhotoCraft y Entrega AJO InWeb">
+        <input type="text" id="diagramTitle" value="Mapa E2E: Creación de Assets en AEM, DAM Craft y Entrega AJO InWeb">
       </div>
 
       <!-- Description -->
       <div class="form-group">
         <label>Descripción / Contexto para el Agente</label>
-        <textarea id="promptInput" rows="6" placeholder="Describa el flujo, adjunte parámetros o JSON...">El flujo conecta la solicitud de activos de marketing con la validación de mandamientos en Mongo Atlas. Luego PhotoCraft ejecuta transformaciones (crop, watermark) en un sandbox. El binario aprobado se envía por Direct Binary Upload a AEM DAM. Dynamic Media entrega URLs optimizadas (AVIF/WebP) consumidas por AJO InWeb y cabeceras WhatsApp.</textarea>
+        <textarea id="promptInput" rows="6" placeholder="Describa el flujo, adjunte parámetros o JSON...">El flujo conecta la solicitud de activos de marketing con la validación de mandamientos en Mongo Atlas. Luego DAM Craft ejecuta transformaciones (crop, watermark) en un sandbox. El binario aprobado se envía por Direct Binary Upload a AEM DAM. Dynamic Media entrega URLs optimizadas (AVIF/WebP) consumidas por AJO InWeb y cabeceras WhatsApp.</textarea>
       </div>
 
       <button class="btn" onclick="generateDynamicMap()">⚡ Generar Mapa Dinámico</button>
@@ -234,7 +234,7 @@
         console.warn("Templates load error:", err);
         // Fallback hardcoded
         const fallback = {
-          AEM_DYNAMIC_MEDIA_E2E: { label: "AEM Dynamic Media + PhotoCraft + AJO E2E", icon: "⚡", description: "Flujo completo de creación y entrega" },
+          AEM_DYNAMIC_MEDIA_E2E: { label: "AEM Dynamic Media + DAM Craft + AJO E2E", icon: "⚡", description: "Flujo completo de creación y entrega" },
           DAM_GOVERNANCE_ROLES: { label: "Gobierno DAM por Roles", icon: "🛡️", description: "Admin/Martech/VCD y aprobaciones" },
           EMAIL_MARKETING: { label: "Email Marketing Campaign", icon: "📧", description: "Campaña email con AJO" },
           SOCIAL_MEDIA: { label: "Social Media Multi-formato", icon: "📱", description: "Instagram, LinkedIn, Twitter" },
@@ -269,7 +269,7 @@
       
       // Update title
       const titles = {
-        AEM_DYNAMIC_MEDIA_E2E: "Mapa E2E: Creación de Assets en AEM, PhotoCraft y Entrega AJO InWeb",
+        AEM_DYNAMIC_MEDIA_E2E: "Mapa E2E: Creación de Assets en AEM, DAM Craft y Entrega AJO InWeb",
         DAM_GOVERNANCE_ROLES: "Gobierno DAM por Roles: Admin, Martech, VCD",
         EMAIL_MARKETING: "Flujo de Campaña Email Marketing con AJO",
         SOCIAL_MEDIA: "Social Media Multi-formato: Instagram, LinkedIn, Twitter",

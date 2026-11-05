@@ -19,12 +19,12 @@ async function ensureSandboxDir(jobId) {
 }
 
 /**
- * PhotoCraft Adapter
- * Executes batch image manipulation recipes via PhotoCraft CLI/MCP or sandbox fallback engine
+ * DAM Craft Adapter (formerly PhotoCraft Adapter)
+ * Executes batch image manipulation recipes via DAM Craft CLI/MCP or sandbox fallback engine
  */
-export async function executePhotoCraftEdit(options) {
+export async function executeDamCraftEdit(options) {
   const {
-    jobId = `pc_job_${Date.now()}`,
+    jobId = `dc_job_${Date.now()}`,
     sourceImagePath,
     actions = [], // e.g. [{ type: 'crop', width: 1200, height: 628 }, { type: 'brand_watermark', logo: 'bcp_white.png' }]
     outputFormat = "png", // png | jpg | avif | webp
@@ -38,8 +38,8 @@ export async function executePhotoCraftEdit(options) {
 
   const recipe = {
     jobId,
-    version: "1.0.0",
-    engine: "PhotoCraft-Automation-Engine",
+    version: "2.0.0",
+    engine: "DAM-Craft-Automation-Engine",
     input: sourceImagePath,
     output: outputPath,
     operations: actions,
@@ -48,7 +48,7 @@ export async function executePhotoCraftEdit(options) {
 
   await fs.writeFile(recipePath, JSON.stringify(recipe, null, 2), "utf-8");
 
-  // Attempt 1: Execute Native PhotoCraft CLI if binary exists
+  // Attempt 1: Execute Native CLI if binary exists
   let cliExecuted = false;
   let cliLogs = "";
   try {
@@ -64,7 +64,7 @@ export async function executePhotoCraftEdit(options) {
       cliExecuted = true;
     }
   } catch (err) {
-    console.warn(`[PhotoCraftAdapter] Native CLI run skipped: ${err.message}. Using high-precision sandbox engine.`);
+    console.warn(`[DAMCraftAdapter] Native CLI run skipped: ${err.message}. Using high-precision sandbox engine.`);
   }
 
   // Fallback: If Rust CLI not compiled yet on host, generate candidate and export metadata
@@ -73,7 +73,7 @@ export async function executePhotoCraftEdit(options) {
     const metadata = {
       jobId,
       status: "SUCCESS",
-      engine: "PhotoCraft-Sandboxed-Bridge",
+      engine: "DAM-Craft-Sandboxed-Bridge",
       format: outputFormat,
       dimensions: {
         width: actions.find(a => a.width)?.width || 1200,
@@ -96,10 +96,10 @@ export async function executePhotoCraftEdit(options) {
   </defs>
   <rect width="100%" height="100%" fill="url(#bcpGrad)" />
   <rect x="20" y="20" width="${metadata.dimensions.width - 40}" height="${metadata.dimensions.height - 40}" rx="16" fill="rgba(255,255,255,0.08)" stroke="rgba(255,255,255,0.2)" stroke-width="2"/>
-  <text x="60" y="90" font-family="'Archivo', 'Segoe UI', sans-serif" font-weight="bold" font-size="34" fill="#FFFFFF">BCP Dynamic Media | PhotoCraft Engine</text>
+  <text x="60" y="90" font-family="'Archivo', 'Segoe UI', sans-serif" font-weight="bold" font-size="34" fill="#FFFFFF">BCP Dynamic Media | DAM Craft Engine</text>
   <text x="60" y="140" font-family="'JetBrains Mono', monospace" font-size="18" fill="#FFB300">Job ID: ${jobId} | Ops: ${actions.map(a => a.type).join(", ") || "Optimized"}</text>
   <text x="60" y="190" font-family="'Archivo', sans-serif" font-size="16" fill="#E2E8F0">Canal AJO InWeb &amp; WhatsApp Validado | Formato: ${outputFormat.toUpperCase()} (${metadata.dimensions.width}x${metadata.dimensions.height})</text>
-  <circle cx="${metadata.dimensions.width - 100}" cy="100}" r="45" fill="#FF7800" opacity="0.9"/>
+  <circle cx="${metadata.dimensions.width - 100}" cy="100" r="45" fill="#FF7800" opacity="0.9"/>
   <text x="${metadata.dimensions.width - 128}" y="108" font-family="'Archivo', sans-serif" font-weight="900" font-size="22" fill="#FFFFFF">BCP</text>
 </svg>
 `;
@@ -112,7 +112,7 @@ export async function executePhotoCraftEdit(options) {
       outputPath,
       outputFormat,
       metadata,
-      engineUsed: "PhotoCraft-Bridge-Adapter"
+      engineUsed: "DAM-Craft-Bridge-Adapter"
     };
   }
 
@@ -122,6 +122,9 @@ export async function executePhotoCraftEdit(options) {
     outputPath,
     outputFormat,
     cliLogs,
-    engineUsed: "PhotoCraft-Native-Rust-CLI"
+    engineUsed: "DAM-Craft-Native-Rust-CLI"
   };
 }
+
+// Alias de retrocompatibilidad
+export const executePhotoCraftEdit = executeDamCraftEdit;

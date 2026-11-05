@@ -1,8 +1,9 @@
 import readline from "readline";
-import { executePhotoCraftEdit } from "../agent-hub/services/photocraftAdapter.mjs";
+import { executeDamCraftEdit, executePhotoCraftEdit } from "../agent-hub/services/photocraftAdapter.mjs";
 import { validateAssetRequest, registerAssetInCatalog } from "../agent-hub/services/governanceEngine.mjs";
 import { getGeographicContext } from "../agent-hub/services/placesService.mjs";
 import { executePromptWithFallback, getProviderStatus } from "../agent-hub/services/providerRouter.mjs";
+import { processWorkfrontWebhook, executeFusionAction } from "../agent-hub/services/workfrontService.mjs";
 
 /**
  * Model Context Protocol (MCP) Server for Martech Engineer Dynamic Media AJO

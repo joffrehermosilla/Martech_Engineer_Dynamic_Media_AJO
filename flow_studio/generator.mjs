@@ -6,13 +6,13 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const TEMPLATE_PATH = path.resolve(__dirname, "../resources/flow-template.html");
 
 /**
- * Default Baseline Architecture Flow: AEM Dynamic Media + PhotoCraft + AJO + Azure + CDP
+ * Default Baseline Architecture Flow: AEM Dynamic Media + DAM Craft + AJO + Azure + CDP
  */
 export const DEFAULT_AEM_FLOW_MODEL = {
   size: { w: 1800, h: 900 },
   lanes: [
     { id: "aep", name: "AEM DAM & Dynamic Media", role: "Fuente Oficial de Activos y Entrega CDN", x: 0, w: 300 },
-    { id: "user", name: "PhotoCraft Engine", role: "Edición & Composición Sandbox", x: 300, w: 300 },
+    { id: "user", name: "DAM Craft Engine", role: "Edición & Composición Sandbox", x: 300, w: 300 },
     { id: "azure", name: "Agent Hub & MCP", role: "Gobernanza Mongo Atlas & Router IA", x: 600, w: 300 },
     { id: "ajo", name: "Adobe Journey Optimizer", role: "Orquestación de Experiencias InWeb", x: 900, w: 300 },
     { id: "meta", name: "Meta WhatsApp API", role: "Canal de Mensajería Saliente", x: 1200, w: 300 },
@@ -21,7 +21,7 @@ export const DEFAULT_AEM_FLOW_MODEL = {
   nodes: [
     { id: "n_brief", lane: "azure", kind: "step", x: 630, y: 120, w: 240, h: 70, t: "Solicitud de Asset", s: "Validación Mandamientos BCP", cd: "INITIATIVE_VALIDATE" },
     { id: "n_router", lane: "azure", kind: "step", x: 630, y: 240, w: 240, h: 70, t: "Router Multi-IA", s: "Groq / Gemini / Firefly Fallback", cd: "PROMPT_SYNTHESIS" },
-    { id: "n_photocraft", lane: "user", kind: "step", x: 330, y: 240, w: 240, h: 70, t: "PhotoCraft Sandbox", s: "Crop, Resize, Brand Watermark", cd: "BATCH_RECIPE" },
+    { id: "n_damcraft", lane: "user", kind: "step", x: 330, y: 240, w: 240, h: 70, t: "DAM Craft Sandbox", s: "Crop, Resize, Brand Watermark", cd: "BATCH_RECIPE" },
     { id: "n_human", lane: "azure", kind: "decision", x: 720, y: 360, w: 60, h: 60, t: "Revisión Humana", s: "Brand & Rights Approval", cd: "APPROVE_OR_DENY" },
     { id: "n_aem_upload", lane: "aep", kind: "step", x: 30, y: 360, w: 240, h: 70, t: "Direct Binary Upload", s: "AEM as a Cloud Service DAM", cd: "METADATA_SYNC" },
     { id: "n_dm_delivery", lane: "aep", kind: "step", x: 30, y: 500, w: 240, h: 70, t: "Dynamic Media Delivery", s: "URL CDN: AVIF / WebP / JPEG", cd: "MIME_VERIFIED" },
@@ -31,8 +31,8 @@ export const DEFAULT_AEM_FLOW_MODEL = {
   ],
   edges: [
     { id: "e1", from: "n_brief", to: "n_router", pts: [[750, 190], [750, 240]], dash: false },
-    { id: "e2", from: "n_router", to: "n_photocraft", pts: [[630, 275], [570, 275]], dash: false },
-    { id: "e3", from: "n_photocraft", to: "n_human", pts: [[450, 310], [450, 390], [720, 390]], dash: false },
+    { id: "e2", from: "n_router", to: "n_damcraft", pts: [[630, 275], [570, 275]], dash: false },
+    { id: "e3", from: "n_damcraft", to: "n_human", pts: [[450, 310], [450, 390], [720, 390]], dash: false },
     { id: "e4", from: "n_human", to: "n_aem_upload", pts: [[720, 390], [270, 390]], dash: false },
     { id: "e5", from: "n_aem_upload", to: "n_dm_delivery", pts: [[150, 430], [150, 500]], dash: false },
     { id: "e6", from: "n_dm_delivery", to: "n_ajo_inweb", pts: [[270, 535], [930, 535]], dash: true },
@@ -41,7 +41,7 @@ export const DEFAULT_AEM_FLOW_MODEL = {
   ],
   tours: [
     {
-      name: "Flujo Completo: Creación, PhotoCraft, DAM y Entrega AJO/Meta",
+      name: "Flujo Completo: Creación, DAM Craft, DAM y Entrega AJO/Meta",
       accent: "#FF7800",
       steps: [
         {
@@ -59,11 +59,11 @@ export const DEFAULT_AEM_FLOW_MODEL = {
           json: { model: "llama-3.3-70b", latencyMs: 240, prompt: "Generar especificaciones de composición..." }
         },
         {
-          node: "n_photocraft",
-          title: "3. Edición en PhotoCraft Sandbox",
-          desc: "PhotoCraft aplica recorte 1200x628, marcas de agua BCP y optimización de render.",
-          origin: "Agent Hub", target: "PhotoCraft Engine", proto: "MCP / CLI",
-          json: { engine: "PhotoCraft", operations: ["crop", "watermark", "tone_mapping"], format: "AVIF" }
+          node: "n_damcraft",
+          title: "3. Edición en DAM Craft Sandbox",
+          desc: "DAM Craft aplica recorte 1200x628, marcas de agua BCP y optimización de render.",
+          origin: "Agent Hub", target: "DAM Craft Engine", proto: "MCP / CLI",
+          json: { engine: "DAM Craft", operations: ["crop", "watermark", "tone_mapping"], format: "AVIF" }
         },
         {
           node: "n_aem_upload",
@@ -100,11 +100,11 @@ export const DEFAULT_AEM_FLOW_MODEL = {
       outputs: ["Decision: ALLOW | DENY | REVIEW_REQUIRED", "suggestedDisclaimers"],
       rules: ["Fail-Closed: Ante error de base de datos, no aprobar automáticamente.", "Verificar que no haya promesas de rentabilidad o préstamos sin evaluación."]
     },
-    n_photocraft: {
-      title: "PhotoCraft Sandbox Engine",
+    n_damcraft: {
+      title: "DAM Craft Sandbox Engine",
       subtitle: "Motor Rust de Edición y Composición",
       lane: "user",
-      laneName: "PhotoCraft Engine",
+      laneName: "DAM Craft Engine",
       summary: "Transforma imágenes mediante recetas de automatización sin modificar el archivo original de AEM DAM.",
       inputs: ["sourceImagePath", "recipe.json", "targetDimensions"],
       outputs: ["candidateImage.avif", "output_metadata.json", "appliedOperations"],
@@ -133,7 +133,7 @@ const DAM_GOVERNANCE_ROLES_MODEL = {
     { id: "admin", name: "Administrador DAM", role: "Gobernanza, Políticas & Control de Acceso", x: 0, w: 300 },
     { id: "martech", name: "Martech Engineer", role: "Reglas, Casos de Uso & Aprobaciones", x: 300, w: 300 },
     { id: "vcd", name: "Visual Content Designer", role: "Creación & Edición de Assets", x: 600, w: 300 },
-    { id: "photocraft", name: "PhotoCraft Engine", role: "Transformación & Composición", x: 900, w: 300 },
+    { id: "damcraft", name: "DAM Craft Engine", role: "Transformación & Composición", x: 900, w: 300 },
     { id: "atlas", name: "MongoDB Atlas", role: "Estado, Catálogo & Audit Trail", x: 1200, w: 300 },
     { id: "approvals", name: "Flujo de Aprobaciones", role: "Notificaciones & Estado Final", x: 1500, w: 300 }
   ],
@@ -143,7 +143,7 @@ const DAM_GOVERNANCE_ROLES_MODEL = {
     { id: "n_usecase_define", lane: "martech", kind: "step", x: 330, y: 120, w: 240, h: 70, t: "Definir Caso de Uso", s: "Iniciativa + Canal + Intención", cd: "USECASE_DEF" },
     { id: "n_brief_validate", lane: "martech", kind: "step", x: 330, y: 240, w: 240, h: 70, t: "Validar Brief", s: "Mandamientos BCP Atlas", cd: "BRIEF_VALIDATE" },
     { id: "n_asset_create", lane: "vcd", kind: "step", x: 630, y: 240, w: 240, h: 70, t: "Crear Asset", s: "VCD carga imagen base", cd: "ASSET_UPLOAD" },
-    { id: "n_pc_transform", lane: "photocraft", kind: "step", x: 930, y: 240, w: 240, h: 70, t: "Transformar Asset", s: "Crop, Resize, Watermark, AVIF", cd: "PC_BATCH" },
+    { id: "n_pc_transform", lane: "damcraft", kind: "step", x: 930, y: 240, w: 240, h: 70, t: "Transformar Asset", s: "Crop, Resize, Watermark, AVIF", cd: "PC_BATCH" },
     { id: "n_review_gate", lane: "martech", kind: "decision", x: 420, y: 400, w: 60, h: 60, t: "Gate de Revisión", s: "Aprobación Martech/Legal", cd: "REVIEW_GATE" },
     { id: "n_catalog_register", lane: "atlas", kind: "step", x: 1230, y: 400, w: 240, h: 70, t: "Registrar en Catálogo", s: "MongoDB Atlas asset_catalog", cd: "CATALOG_WRITE" },
     { id: "n_notify_pending", lane: "approvals", kind: "step", x: 1530, y: 300, w: 240, h: 70, t: "Notificar Pendiente", s: "Notificación Push a Aprobador", cd: "NOTIFY_PUSH" },
@@ -169,7 +169,7 @@ const DAM_GOVERNANCE_ROLES_MODEL = {
       steps: [
         { node: "n_policy_create", title: "1. Admin crea Política DAM", desc: "El Admin configura grupos de red, permisos y políticas de gobernanza que aplican a todos los roles." , origin: "Admin", target: "MongoDB Atlas", proto: "REST", json: { policyId: "POL-001", networkGroup: "MARTECH_TEAM", allowedRoles: ["MARTECH", "VCD"] } },
         { node: "n_usecase_define", title: "2. Martech define Caso de Uso", desc: "El Martech Engineer define la iniciativa, canal objetivo e intención del asset.", origin: "Martech", target: "Agent Hub", proto: "UI", json: { initiativeId: "INIT-BCP-CAMP-2026-01", channel: "EMAIL", intention: "PROMOTION" } },
-        { node: "n_asset_create", title: "3. VCD crea el Asset", desc: "El diseñador carga la imagen base y la envía al motor PhotoCraft para transformación.", origin: "VCD", target: "PhotoCraft", proto: "MCP", json: { operation: "AJO_INWEB_BANNER", format: "jpg", sourceImage: "asset_base.png" } },
+        { node: "n_asset_create", title: "3. VCD crea el Asset", desc: "El diseñador carga la imagen base y la envía al motor DAM Craft para transformación.", origin: "VCD", target: "DAM Craft", proto: "MCP", json: { operation: "AJO_INWEB_BANNER", format: "jpg", sourceImage: "asset_base.png" } },
         { node: "n_review_gate", title: "4. Gate de Revisión", desc: "El Martech Engineer recibe notificación y aprueba o rechaza el asset candidato.", origin: "System", target: "Martech Approver", proto: "Notification", json: { assetId: "AST-001", status: "PENDING_APPROVAL" } },
         { node: "n_final_approved", title: "5. Asset Aprobado", desc: "El asset queda en estado APPROVED en el catálogo con URL de entrega activa.", origin: "Martech", target: "Atlas Catalog", proto: "REST", json: { assetId: "AST-001", status: "APPROVED", deliveryUrl: "https://cdn.bcp.com/assets/banner.avif" } }
       ]
@@ -211,7 +211,7 @@ const EMAIL_MARKETING_MODEL = {
   nodes: [
     { id: "n_campaign", lane: "brief", kind: "step", x: 30, y: 120, w: 240, h: 70, t: "Definir Campaña", s: "Segmento, Objetivo, KPIs", cd: "CAMPAIGN_DEF" },
     { id: "n_subject", lane: "brief", kind: "step", x: 30, y: 250, w: 240, h: 70, t: "Subject & Preheader", s: "A/B Testing con IA", cd: "SUBJECT_GEN" },
-    { id: "n_hero_image", lane: "content", kind: "step", x: 330, y: 120, w: 240, h: 70, t: "Hero Image", s: "PhotoCraft 600x300px Email Header", cd: "HERO_GEN" },
+    { id: "n_hero_image", lane: "content", kind: "step", x: 330, y: 120, w: 240, h: 70, t: "Hero Image", s: "DAM Craft 600x300px Email Header", cd: "HERO_GEN" },
     { id: "n_copy_ai", lane: "content", kind: "step", x: 330, y: 250, w: 240, h: 70, t: "Copy con IA", s: "Router IA genera cuerpo del email", cd: "COPY_GEN" },
     { id: "n_html_build", lane: "template", kind: "step", x: 630, y: 180, w: 240, h: 70, t: "Build HTML", s: "Maquetación Responsive BCP", cd: "HTML_BUILD" },
     { id: "n_preview_test", lane: "template", kind: "decision", x: 720, y: 310, w: 60, h: 60, t: "Preview Test", s: "Desktop & Mobile Check", cd: "PREVIEW_OK" },
@@ -238,7 +238,7 @@ const EMAIL_MARKETING_MODEL = {
       accent: "#E53935",
       steps: [
         { node: "n_campaign", title: "1. Definición de Campaña", desc: "Se definen segmento objetivo, KPIs y canal Email.", origin: "Marketing", target: "Agent Hub", proto: "UI", json: { segment: "CREDITO_PERSONAL", objective: "CTR 3%", channel: "EMAIL" } },
-        { node: "n_hero_image", title: "2. Generación de Hero Image", desc: "PhotoCraft genera imagen de 600x300 para email header.", origin: "VCD/Agent", target: "PhotoCraft", proto: "MCP", json: { op: "EMAIL_HEADER", w: 600, h: 300, format: "jpg" } },
+        { node: "n_hero_image", title: "2. Generación de Hero Image", desc: "DAM Craft genera imagen de 600x300 para email header.", origin: "VCD/Agent", target: "DAM Craft", proto: "MCP", json: { op: "EMAIL_HEADER", w: 600, h: 300, format: "jpg" } },
         { node: "n_html_build", title: "3. Build HTML Responsive", desc: "Maquetación del email con estructura HTML responsive con assets embebidos.", origin: "Template Engine", target: "HTML Preview", proto: "Flow Export", json: { template: "BCP_EMAIL_V2", responsive: true } },
         { node: "n_send_batch", title: "4. Envío vía AJO", desc: "Adobe Journey Optimizer envía el batch con personalización por segmento.", origin: "AJO", target: "Email Delivery", proto: "SMTP/API", json: { batchSize: 50000, personalizedFields: ["firstName", "creditLimit"] } }
       ]
@@ -255,7 +255,7 @@ const SOCIAL_MEDIA_MODEL = {
   lanes: [
     { id: "brief", name: "Brief Creativo", role: "Estrategia de Contenido Social", x: 0, w: 300 },
     { id: "gen_ai", name: "IA Generativa", role: "Firefly / Router IA / Prompt", x: 300, w: 300 },
-    { id: "photocraft", name: "PhotoCraft", role: "Edición Multi-formato", x: 600, w: 300 },
+    { id: "damcraft", name: "DAM Craft", role: "Edición Multi-formato", x: 600, w: 300 },
     { id: "approval", name: "Revisión & Aprobación", role: "Brand Safety & Compliance", x: 900, w: 300 },
     { id: "dam", name: "DAM Catálogo", role: "Almacenamiento & Versionado", x: 1200, w: 300 },
     { id: "publish", name: "Publicación", role: "Multi-canal Social Media", x: 1500, w: 300 }
@@ -263,10 +263,10 @@ const SOCIAL_MEDIA_MODEL = {
   nodes: [
     { id: "n_brief_social", lane: "brief", kind: "step", x: 30, y: 120, w: 240, h: 70, t: "Brief Social Media", s: "Plataforma, Formato, Mensaje", cd: "SOCIAL_BRIEF" },
     { id: "n_prompt_gen", lane: "gen_ai", kind: "step", x: 330, y: 120, w: 240, h: 70, t: "Generación por IA", s: "Firefly / Groq Image Prompt", cd: "AI_GEN" },
-    { id: "n_instagram", lane: "photocraft", kind: "step", x: 630, y: 80, w: 240, h: 60, t: "Instagram Square", s: "1080x1080 AVIF", cd: "INSTAGRAM_SQ" },
-    { id: "n_story", lane: "photocraft", kind: "step", x: 630, y: 180, w: 240, h: 60, t: "Story/Reel", s: "1080x1920 MP4/PNG", cd: "STORY_FORMAT" },
-    { id: "n_linkedin", lane: "photocraft", kind: "step", x: 630, y: 280, w: 240, h: 60, t: "LinkedIn Banner", s: "1200x627 PNG", cd: "LINKEDIN_BAN" },
-    { id: "n_twitter", lane: "photocraft", kind: "step", x: 630, y: 380, w: 240, h: 60, t: "Twitter/X Card", s: "800x418 PNG", cd: "TWITTER_CARD" },
+    { id: "n_instagram", lane: "damcraft", kind: "step", x: 630, y: 80, w: 240, h: 60, t: "Instagram Square", s: "1080x1080 AVIF", cd: "INSTAGRAM_SQ" },
+    { id: "n_story", lane: "damcraft", kind: "step", x: 630, y: 180, w: 240, h: 60, t: "Story/Reel", s: "1080x1920 MP4/PNG", cd: "STORY_FORMAT" },
+    { id: "n_linkedin", lane: "damcraft", kind: "step", x: 630, y: 280, w: 240, h: 60, t: "LinkedIn Banner", s: "1200x627 PNG", cd: "LINKEDIN_BAN" },
+    { id: "n_twitter", lane: "damcraft", kind: "step", x: 630, y: 380, w: 240, h: 60, t: "Twitter/X Card", s: "800x418 PNG", cd: "TWITTER_CARD" },
     { id: "n_brand_review", lane: "approval", kind: "decision", x: 990, y: 230, w: 60, h: 60, t: "Brand Review", s: "Compliance & Safe Content", cd: "BRAND_REVIEW" },
     { id: "n_dam_store", lane: "dam", kind: "step", x: 1230, y: 220, w: 240, h: 70, t: "Almacenar en DAM", s: "Asset Catalog + Tags IA", cd: "DAM_STORE" },
     { id: "n_schedule", lane: "publish", kind: "step", x: 1530, y: 220, w: 240, h: 70, t: "Programar Publicación", s: "Multi-canal con horario óptimo", cd: "SCHEDULE_PUB" }
@@ -314,7 +314,7 @@ const WORKFRONT_GOVERNANCE_MODEL = {
     { id: "n_wf_task", lane: "workfront", kind: "step", x: 30, y: 120, w: 240, h: 70, t: "Tarea Workfront", s: "Creación de Asset Request", cd: "WF_TASK" },
     { id: "n_wf_url", lane: "workfront", kind: "step", x: 30, y: 250, w: 240, h: 70, t: "Gobierno de URL", s: "URL de Asset vinculada a Tarea", cd: "WF_URL" },
     { id: "n_dam_check", lane: "dam", kind: "step", x: 330, y: 120, w: 240, h: 70, t: "Check en DAM", s: "Buscar Asset Reutilizable", cd: "DAM_SEARCH" },
-    { id: "n_agent_create", lane: "agent_hub", kind: "step", x: 630, y: 180, w: 240, h: 70, t: "Crear Asset IA", s: "PhotoCraft + Router IA", cd: "ASSET_CREATE" },
+    { id: "n_agent_create", lane: "agent_hub", kind: "step", x: 630, y: 180, w: 240, h: 70, t: "Crear Asset IA", s: "DAM Craft + Router IA", cd: "ASSET_CREATE" },
     { id: "n_governance", lane: "agent_hub", kind: "decision", x: 720, y: 330, w: 60, h: 60, t: "Validar Gobernanza", s: "Mandamientos BCP Atlas", cd: "GOV_CHECK" },
     { id: "n_approval_wf", lane: "approval", kind: "step", x: 930, y: 250, w: 240, h: 70, t: "Aprobación Workfront", s: "Notificación al Aprobador", cd: "WF_APPROVAL" },
     { id: "n_publish_dm", lane: "delivery", kind: "step", x: 1230, y: 180, w: 240, h: 70, t: "Publicar Dynamic Media", s: "CDN URL + AJO InWeb", cd: "DM_PUBLISH" },
@@ -360,7 +360,7 @@ const WORKFRONT_GOVERNANCE_MODEL = {
  */
 export const FLOW_TEMPLATES = {
   AEM_DYNAMIC_MEDIA_E2E: {
-    label: "AEM Dynamic Media + PhotoCraft + AJO E2E",
+    label: "AEM Dynamic Media + DAM Craft + AJO E2E",
     description: "Flujo completo de creación, validación y entrega de assets",
     icon: "⚡",
     model: DEFAULT_AEM_FLOW_MODEL
