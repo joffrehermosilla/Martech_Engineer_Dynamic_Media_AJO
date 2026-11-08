@@ -22,10 +22,10 @@ Una plataforma de prueba para un banco (BCP) donde **una IA genera/edita piezas 
 | `agent-hub/services/providerRouter.mjs` | Pide textos a varias IAs en cascada (Groq → Gemini → OpenAI → DeepSeek) y rota API keys si una se queda sin cuota (429). |
 | `agent-hub/services/governanceEngine.mjs` | Revisa contra **MongoDB Atlas** que un brief no use frases prohibidas ("100% garantizado", etc.). Responde `ALLOW` / `DENY` / `REVIEW_REQUIRED`. |
 | `agent-hub/services/authService.mjs` · `adminService.mjs` | Login JWT, roles/permisos, CRUD de usuarios, políticas, squads, API keys. |
-| `agent-hub/services/photocraftAdapter.mjs` | Puente hacia PhotoCraft. Si no existe el binario Rust compilado, usa un **modo sandbox de respaldo**. |
+| `agent-hub/services/damcraftAdapter.mjs` | Puente hacia DAM Craft. Si no existe el binario Rust compilado, usa un **modo sandbox de respaldo**. |
 | `agent-hub/services/placesService.mjs` | Enriquecimiento geográfico con Google Places / Adobe Places. |
 | `mcp-server/` | Servidor MCP por stdin/stdout. Expone esas herramientas a agentes como Claude o Cursor. |
-| `photocraft/` | Motor de edición de imágenes en **Rust** (recorte, watermark, compresión…). |
+| `damcraft/` | Motor de edición de imágenes en **Rust** (recorte, watermark, compresión…). |
 | `flow_studio/` | Genera diagramas HTML interactivos de los flujos (documentación). |
 | `resources/` | Material de referencia y diagramas HTML. |
 
@@ -43,7 +43,7 @@ Una plataforma de prueba para un banco (BCP) donde **una IA genera/edita piezas 
 
 ```
 Usuario pide pieza  →  Router IA genera brief  →  Gobernanza (MongoDB) valida
-      →  PhotoCraft edita imagen (sandbox)  →  Humano aprueba (MARTECH)
+      →  DAM Craft edita imagen (sandbox)  →  Humano aprueba (MARTECH)
       →  [futuro] se sube a AEM DAM  →  Dynamic Media la entrega por CDN
       →  AJO / WhatsApp / AEM Sites la consumen
 ```
@@ -98,7 +98,7 @@ docker compose up --build -d    # expone :3000, lee .env.local
 
 | README dice | Realidad |
 |---|---|
-| La imagen Docker incluye "AEM + Node.js + PhotoCraft" | El `Dockerfile` solo tiene Node. No compila Rust → PhotoCraft siempre en modo fallback dentro del contenedor. |
+| La imagen Docker incluye "AEM + Node.js + DAM Craft" | El `Dockerfile` solo tiene Node. No compila Rust → DAM Craft siempre en modo fallback dentro del contenedor. |
 | GitHub Actions publica en Docker Hub | `push: false`: solo valida que la imagen compila. |
 | AEM integrado con el Hub | La parte AEM es la plantilla del archetype, sin integración. |
 
@@ -114,7 +114,7 @@ docker compose up --build -d    # expone :3000, lee .env.local
 | Java | 21 (`.cloudmanager/java-version`) | ⚠️ Tienes 26 |
 | Maven | 3.9+ | ❌ No instalado |
 | Docker | Opcional | ✅ Instalado |
-| Rust / cargo | Solo para compilar PhotoCraft | ❌ No instalado |
+| Rust / cargo | Solo para compilar DAM Craft | ❌ No instalado |
 | AEM SDK | Solo para probar AEM en local | ❌ No instalado |
 
 ---
@@ -130,7 +130,7 @@ Todo vive en `agent-hub/public/index.html` (una sola página; las "pantallas" so
 | 0 | Login | `#loginModal` | todos | ✅ Integrado |
 | 1 | Shell: header + navegación lateral | `#mainHeader`, `#mainNav` | todos | ✅ Integrado |
 | 2 | Gobernanza (validar briefs) | `#tab-governance` | ADMIN, MARTECH | ⬜ |
-| 3 | PhotoCraft Studio (editar imagen, preview, enviar a aprobación) | `#tab-photocraft` | ADMIN, VCD | ⬜ |
+| 3 | DAM Craft Studio (editar imagen, preview, enviar a aprobación) | `#tab-damcraft` | ADMIN, VCD | ⬜ |
 | 4 | Catálogo DAM | `#tab-catalog` | todos | ⬜ |
 | 5 | Agentes IA (proveedores) | `#tab-providers` | ADMIN, MARTECH | ⬜ |
 | 6 | Flow Studio (embebido) | `#tab-flow` | ADMIN, MARTECH, VCD | ⬜ |

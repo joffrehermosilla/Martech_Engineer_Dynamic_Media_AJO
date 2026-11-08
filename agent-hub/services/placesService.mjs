@@ -117,3 +117,137 @@ export async function getGeographicContext(query = "San Isidro", eventType = "CO
     promptSuggestion: `Setting: ${defaultLoc.environmentStyle}. Elegant, premium BCP corporate setting.`
   };
 }
+
+/**
+ * Propuesta y Análisis de Estacionalidad Geográfica y Anti-Alucinación (Fase 2 Editor Nativo)
+ * Resuelve la discrepancia hemisférica: en Latinoamérica el 25 de Diciembre es pleno VERANO,
+ * mientras que en el Hemisferio Norte es invierno con nieve.
+ */
+export function getRegionalSeasonalityProposal(region = "LATAM_COSTA", seasonDate = "NAVIDAD_DIC_25", useCase = "TARJETAS_RESTAURANTES_PLAYA") {
+  const isSouthernHemisphere = !region.startsWith("NORTEAMERICA");
+  
+  if (seasonDate === "NAVIDAD_DIC_25" || seasonDate === "VERANO_ENE_MAR") {
+    if (isSouthernHemisphere) {
+      return {
+        success: true,
+        region,
+        seasonDate,
+        useCase,
+        hemisphere: "SUR (Hemisferio Austral - Latinoamérica)",
+        season: "VERANO AUSTRÁLICO ☀️",
+        climate: "Cálido y soleado (26°C a 31°C). Cielo despejado, brisa marina en costa y sol radiante.",
+        antiHallucinationWarning: "🚫 PROHIBIDO EL USO DE NIEVE, GORROS POLARES O PINOS NEVADOS: En el Hemisferio Sur (Perú/Latam), el 25 de Diciembre es pleno VERANO. La Navidad BCP se celebra con ropa ligera, reuniones al aire libre, sol, playa y compras veraniegas.",
+        visualRecommendation: {
+          palette: ["#002A8F (Azul BCP)", "#FF7800 (Naranja BCP)", "#00C3FF (Cielo Despejado)", "#FFD200 (Sol Dorado)"],
+          lighting: "Luz solar diurna natural de alta luminosidad, sombras suaves de verano.",
+          attire: "Vestimenta corporativa ligera o casual fresca, sin abrigos de invierno ni bufandas.",
+          brandOverlay: "SELLO_VERANO_NAVIDAD_BCP_2026"
+        },
+        suggestedAssets: [
+          {
+            id: "aem_asset_summer_coast_01",
+            title: "Fondo Costa Verde & Sol Veraniego",
+            category: "BACKGROUND",
+            deliveryUrl: "/damcraft/jobs/sample_card/visa_signature.png",
+            climateTag: "VERANO_SOLEADO"
+          },
+          {
+            id: "aem_asset_visa_signature_card",
+            title: "Render Tarjeta Visa Signature (Beneficios Terrazas & Playas)",
+            category: "CREDIT_CARDS",
+            deliveryUrl: "/damcraft/jobs/sample_card/visa_signature.png",
+            climateTag: "TERRAZAS_VERANO"
+          },
+          {
+            id: "aem_asset_badge_summer_promo",
+            title: "Sello Oficial 40% Dscto Restaurantes de Verano BCP",
+            category: "BADGE",
+            deliveryUrl: "/damcraft/jobs/sample_card/visa_signature.png",
+            climateTag: "PROMO_VERANO"
+          }
+        ]
+      };
+    } else {
+      return {
+        success: true,
+        region,
+        seasonDate,
+        useCase,
+        hemisphere: "NORTE (Hemisferio Boreal)",
+        season: "INVIERNO BOREAL ❄️",
+        climate: "Frío invernal (< 5°C). Nevadas, chimeneas y ambiente térmico cerrado.",
+        antiHallucinationWarning: "❄️ Contexto Boreal: El 25 de diciembre coincide con nieve, iluminación cálida interior y vestimenta de abrigo.",
+        visualRecommendation: {
+          palette: ["#0B2545 (Azul Noche)", "#D4AF37 (Dorado Cálido)", "#FFFFFF (Nieve Fina)"],
+          lighting: "Iluminación cálida de chimenea y luces navideñas interiores.",
+          attire: "Abrigos, suéteres y bufandas de invierno.",
+          brandOverlay: "SELLO_INVIERNO_BOREAL_2026"
+        },
+        suggestedAssets: [
+          {
+            id: "aem_asset_winter_north_draft",
+            title: "Boceto Invierno Boreal Nieve",
+            category: "BACKGROUND",
+            deliveryUrl: "/damcraft/jobs/sample_draft/stories_verde.jpg",
+            climateTag: "INVIERNO_BOREAL"
+          }
+        ]
+      };
+    }
+  }
+
+  if (region === "LATAM_ANDINA") {
+    return {
+      success: true,
+      region,
+      seasonDate,
+      useCase,
+      hemisphere: "SUR (Sierra Andina - Cusco / Arequipa)",
+      season: "TEMPORADA SECA / SOL SERRANO 🏔️",
+      climate: "Cielo azul intenso, radiación solar diurna alta, arquitectura en piedra incaica y tejas coloniales.",
+      antiHallucinationWarning: "🏛️ Identidad Patrimonial: Priorizar texturas de piedra, sillar blanco y artesanía tradicional BCP.",
+      visualRecommendation: {
+        palette: ["#002A8F (Azul BCP)", "#8D3B1B (Teja Colonial)", "#C99700 (Dorado Imperial)"],
+        lighting: "Luz andina contrastada de mediodía, cielo azul puro sin niebla.",
+        attire: "Casual elegante andino.",
+        brandOverlay: "SELLO_PATRIMONIAL_BCP"
+      },
+      suggestedAssets: [
+        {
+          id: "aem_asset_cusco_heritage",
+          title: "Sede Patrimonial BCP Cusco - Arcos Coloniales",
+          category: "HERITAGE",
+          deliveryUrl: "/damcraft/jobs/sample_card/visa_signature.png",
+          climateTag: "ANDINA_PATRIMONIAL"
+        }
+      ]
+    };
+  }
+
+  // Caso por defecto: Costa moderna (San Isidro / Lima)
+  return {
+    success: true,
+    region,
+    seasonDate,
+    useCase,
+    hemisphere: "SUR (Costa Metropolitana)",
+    season: "TEMPORADA CORPORATIVA URBANA 🏢",
+    climate: "Clima templado urbano, distrito financiero moderno, vidrio y skyline.",
+    antiHallucinationWarning: "💼 Contexto Corporativo: Enfoque en eficiencia, banca móvil y agilidad.",
+    visualRecommendation: {
+      palette: ["#002A8F (Azul BCP)", "#FF7800 (Naranja BCP)", "#1E293B (Grafito Urbano)"],
+      lighting: "Iluminación corporativa dinámica, reflejos de cristal.",
+      attire: "Business formal contemporáneo.",
+      brandOverlay: "SELLO_OFICIAL_BCP"
+    },
+    suggestedAssets: [
+      {
+        id: "aem_asset_visa_signature_card",
+        title: "Render Tarjeta Visa Signature Metal",
+        category: "CREDIT_CARDS",
+        deliveryUrl: "/damcraft/jobs/sample_card/visa_signature.png",
+        climateTag: "URBANO_PREMIUM"
+      }
+    ]
+  };
+}

@@ -1,5 +1,5 @@
 import readline from "readline";
-import { executeDamCraftEdit, executePhotoCraftEdit } from "../agent-hub/services/photocraftAdapter.mjs";
+import { executeDamCraftEdit } from "../agent-hub/services/damcraftAdapter.mjs";
 import { validateAssetRequest, registerAssetInCatalog } from "../agent-hub/services/governanceEngine.mjs";
 import { getGeographicContext } from "../agent-hub/services/placesService.mjs";
 import { executePromptWithFallback, getProviderStatus } from "../agent-hub/services/providerRouter.mjs";
@@ -11,8 +11,8 @@ import { processWorkfrontWebhook, executeFusionAction } from "../agent-hub/servi
  */
 const TOOLS = [
   {
-    name: "photocraft_edit_asset",
-    description: "Applies image transformations (crop, resize, watermark, format conversion) using the PhotoCraft engine.",
+    name: "damcraft_edit_asset",
+    description: "Applies image transformations (crop, resize, watermark, composite layers, format conversion) using the DAM Craft engine.",
     inputSchema: {
       type: "object",
       properties: {
@@ -20,12 +20,68 @@ const TOOLS = [
         sourceImagePath: { type: "string", description: "Path to input asset" },
         actions: {
           type: "array",
-          description: "List of operations: crop, resize, watermark, tint",
+          description: "List of operations: crop, resize, watermark, tint, composite",
           items: { type: "object" }
         },
         outputFormat: { type: "string", enum: ["png", "jpg", "avif", "webp"], default: "png" }
       },
       required: ["sourceImagePath"]
+    }
+  },
+  {
+    name: "photocraft_edit_asset",
+    description: "Alias backward-compatibility for damcraft_edit_asset.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        jobId: { type: "string" },
+        sourceImagePath: { type: "string" },
+        actions: { type: "array", items: { type: "object" } },
+        outputFormat: { type: "string", default: "png" }
+      },
+      required: ["sourceImagePath"]
+    }
+  },
+  {
+    name: "workfront_process_approval",
+    description: "Processes Adobe Workfront Document Webhook approval/rejection events, updating asset catalog status and notifying stakeholders.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        documentId: { type: "string", description: "Workfront Document GUID" },
+        status: { type: "string", enum: ["APPROVED", "REJECTED", "PENDING_CHANGES"], description: "Approval decision" },
+        actorId: { type: "string", description: "Workfront User GUID of approver" },
+        comments: { type: "string", description: "Feedback or reason for decision" }
+      },
+      required: ["documentId", "status"]
+    }
+  },
+  {
+    name: "workfront_ingest_use_case",
+    description: "Ingests a creative brief or campaign request from Adobe Workfront project/task webhook or Workfront Fusion scenario.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        initiativeId: { type: "string", description: "Campaign Initiative Code (e.g. INIT-BCP-CAMP-2026-01)" },
+        title: { type: "string", description: "Campaign or Asset Title" },
+        description: { type: "string", description: "Detailed creative requirements" },
+        channel: { type: "string", enum: ["AJO_INWEB", "WHATSAPP", "EMAIL", "AEM_PAGE"], default: "AJO_INWEB" },
+        requestedBy: { type: "string", description: "Requester email or Workfront user" }
+      },
+      required: ["initiativeId", "title", "description"]
+    }
+  },
+  {
+    name: "workfront_fusion_trigger",
+    description: "Triggers or synchronizes an alternating orchestration scenario in Adobe Workfront Fusion (Integromat) for Phase 2 automation.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        scenarioId: { type: "string", description: "Fusion Scenario ID or webhook trigger name" },
+        action: { type: "string", enum: ["SYNC_ASSET_STATUS", "DISPATCH_BRIEF", "ALTERNATE_FLOW", "TRIGGER_COMPOSITING"], default: "ALTERNATE_FLOW" },
+        payload: { type: "object", description: "Data payload to forward to Fusion webhook" }
+      },
+      required: ["action", "payload"]
     }
   },
   {
@@ -87,8 +143,37 @@ const TOOLS = [
 // Dispatch tool execution
 async function handleCallTool(name, args) {
   switch (name) {
+    case "damcraft_edit_asset":
+      return await executeDamCraftEdit(args);
+
     case "photocraft_edit_asset":
-      return await executePhotoCraftEdit(args);
+      return await executeDamCraftEdit(args);
+
+    case "workfront_process_approval":
+      return await processWorkfrontWebhook({
+        eventType: args.status === "APPROVED" ? "DOCUMENT_APPROVAL_DECISION" : "DOCUMENT_REJECTED",
+        documentId: args.documentId,
+        status: args.status,
+        actorId: args.actorId || "MCP_WORKFRONT_ACTOR",
+        comments: args.comments || "Processed via MCP Server"
+      });
+
+    case "workfront_ingest_use_case":
+      return await processWorkfrontWebhook({
+        eventType: "PROJECT_BRIEF_CREATED",
+        initiativeId: args.initiativeId,
+        title: args.title,
+        description: args.description,
+        channel: args.channel || "AJO_INWEB",
+        actorId: args.requestedBy || "WORKFRONT_CREATIVE_REQUESTER"
+      });
+
+    case "workfront_fusion_trigger":
+      return await executeFusionAction({
+        action: args.action,
+        scenarioId: args.scenarioId || "SCENARIO_PHASE2_ALTERNATE",
+        payload: args.payload
+      });
 
     case "aem_asset_governance_check":
       return await validateAssetRequest(args.initiativeId, args.intention, args.briefText, args.channel);

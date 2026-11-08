@@ -3,7 +3,7 @@
  * Servicio de dominio unificado para edición de activos (Fase 2).
  * 
  * Cumple con los Mandamientos 3, 4, 7 y 8:
- * - Independiente de PhotoCraft Rust (100% nativo JS / Web standards).
+ * - Independiente de DAM Craft Rust (100% nativo JS / Web standards).
  * - Sirve tanto a humanos (UI Web) como a agentes (MCP / REST API).
  * - Operaciones: asset.get, asset.preview, asset.crop, asset.rotate, asset.flip, asset.adjust, asset.export, asset.versions.
  * - Preserva el original intacto por defecto.
@@ -133,7 +133,7 @@ export async function executeAssetTransform(options) {
 
   const outputFileName = `export_${jobId}.${fmt}`;
   const outputPath = path.join(jobDir, outputFileName);
-  const outputRelativeUrl = `/photocraft/jobs/${jobId}/${outputFileName}`;
+  const outputRelativeUrl = `/damcraft/jobs/${jobId}/${outputFileName}`;
 
   // Representación vectorial SVG de alta definición nativa para preservación local y previsualización
   const svgRepresentation = `

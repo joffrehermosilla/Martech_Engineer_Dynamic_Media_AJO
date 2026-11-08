@@ -48,11 +48,11 @@ Toda integración deberá identificar el producto Adobe exacto, el mecanismo ofi
 
 Si se trata de una extensión de interfaz, se evaluarán las opciones oficiales de Adobe App Builder y UI Extensibility cuando correspondan al producto de destino.
 
-## Mandamiento 3. PhotoCraft Rust no será un requisito para el editor web
+## Mandamiento 3. DAM Craft Rust no será un requisito para el editor web
 
-PhotoCraft en Rust forma parte del contexto técnico existente, pero el nuevo editor web deberá poder funcionar sin ejecutar PhotoCraft ni depender de su binario en producción.
+DAM Craft (denominación oficial del motor de edición y transformación gráfica para evitar conflictos de licencias con marcas registradas) forma parte del contexto técnico existente, pero el nuevo editor web deberá poder funcionar sin ejecutar DAM Craft ni depender de su binario en producción.
 
-Se creará una vista propia en HTML, CSS y JavaScript nativo, inspirada en las herramientas visuales de PhotoCraft.
+Se creará una vista propia en HTML, CSS y JavaScript nativo, inspirada en las herramientas visuales de DAM Craft.
 
 La ingeniería inversa se limitará al análisis funcional y visual de las herramientas: no se copiará código propietario ni se asumirán capacidades que no hayan sido verificadas.
 
@@ -254,6 +254,44 @@ Las etiquetas obligatorias de estado serán:
 
 No se considerará verificada una funcionalidad por compilar, renderizar una pantalla o devolver HTTP 200 si el resultado funcional no ha sido comprobado.
 
+
+
+## Mandamiento 16. Integración bidireccional con Adobe Workfront y Workfront Fusion (RFC Document Webhooks)
+
+El ciclo de vida de los activos de marketing digital no opera de manera aislada: debe recibir briefs, casos de uso y solicitudes creativas desde Adobe Workfront, y reportar el estado de aprobación formal mediante la especificación oficial de **Workfront Document Webhooks API**.
+
+- La plataforma expondrá endpoints conformes con el estándar RFC Webhook:
+  - `GET /api/workfront/metadata`: metadatos de integración del proveedor.
+  - `POST /api/workfront/webhook`: receptor unificado de eventos (`DOCUMENT_APPROVAL_DECISION`, `DOCUMENT_REJECTED`, `DOCUMENT_VERSION_NEW`, `PROJECT_BRIEF_CREATED`).
+  - `POST /api/workfront/fusion/trigger`: disparador de escenarios en Adobe Workfront Fusion (Integromat).
+- Todo cambio de estado de aprobación (`APPROVED`, `REJECTED`, `PENDING_CHANGES`) en Workfront actualizará atómicamente el catálogo DAM y Dynamic Media.
+- Workfront Fusion actuará como el alternador y orquestador de la Fase 2, conectando la ingesta de briefs, la generación en DAM Craft, la composición de piezas y la activación en Adobe Journey Optimizer (AJO).
+
+## Mandamiento 17. Composición Multi-Asset y traslape de piezas aprobadas (Linaje de Componentes)
+
+En campañas comerciales bancarias y de retail omnicanal, los diseñadores y Martechs necesitan reutilizar elementos gráficos preexistentes ya aprobados por cumplimiento y marca (fondos, badges, renders de tarjetas, stickers de descuento, logotipos vectoriales y CTAs).
+
+- La plataforma admitirá la **carga masiva simultánea (Batch Upload)** de activos visuales mediante drag & drop.
+- La **Mesa de Montaje Multicapa (Canvas Compositor)** permitirá montar múltiples capas superpuestas, regulando independientemente:
+  - Posición espacial (coordenadas X, Y).
+  - Escala relativa y zoom.
+  - Nivel de opacidad (0% a 100%).
+  - Modos de fusión de color (`source-over`, `multiply`, `screen`, `overlay`).
+  - Orden de profundidad (Z-index ascendente y descendente).
+- Al generar un activo compuesto final, se registrará el linaje completo (`parentAssetIds`), asegurando que solo piezas previamente certificadas compongan la nueva entrega sin requerir re-aprobación integral de los elementos base.
+
+## Mandamiento 18. Despliegue en GitHub Pages y resiliencia ante aislamiento de red bancaria (Puerto 27017)
+
+En infraestructuras bancarias corporativas bajo normativas de ciberseguridad PCI-DSS e ISO 27001, las estaciones de trabajo y servidores internos tienen estrictamente bloqueado el puerto TCP `27017` hacia clústeres externos de bases de datos como MongoDB Atlas, y no permiten la ejecución de servidores Node.js cuando el artefacto se publica como sitio estático en **GitHub Pages**.
+
+- La aplicación deberá operar con arquitectura **Local-First Resiliente**:
+  - Detección automática del entorno (`github.io`, `localhost` o modo offline).
+  - Persistencia de contingencia basada en el estándar web del navegador (`IndexedDB` y `localStorage`) que mantiene activos, iniciativas, mandamientos, histórico de capas y eventos sin emitir excepciones de red.
+  - Toda comunicación externa (hacia Adobe Workfront, Workfront Fusion, AJO o AEM) se realizará exclusivamente sobre el puerto estándar seguro **HTTPS 443**, admitido de forma transparente por proxies y firewalls bancarios.
+  - La interfaz de usuario mostrará un indicador visible del modo de red activo (`MODO: BANCO RESILIENTE (HTTPS 443 / INDEXEDDB)`).
+
+
+
 ---
 
 # III. FASES OBLIGATORIAS DEL PROYECTO
@@ -267,8 +305,8 @@ Tareas:
 1. Identificar la estructura de carpetas.
 2. Revisar el `package.json`, scripts, Dockerfile y Docker Compose.
 3. Identificar los servicios Agent Hub, MCP y Flow Studio.
-4. Localizar el código Rust de PhotoCraft y sus formatos de entrada y salida.
-5. Identificar las vistas actuales de PhotoCraft, Jobs y Flow Studio.
+4. Localizar el código Rust de DAM Craft y sus formatos de entrada y salida.
+5. Identificar las vistas actuales de DAM Craft, Jobs y Flow Studio.
 6. Localizar las llamadas a MongoDB Atlas, Google y otros proveedores.
 7. Identificar las rutas, los endpoints y los mecanismos de autenticación.
 8. Registrar las dependencias del arquetipo Adobe.
@@ -309,7 +347,7 @@ Tareas:
 
 ## Fase 2. Editor de assets en HTML y JavaScript nativo
 
-**Objetivo:** crear una herramienta web independiente de PhotoCraft Rust.
+**Objetivo:** crear una herramienta web independiente de DAM Craft Rust.
 
 Tareas:
 
@@ -323,6 +361,16 @@ Tareas:
 8. Mantener el archivo original intacto por defecto.
 9. Probar imágenes de diferentes dimensiones y formatos.
 10. Documentar los formatos y las operaciones realmente soportados.
+
+11. Incorporar la Mesa de Montaje Multicapa para traslape interactivo de piezas aprobadas con Z-index, escala, opacidad y modos de fusión.
+
+12. Habilitar la Carga Masiva (Batch Upload) de múltiples piezas gráficas en simultáneo.
+
+13. Implementar la integración bidireccional con Adobe Workfront Document Webhooks API y escenarios de alternancia con Workfront Fusion.
+
+14. Disponer del Modo Explicativo ("Inspector Martech") con información contextual al hacer click sobre cada botón, selector o campo de entrada.
+
+
 
 **Criterios de aceptación:**
 
@@ -630,7 +678,7 @@ Antes de proponer cambios, inspecciona el código disponible. Identifica la fase
 
 Prioriza un editor de assets en HTML, CSS y JavaScript nativo, un modo local-first, una vista fiable de Jobs, un Flow Studio basado en relaciones reales y herramientas MCP que compartan las mismas reglas de negocio y permisos.
 
-Mantén PhotoCraft Rust como parte del contexto del proyecto, pero no lo conviertas en requisito del nuevo editor web.
+Mantén DAM Craft Rust como parte del contexto del proyecto, pero no lo conviertas en requisito del nuevo editor web.
 
 Respeta la restricción de producción: Firefly será el único proveedor de IA externo autorizado si así lo establece el cliente. Los demás agentes y herramientas deberán operar localmente o permanecer aislados según las políticas del banco. No intentes eludir controles corporativos.
 

@@ -6,7 +6,7 @@ import dotenv from "dotenv";
 
 import { getProviderStatus, executePromptWithFallback } from "./services/providerRouter.mjs";
 import { validateAssetRequest, getDb, registerAssetInCatalog, getStorageStatus } from "./services/governanceEngine.mjs";
-import { executePhotoCraftEdit, executeDamCraftEdit } from "./services/photocraftAdapter.mjs";
+import { executeDamCraftEdit } from "./services/damcraftAdapter.mjs";
 import {
   getWorkfrontMetadata, processWorkfrontWebhook, executeFusionAction, getRecentWorkfrontEvents
 } from "./services/workfrontService.mjs";
@@ -14,7 +14,7 @@ import {
   executeAssetTransform, listAssetVersions, getAssetDetails,
   SUPPORTED_FORMATS, BCP_ASPECT_RATIOS
 } from "./services/assetEditorService.mjs";
-import { getGeographicContext } from "./services/placesService.mjs";
+import { getGeographicContext, getRegionalSeasonalityProposal } from "./services/placesService.mjs";
 import {
   loginUser, logoutUser, verifyToken, requireAuth, requirePermission,
   listUsers, upsertUser, getAllRoles, getRolePermissions
@@ -42,7 +42,7 @@ app.use(express.json());
 import { renderFlowToHtml, DEFAULT_AEM_FLOW_MODEL, FLOW_TEMPLATES } from "../flow_studio/generator.mjs";
 
 // ─── STATIC ASSETS ─────────────────────────────────────────────────────────────
-// Serve PhotoCraft job artifacts (images, metadata)
+// Serve DAM Craft job artifacts (images, metadata)
 app.use("/photocraft/jobs", express.static(path.resolve(__dirname, "../photocraft/jobs")));
 app.use("/damcraft/jobs", express.static(path.resolve(__dirname, "../photocraft/jobs")));
 // Serve agent-hub public assets
@@ -286,7 +286,7 @@ app.get("/api/flow-studio/preview", async (req, res) => {
     const html = await renderFlowToHtml(model, {
       title: FLOW_TEMPLATES[templateKey]?.label || "Mapa Dinámico de Arquitectura Martech | BCP Dynamic Media & AJO",
       badge: "BCP DYNAMIC MEDIA",
-      brandTitle: "AEM Assets • PhotoCraft • AJO InWeb • WhatsApp",
+      brandTitle: "AEM Assets • DAM Craft • AJO InWeb • WhatsApp",
       brandSub: "Arquitectura E2E Gobernanza y Entrega de Medios"
     });
     res.setHeader("Content-Type", "text/html; charset=utf-8");
@@ -323,7 +323,7 @@ app.get("/api/health", (req, res) => {
     version: "2.0.0-LOCAL-FIRST",
     timestamp: new Date().toISOString(),
     environment: process.env.NODE_ENV || "development",
-    features: ["RBAC", "LocalFirst", "DeterministicData", "PhotoCraft", "FlowStudio", "MultiDB", "ApprovalAPI"],
+    features: ["RBAC", "LocalFirst", "DeterministicData", "DAM Craft", "FlowStudio", "MultiDB", "ApprovalAPI"],
     storage: getStorageStatus()
   });
 });
@@ -488,7 +488,7 @@ app.post("/api/editor/composite", requireAuth, async (req, res) => {
     const fileName = `composite_${compositeAssetId}.${outputFormat}`;
     await fs.promises.writeFile(path.join(jobsDir, fileName), compositeSvg, "utf-8");
 
-    const deliveryUrl = `/photocraft/jobs/${jobId}/${fileName}`;
+    const deliveryUrl = `/damcraft/jobs/${jobId}/${fileName}`;
     const compositeDoc = {
       assetId: compositeAssetId,
       initiativeId,
@@ -531,7 +531,7 @@ app.post("/api/damcraft/edit", async (req, res) => {
 
 app.post("/api/photocraft/edit", async (req, res) => {
   try {
-    const result = await executePhotoCraftEdit(req.body);
+    const result = await executeDamCraftEdit(req.body);
     res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -631,6 +631,18 @@ app.get("/api/editor/assets/:assetId", async (req, res) => {
 app.post("/api/places/enrich", async (req, res) => {
   const { locationQuery, eventType } = req.body;
   const result = await getGeographicContext(locationQuery, eventType);
+  res.json(result);
+});
+
+app.get("/api/places/seasonality", (req, res) => {
+  const { region, season, useCase } = req.query;
+  const result = getRegionalSeasonalityProposal(region, season, useCase);
+  res.json(result);
+});
+
+app.post("/api/places/seasonality", (req, res) => {
+  const { region, season, useCase } = req.body;
+  const result = getRegionalSeasonalityProposal(region, season, useCase);
   res.json(result);
 });
 

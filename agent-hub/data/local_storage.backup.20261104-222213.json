@@ -1,0 +1,352 @@
+{
+  "platform_users": [
+    {
+      "_id": "usr_admin_001",
+      "username": "admin",
+      "passwordHash": "8880aeceaf24e4cfa2ef3e4a570a7dde034db010c53ee901f936b66553a53d12",
+      "salt": "a1b2c3d4e5f60718",
+      "fullName": "Administrador del Sistema",
+      "role": "ADMIN",
+      "networkGroup": "CORE_NETWORK",
+      "isActive": true,
+      "createdAt": "2026-11-01T16:36:15.018Z"
+    },
+    {
+      "_id": "usr_martech_002",
+      "username": "martech1",
+      "passwordHash": "c782dfe68c7e8567a38202d3fbd39c34ed339bcab4aabcff8c2a9d6ab5e8b477",
+      "salt": "b2c3d4e5f60718a1",
+      "fullName": "Martech Engineer",
+      "role": "MARTECH",
+      "networkGroup": "MARTECH_TEAM",
+      "isActive": true,
+      "createdAt": "2026-11-01T16:36:15.018Z"
+    },
+    {
+      "_id": "usr_designer_003",
+      "username": "designer1",
+      "passwordHash": "2b1bce8abd91b78f543f08ab1df84a27ae775987cee4ff512be123854cc3afa6",
+      "salt": "c3d4e5f60718a1b2",
+      "fullName": "Visual Content Designer",
+      "role": "VCD",
+      "networkGroup": "CREATIVE_SQUAD",
+      "isActive": true,
+      "createdAt": "2026-11-01T16:36:15.018Z"
+    },
+    {
+      "_id": "usr_viewer_004",
+      "username": "viewer1",
+      "passwordHash": "6cf851df685495a95233c37bb2282f0e34e2746d1e7cba7022256092cf555a27",
+      "salt": "d4e5f60718a1b2c3",
+      "fullName": "Stakeholder Viewer",
+      "role": "VIEWER",
+      "networkGroup": "STAKEHOLDERS",
+      "isActive": true,
+      "createdAt": "2026-11-01T16:36:15.018Z"
+    }
+  ],
+  "initiatives": [
+    {
+      "_id": "init_001",
+      "initiativeId": "INIT-BCP-CAMP-2026-01",
+      "name": "Campaña Préstamo al Toque",
+      "category": "PERSONAL_LOANS",
+      "targetAudience": "Clientes pre-evaluados con abono en cuenta sueldo",
+      "allowedChannels": [
+        "AJO_INWEB",
+        "WHATSAPP",
+        "AEM_PAGE"
+      ],
+      "mandatoryDisclaimers": [
+        "Sujeto a evaluación crediticia. TCEA referencial calculada a 36 meses. Más información en viabcp.com"
+      ],
+      "status": "ACTIVE",
+      "updatedAt": "2026-11-01T16:36:15.018Z"
+    },
+    {
+      "_id": "init_002",
+      "initiativeId": "INIT-BCP-CARD-2026-02",
+      "name": "Tarjeta Visa Signature Gastronomía & Millas",
+      "category": "CREDIT_CARDS",
+      "targetAudience": "Segmento Banca Exclusiva y Viajeros",
+      "allowedChannels": [
+        "AJO_INWEB",
+        "WHATSAPP"
+      ],
+      "mandatoryDisclaimers": [
+        "Acumula Millas LATAM Pass por cada USD 1 de consumo. Aplican términos y condiciones."
+      ],
+      "status": "ACTIVE",
+      "updatedAt": "2026-11-01T16:36:15.018Z"
+    },
+    {
+      "_id": "init_003",
+      "initiativeId": "INIT-BCP-MORT-2026-03",
+      "name": "Crédito Hipotecario Sostenible Verde",
+      "category": "MORTGAGE",
+      "targetAudience": "Familias interesadas en proyectos eco-amigables Mivivienda",
+      "allowedChannels": [
+        "AEM_PAGE",
+        "EMAIL"
+      ],
+      "mandatoryDisclaimers": [
+        "Bono Mivivienda Verde sujeto a calificación del fondo Mivivienda."
+      ],
+      "status": "ACTIVE",
+      "updatedAt": "2026-11-01T16:36:15.018Z"
+    }
+  ],
+  "governance_mandamientos": [
+    {
+      "_id": "mand_001",
+      "policyVersion": "BCP_BRAND_V1",
+      "brandName": "Banco de Crédito del Perú (BCP)",
+      "brandColors": {
+        "primary": "#002A8F",
+        "accent": "#FF7800",
+        "surface": "#FFFFFF",
+        "darkSurface": "#0B0F17"
+      },
+      "forbiddenTerms": [
+        "100% garantizado",
+        "sin evaluacion",
+        "sin evaluación",
+        "gratis de por vida",
+        "dinero facil",
+        "dinero fácil",
+        "sorteo millonario",
+        "criptomoneda",
+        "bitcoin"
+      ],
+      "allowedAspectRatios": [
+        "1:1",
+        "16:9",
+        "1.91:1",
+        "4:5"
+      ],
+      "allowedDeliveryFormats": [
+        "png",
+        "jpg",
+        "avif",
+        "webp",
+        "svg"
+      ],
+      "humanApprovalMandatoryForChannels": [
+        "WHATSAPP",
+        "BROADCAST"
+      ],
+      "updatedAt": "2026-11-01T16:36:15.018Z"
+    }
+  ],
+  "asset_catalog": [
+    {
+      "_id": "ast_001",
+      "assetId": "aem_asset_bcp_logo_primary",
+      "initiativeId": "INIT-BCP-CAMP-2026-01",
+      "title": "Logo Oficial BCP Azul y Naranja 2026",
+      "category": "BRAND_IDENTITY",
+      "deliveryUrl": "https://delivery-p187030-e1959235.adobeaemcloud.com/adobe/assets/urn:aaid:aem:bcp_logo_primary/as/bcp_logo.png",
+      "mimeType": "image/png",
+      "dimensions": {
+        "width": 512,
+        "height": 512
+      },
+      "status": "APPROVED",
+      "isSimulated": true,
+      "updatedAt": "2026-11-01T16:36:15.018Z"
+    },
+    {
+      "_id": "ast_002",
+      "assetId": "aem_asset_prestamo_toque_banner",
+      "initiativeId": "INIT-BCP-CAMP-2026-01",
+      "title": "Banner Principal Préstamo al Toque InWeb",
+      "category": "PERSONAL_LOANS",
+      "deliveryUrl": "https://delivery-p187030-e1959235.adobeaemcloud.com/adobe/assets/urn:aaid:aem:prestamo_toque_banner/as/banner_prestamo.avif?width=1024&quality=65",
+      "mimeType": "image/avif",
+      "dimensions": {
+        "width": 1200,
+        "height": 628
+      },
+      "status": "APPROVED",
+      "isSimulated": true,
+      "updatedAt": "2026-11-01T16:36:15.018Z"
+    },
+    {
+      "_id": "ast_003",
+      "assetId": "aem_asset_visa_signature_card",
+      "initiativeId": "INIT-BCP-CARD-2026-02",
+      "title": "Render Tarjeta Visa Signature Metal",
+      "category": "CREDIT_CARDS",
+      "deliveryUrl": "/photocraft/jobs/sample_card/visa_signature.png",
+      "mimeType": "image/png",
+      "dimensions": {
+        "width": 1080,
+        "height": 1080
+      },
+      "status": "APPROVED",
+      "isSimulated": true,
+      "updatedAt": "2026-11-01T16:36:15.018Z",
+      "approvedBy": "admin",
+      "approvedAt": "2026-11-01T16:55:11.154Z",
+      "approvalComment": "Aprobado por gobernanza"
+    },
+    {
+      "_id": "ast_004",
+      "assetId": "aem_asset_hipotecario_social_draft",
+      "initiativeId": "INIT-BCP-MORT-2026-03",
+      "title": "Boceto Campaña Crédito Verde Stories",
+      "category": "MORTGAGE",
+      "deliveryUrl": "/photocraft/jobs/sample_draft/stories_verde.jpg",
+      "mimeType": "image/jpeg",
+      "dimensions": {
+        "width": 1080,
+        "height": 1920
+      },
+      "status": "DRAFT",
+      "isSimulated": true,
+      "updatedAt": "2026-11-01T16:36:15.018Z"
+    }
+  ],
+  "dam_policies": [
+    {
+      "_id": "pol_001",
+      "policyId": "POL-001-AJO-INWEB-CROP",
+      "title": "Política de Formato y Calidad para AJO InWeb",
+      "description": "Todos los activos para banners InWeb deben ser 1200x628 y no superar 150KB en formato AVIF o JPEG optimizado.",
+      "aspectRatio": "1.91:1",
+      "maxWeightKb": 150,
+      "allowedFormats": [
+        "avif",
+        "jpg",
+        "webp"
+      ],
+      "status": "ACTIVE",
+      "createdBy": "admin",
+      "createdAt": "2026-11-01T16:36:15.018Z"
+    },
+    {
+      "_id": "pol_002",
+      "policyId": "POL-002-WHATSAPP-COMPLIANCE",
+      "title": "Gobernanza de Activos WhatsApp Notificaciones",
+      "description": "Requiere aprobación humana obligatoria y cláusula disclaimer visible.",
+      "aspectRatio": "1:1",
+      "maxWeightKb": 300,
+      "allowedFormats": [
+        "png",
+        "jpg"
+      ],
+      "status": "ACTIVE",
+      "createdBy": "admin",
+      "createdAt": "2026-11-01T16:36:15.018Z"
+    }
+  ],
+  "squads": [
+    {
+      "_id": "sq_001",
+      "squadId": "SQUAD-MARTECH-CORE",
+      "name": "Squad Martech & Dynamic Media Core",
+      "lead": "martech1",
+      "members": [
+        "martech1",
+        "admin"
+      ],
+      "createdAt": "2026-11-01T16:36:15.018Z"
+    },
+    {
+      "_id": "sq_002",
+      "squadId": "SQUAD-CREATIVE-VCD",
+      "name": "Squad Diseño y Contenido Visual (VCD)",
+      "lead": "designer1",
+      "members": [
+        "designer1"
+      ],
+      "createdAt": "2026-11-01T16:36:15.018Z"
+    }
+  ],
+  "network_groups": [
+    {
+      "_id": "net_001",
+      "code": "CORE_NETWORK",
+      "name": "Red Principal Segura BCP",
+      "requiresVPN": true
+    },
+    {
+      "_id": "net_002",
+      "code": "MARTECH_TEAM",
+      "name": "Red Operaciones Martech",
+      "requiresVPN": true
+    },
+    {
+      "_id": "net_003",
+      "code": "CREATIVE_SQUAD",
+      "name": "Red Contenido y Diseño",
+      "requiresVPN": false
+    },
+    {
+      "_id": "net_004",
+      "code": "STAKEHOLDERS",
+      "name": "Acceso Consultivo",
+      "requiresVPN": false
+    }
+  ],
+  "api_keys": [
+    {
+      "_id": "key_001",
+      "keyId": "key_demo_public_001",
+      "name": "Clave Demo Integración Local",
+      "hashedKey": "3616d89ca423259a6a57c74aff8bcd6ea9eebf67480476eaf5901bd7efbc4374",
+      "truncated": "bcp_demo...2026",
+      "role": "MARTECH",
+      "isActive": true,
+      "createdAt": "2026-11-01T16:36:15.018Z"
+    }
+  ],
+  "role_view_config": [],
+  "external_db_connections": [],
+  "saved_flows": [
+    {
+      "_id": "flw_001",
+      "flowId": "flow_demo_default",
+      "templateKey": "AEM_DYNAMIC_MEDIA_E2E",
+      "title": "Flujo End-to-End AEM Dynamic Media & AJO",
+      "nodeEdits": {},
+      "approvalStatus": "APPROVED",
+      "tags": [
+        "E2E",
+        "BCP",
+        "AJO",
+        "DYNAMIC_MEDIA"
+      ],
+      "createdBy": "admin",
+      "createdAt": "2026-11-01T16:36:15.018Z",
+      "updatedAt": "2026-11-01T16:36:15.018Z",
+      "updatedBy": "admin"
+    }
+  ],
+  "audit_log": [
+    {
+      "_id": "aud_001",
+      "action": "SYSTEM_INITIALIZED",
+      "actor": "system",
+      "mode": "AUTO",
+      "timestamp": "2026-11-01T16:36:15.018Z"
+    },
+    {
+      "_id": "id_1793551900114_ceuoip",
+      "action": "USER_LOGIN",
+      "username": "admin",
+      "role": "ADMIN",
+      "networkGroup": "CORE_NETWORK",
+      "timestamp": "2026-11-01T16:51:40.114Z",
+      "ip": "platform"
+    },
+    {
+      "_id": "id_1793552111154_sb5lov",
+      "action": "ASSET_APPROVED",
+      "assetId": "aem_asset_visa_signature_card",
+      "actor": "admin",
+      "comment": "Aprobado por gobernanza",
+      "timestamp": "2026-11-01T16:55:11.154Z"
+    }
+  ]
+}
