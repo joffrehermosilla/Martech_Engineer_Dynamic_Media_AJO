@@ -1237,9 +1237,7 @@
         <p class="nav-group__label" id="ng-gen">01 · Generar</p>
         <button class="tab-btn" data-tab="damcraft" data-roles="ADMIN,VCD,MARTECH" onclick="switchTab('damcraft')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 8"/></svg><span>DAM Craft Studio</span></button>
-        <button class="tab-btn" data-tab="places" data-roles="ADMIN,MARTECH" onclick="switchTab('places')">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11a7 7 0 0 1 14 0c0 4.8-7 11-7 11z"/><circle cx="12" cy="10" r="2.5"/></svg><span>Contexto geográfico</span></button>
-        <button class="tab-btn" data-tab="editor" data-roles="ADMIN,VCD,MARTECH" onclick="switchTab('editor')">
+<button class="tab-btn" data-tab="editor" data-roles="ADMIN,VCD,MARTECH" onclick="switchTab('editor')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg><span>Editor nativo</span></button>
       </div>
 
@@ -1740,26 +1738,7 @@
       </div>
     </section>
 
-    <!-- ── TAB: GEO CONTEXT ── -->
-    <section id="tab-places">
-      <div class="section-head">
-        <p class="section-head__stage">01 · Generar</p>
-        <h1>Contexto geográfico</h1>
-      </div>
-      <div class="card">
-        <div class="card-header">
-          <h2 class="card-title">📍 Enriquecimiento Geográfico</h2>
-        </div>
-        <div class="form-row">
-          <label>Búsqueda de Sede / Ubicación del Evento</label>
-          <input type="text" id="placesQuery" value="San Isidro" placeholder="Ej: San Isidro, La Molina, Cusco...">
-        </div>
-        <button class="btn btn-primary" onclick="lookupLocation()">📍 Consultar Contexto de Ubicación</button>
-        <div id="placesOutput" class="result-box" style="margin-top:1rem;">Consulte una sede para enriquecer el contexto del activo visual...</div>
-      </div>
-    </section>
-
-    <!-- ── TAB: EDITOR NATIVO HTML5 / CANVAS (Fase 2) ── -->
+<!-- ── TAB: EDITOR NATIVO HTML5 / CANVAS (Fase 2) ── -->
     <section id="tab-editor">
 
       <style>
@@ -2000,6 +1979,166 @@
         .format-tab { padding: 0.3rem 0.6rem; background: var(--surface-2); border: 1px solid var(--border); border-radius: 6px; font-size: 0.72rem; font-weight: 700; cursor: pointer; color: var(--ink-2); transition: all 0.15s; }
         .format-tab:hover, .format-tab.active { border-color: var(--bcp-orange); color: var(--bcp-orange); background: rgba(255,120,0,0.08); }
       </style>
+
+
+      <!-- ── PANEL: PROPUESTA GEOGRÁFICA / ESTACIONALIDAD HEMISFÉRICA ── -->
+      <details id="geoContextPanel" style="margin-bottom:1.25rem;" open>
+        <summary style="
+          cursor:pointer;
+          display:flex;
+          align-items:center;
+          gap:0.6rem;
+          font-size:0.82rem;
+          font-weight:700;
+          text-transform:uppercase;
+          letter-spacing:0.07em;
+          color:var(--ink-2);
+          padding:0.6rem 0.8rem;
+          background:var(--surface-card);
+          border:1px solid var(--border);
+          border-radius:var(--radius);
+          list-style:none;
+          user-select:none;
+        "
+          title="Haz clic para expandir/colapsar el panel de contexto geográfico y propuesta de assets por región y estacionalidad hemisférica.">
+          🌍 <span>Propuesta de Assets por Región y Estacionalidad Hemisférica</span>
+          <span id="geoToggleIcon" style="margin-left:auto;font-size:0.95rem;">▲</span>
+        </summary>
+        <div style="
+          background:var(--surface-card);
+          border:1px solid var(--border);
+          border-top:none;
+          border-radius:0 0 var(--radius) var(--radius);
+          padding:1.25rem;
+        ">
+          <!-- Info banner -->
+          <div style="
+            background:rgba(255,120,0,0.08);
+            border:1px solid rgba(255,120,0,0.25);
+            border-radius:8px;
+            padding:0.75rem 1rem;
+            font-size:0.8rem;
+            color:var(--ink-2);
+            margin-bottom:1rem;
+            display:flex;
+            gap:0.6rem;
+            align-items:flex-start;
+          ">
+            <span style="font-size:1.1rem;">ℹ️</span>
+            <span>
+              <strong>Anti-Alucinación Hemisférica:</strong> En LATAM, el 25 de diciembre es
+              <strong>VERANO ☀️</strong> (playa, calor 26-31°C). En Norteamérica/Europa es
+              <strong>INVIERNO ❄️</strong> (nieve, frío). El motor ajusta automáticamente las
+              propuestas de assets e imágenes según la región y la época del año seleccionada.
+            </span>
+          </div>
+
+          <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:0.75rem;align-items:end;flex-wrap:wrap;" id="geoFormRow">
+            <!-- Region -->
+            <div>
+              <label style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-2);display:block;margin-bottom:0.4rem;"
+                title="Selecciona la región geográfica del caso de uso para ajustar las propuestas visuales según el hemisferio y el clima local.">
+                🗺️ Región / Mercado
+              </label>
+              <select id="geoRegion" style="width:100%;padding:0.5rem 0.6rem;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--ink-1);font-size:0.82rem;"
+                title="LATAM_COSTA: Perú costa (Lima, Trujillo) · LATAM_ANDINA: Sierra andina (Cusco, Arequipa) · LATAM_SUR: Cono Sur (Chile, Argentina) · NORTEAMERICA: USA/Canadá/México · EUROPA: España/Europa">
+                <option value="LATAM_COSTA">🇵🇪 LATAM Costa (Lima, Trujillo…)</option>
+                <option value="LATAM_ANDINA">🏔️ LATAM Andina (Cusco, Sierra…)</option>
+                <option value="LATAM_SUR">🌊 LATAM Sur (Chile, Argentina)</option>
+                <option value="LATAM_CARIBE">🌴 LATAM Caribe (Colombia, Panamá)</option>
+                <option value="NORTEAMERICA">🇺🇸 Norteamérica (USA/MX/CA)</option>
+                <option value="EUROPA">🇪🇺 Europa (España, UK…)</option>
+                <option value="ASIA_PAC">🌏 Asia-Pacífico</option>
+              </select>
+            </div>
+
+            <!-- Occasion/Season -->
+            <div>
+              <label style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-2);display:block;margin-bottom:0.4rem;"
+                title="Selecciona la época o festividad para proponer assets visuales culturalmente correctos. En el hemisferio sur, diciembre = verano.">
+                📅 Época / Festividad
+              </label>
+              <select id="geoSeason" style="width:100%;padding:0.5rem 0.6rem;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--ink-1);font-size:0.82rem;"
+                title="Navidad Dic-25: hemisferio sur=verano, norte=invierno · Fiestas Patrias: 28 Jul para Perú · Black Friday: noviembre · etc.">
+                <option value="NAVIDAD_DIC_25">🎄 Navidad (Dic 25)</option>
+                <option value="VERANO_ENE_MAR">☀️ Verano Ene-Mar (HemSur)</option>
+                <option value="INVIERNO_JUN_AGO">❄️ Invierno Jun-Ago (HemSur)</option>
+                <option value="FIESTAS_PATRIAS_JUL_28">🎆 Fiestas Patrias (28 Jul)</option>
+                <option value="BLACK_FRIDAY_NOV">🛍️ Black Friday (Nov)</option>
+                <option value="VERANO_JUL_AGO_NORTE">🏖️ Verano Jul-Ago (HemNor)</option>
+                <option value="SAN_VALENTIN_FEB">💕 San Valentín (Feb)</option>
+                <option value="DIA_MADRE_MAY">🌷 Día de la Madre (May)</option>
+                <option value="GENERICO">📆 Campaña Genérica</option>
+              </select>
+            </div>
+
+            <!-- Use Case -->
+            <div>
+              <label style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-2);display:block;margin-bottom:0.4rem;"
+                title="Describe brevemente el caso de uso o campaña para personalizar las propuestas de assets e imágenes. Ej: 'préstamos personales', 'tarjeta Visa Gold', 'descuentos restaurantes'.">
+                🎯 Caso de Uso / Campaña
+              </label>
+              <input type="text" id="geoUseCase" placeholder="Ej: préstamos personales, Visa Gold…"
+                style="width:100%;padding:0.5rem 0.6rem;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--ink-1);font-size:0.82rem;"
+                title="Escribe el nombre del producto o campaña para que el motor IA proponga assets visualmente relevantes para esa región y época."
+              />
+            </div>
+
+            <!-- CTA Button -->
+            <div>
+              <button class="btn btn-primary" onclick="proposeGeoAssets()"
+                style="white-space:nowrap;width:100%;"
+                title="Genera una propuesta de paleta de colores, imágenes y assets visuales adaptados a la región geográfica y la estacionalidad hemisférica seleccionada. Incluye advertencias anti-alucinación para evitar errores culturales (ej: nieve en Lima en diciembre).">
+                🌎 Proponer Assets por Región
+              </button>
+            </div>
+          </div>
+
+          <!-- Output area -->
+          <div id="geoOutput" style="
+            margin-top:1rem;
+            min-height:80px;
+            background:rgba(0,0,0,0.25);
+            border:1px solid var(--border);
+            border-radius:var(--radius);
+            padding:1rem;
+            font-size:0.82rem;
+            color:var(--ink-2);
+            font-family:var(--font-mono);
+            white-space:pre-wrap;
+          ">Selecciona una región, época y caso de uso para proponer assets culturalmente correctos…</div>
+
+          <!-- Asset Proposal Grid -->
+          <div id="geoAssetGrid" style="display:none;margin-top:1rem;">
+            <p style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-2);margin-bottom:0.6rem;">
+              🖼️ Assets Propuestos para esta Región/Estación
+            </p>
+            <div id="geoAssetGridItems" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:0.75rem;"></div>
+          </div>
+
+          <!-- Location enrichment sub-panel -->
+          <details style="margin-top:1rem;" id="geoLocationPanel">
+            <summary style="font-size:0.78rem;font-weight:600;color:var(--ink-2);cursor:pointer;padding:0.4rem 0;"
+              title="Busca una sede o dirección específica para enriquecer el contexto geográfico del activo visual (barrio, clima local, referencias culturales).">
+              📍 Enriquecer con ubicación específica (sede / evento)
+            </summary>
+            <div style="display:flex;gap:0.6rem;margin-top:0.6rem;">
+              <input type="text" id="placesQuery" value="San Isidro"
+                placeholder="Ej: San Isidro, La Molina, Cusco…"
+                style="flex:1;padding:0.45rem 0.6rem;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--ink-1);font-size:0.82rem;"
+                title="Escribe la sede, barrio o ciudad del evento para enriquecer el contexto visual con datos locales (infraestructura, clima, referencias culturales del lugar)."
+              />
+              <button class="btn btn-secondary btn-sm" onclick="lookupLocation()"
+                title="Consulta el contexto de la ubicación ingresada para enriquecer la propuesta visual con datos geográficos y culturales locales.">
+                📍 Consultar
+              </button>
+            </div>
+            <div id="placesOutput" class="result-box" style="margin-top:0.6rem;font-size:0.78rem;">
+              Consulte una sede para enriquecer el contexto del activo visual…
+            </div>
+          </details>
+        </div>
+      </details>
 
       <!-- Header de la sección -->
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
@@ -2562,7 +2701,7 @@
       if (tabId === "notifications") loadNotifications();
       if (tabId === "admin") { loadUsers(); loadPolicies(); loadSquads(); loadApiKeys(); }
       if (tabId === "connections") loadConnections();
-      if (tabId === "editor") editorOnTabOpen();
+      if (tabId === "editor") { editorOnTabOpen(); initGeoPanel(); }
     }
 
     function switchAdminTab(sub) {
@@ -3186,6 +3325,88 @@
     // ═══════════════════════════════════════════════════
     // GEO CONTEXT
     // ═══════════════════════════════════════════════════
+
+    // ═══════════════════════════════════════════════════════════════════
+    // GEO ASSETS PROPOSAL — Panel dentro del Editor Nativo
+    // ═══════════════════════════════════════════════════════════════════
+    function initGeoPanel() {
+      // Toggle icon for <details> element
+      const details = document.getElementById('geoContextPanel');
+      const icon = document.getElementById('geoToggleIcon');
+      if (details && icon) {
+        details.addEventListener('toggle', () => {
+          icon.textContent = details.open ? '▲' : '▼';
+        });
+      }
+    }
+
+    async function proposeGeoAssets() {
+      const region = document.getElementById('geoRegion').value;
+      const season = document.getElementById('geoSeason').value;
+      const useCase = document.getElementById('geoUseCase').value.trim() || 'campaña general';
+      const output = document.getElementById('geoOutput');
+      const grid = document.getElementById('geoAssetGrid');
+      const gridItems = document.getElementById('geoAssetGridItems');
+
+      output.textContent = '⏳ Consultando propuesta geográfica…';
+      grid.style.display = 'none';
+
+      try {
+        const url = `/api/places/seasonality?region=${encodeURIComponent(region)}&season=${encodeURIComponent(season)}&useCase=${encodeURIComponent(useCase)}`;
+        const data = await apiFetch(url);
+
+        let txt = '';
+        if (data.antiHallucinationWarning) {
+          txt += `🚫 ADVERTENCIA ANTI-ALUCINACIÓN:\n${data.antiHallucinationWarning}\n\n`;
+        }
+        if (data.hemisphere) {
+          txt += `🌐 Hemisferio: ${data.hemisphere}\n`;
+        }
+        if (data.season) {
+          txt += `🌡️ Estación real: ${data.season}\n`;
+        }
+        if (data.palette) {
+          txt += `\n🎨 Paleta sugerida:\n`;
+          (data.palette || []).forEach(c => { txt += `  • ${c}\n`; });
+        }
+        if (data.imageSuggestions?.length) {
+          txt += `\n🖼️ Imágenes sugeridas:\n`;
+          data.imageSuggestions.forEach(img => { txt += `  • ${img}\n`; });
+          // Build grid
+          gridItems.innerHTML = data.imageSuggestions.map(img => `
+            <div style="
+              background:var(--surface-2);
+              border:1px solid var(--border);
+              border-radius:var(--radius-sm);
+              padding:0.75rem 0.5rem;
+              text-align:center;
+              font-size:0.72rem;
+              color:var(--ink-2);
+              cursor:pointer;
+              transition:border-color 0.15s;
+            " 
+            onclick="editorLoadImageUrl('')"
+            onmouseover="this.style.borderColor='var(--bcp-orange)'"
+            onmouseout="this.style.borderColor='var(--border)'"
+            title="Asset propuesto para ${region} en ${season}: ${img}">
+              <span style="font-size:1.5rem;display:block;margin-bottom:0.4rem;">🖼️</span>
+              <span>${img}</span>
+            </div>
+          `).join('');
+          grid.style.display = 'block';
+        }
+        if (data.copyTone) {
+          txt += `\n✍️ Tono de copy: ${data.copyTone}\n`;
+        }
+        if (data.notes) {
+          txt += `\n📝 Notas: ${data.notes}\n`;
+        }
+        output.textContent = txt || JSON.stringify(data, null, 2);
+      } catch (err) {
+        output.textContent = `❌ Error al consultar propuesta geográfica: ${err.message}\n\nVerifica que el servidor esté activo en localhost:3000`;
+      }
+    }
+
     async function lookupLocation() {
       const query = document.getElementById("placesQuery").value;
       const output = document.getElementById("placesOutput");
