@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import path from "path";
+import fs from "fs";
 import { fileURLToPath } from "url";
 import dotenv from "dotenv";
 
@@ -332,6 +333,92 @@ app.get("/api/system/mode", (req, res) => {
   res.json(getStorageStatus());
 });
 
+function maskSecret(val) {
+  if (!val) return "";
+  const str = String(val).trim();
+  if (str.length <= 8) return "••••••••";
+  return str.slice(0, 4) + "••••••••" + str.slice(-4);
+}
+
+app.get("/api/system/env-status", (req, res) => {
+  const envLocalPath = path.resolve(__dirname, "../.env.local");
+  const envPath = path.resolve(__dirname, "../.env");
+  const hasEnvLocal = fs.existsSync(envLocalPath);
+  const hasEnv = fs.existsSync(envPath);
+
+  const variables = {
+    MONGODB_URI: {
+      configured: Boolean(process.env.MONGODB_URI),
+      preview: maskSecret(process.env.MONGODB_URI),
+      description: "Base de Datos de Gobernanza, Mandamientos y Catálogo DAM"
+    },
+    DB_NAME: {
+      configured: Boolean(process.env.DB_NAME),
+      preview: process.env.DB_NAME || "ajo-cdp-meta-db",
+      description: "Nombre de Base de Datos Mongo"
+    },
+    GEMINI_API_KEY: {
+      configured: Boolean(process.env.GEMINI_API_KEY),
+      preview: maskSecret(process.env.GEMINI_API_KEY),
+      description: "Google Gemini 2.0 / Flash Router"
+    },
+    GROQ_API_KEY: {
+      configured: Boolean(process.env.GROQ_API_KEY),
+      preview: maskSecret(process.env.GROQ_API_KEY),
+      description: "Groq LPU (Llama 3.3 70B Fast Router)"
+    },
+    OPENAI_API_KEY: {
+      configured: Boolean(process.env.OPENAI_API_KEY),
+      preview: maskSecret(process.env.OPENAI_API_KEY),
+      description: "OpenAI GPT-4o Fallback"
+    },
+    DEEPSEEK_API_KEY: {
+      configured: Boolean(process.env.DEEPSEEK_API_KEY),
+      preview: maskSecret(process.env.DEEPSEEK_API_KEY),
+      description: "DeepSeek Reasoning Fallback"
+    },
+    FIREFLY_CLIENT_ID: {
+      configured: Boolean(process.env.FIREFLY_CLIENT_ID),
+      preview: maskSecret(process.env.FIREFLY_CLIENT_ID),
+      description: "Adobe Firefly Services Client ID"
+    },
+    GOOGLE_MAPS_API_KEY: {
+      configured: Boolean(process.env.GOOGLE_MAPS_API_KEY),
+      preview: maskSecret(process.env.GOOGLE_MAPS_API_KEY),
+      description: "Google Places API (Enriquecimiento Geográfico)"
+    },
+    CDP_URL: {
+      configured: Boolean(process.env.CDP_URL),
+      preview: maskSecret(process.env.CDP_URL),
+      description: "Adobe Experience Platform (AEP / CDP Ingestion)"
+    },
+    AEM_HOST: {
+      configured: Boolean(process.env.AEM_HOST),
+      preview: process.env.AEM_HOST || "localhost",
+      description: "Host de Instancia AEM as a Cloud Service"
+    },
+    DYNAMIC_MEDIA_DELIVERY_HOST: {
+      configured: Boolean(process.env.DYNAMIC_MEDIA_DELIVERY_HOST),
+      preview: process.env.DYNAMIC_MEDIA_DELIVERY_HOST || "delivery-p187030-e1959235.adobeaemcloud.com",
+      description: "CDN / Host de Entrega Dynamic Media"
+    },
+    PORT: {
+      configured: true,
+      preview: String(process.env.PORT || 3000),
+      description: "Puerto del Servidor Agent Hub"
+    }
+  };
+
+  res.json({
+    hasEnvLocal,
+    hasEnv,
+    activeConfigFile: hasEnvLocal ? ".env.local" : (hasEnv ? ".env" : "Variables de Entorno"),
+    storageStatus: getStorageStatus(),
+    variables,
+    timestamp: new Date().toISOString()
+  });
+});
+
 app.get("/api/providers", (req, res) => {
   res.json({
     providers: getProviderStatus(),
@@ -540,6 +627,43 @@ app.post("/api/photocraft/edit", async (req, res) => {
 
 
 // ─── WORKFRONT & FUSION WEBHOOKS API ─────────────────────────────────────────
+
+let activeWorkfrontStrategy = {
+  strategy: "WORKFRONT_FUSION", // "WORKFRONT_DIRECT" | "WORKFRONT_FUSION"
+  scope: {
+    briefs: true,
+    approvals: true,
+    compositing: true,
+    ajoSync: true
+  },
+  updatedAt: new Date().toISOString(),
+  updatedBy: "system"
+};
+
+app.get("/api/workfront/strategy", (req, res) => {
+  res.json({
+    success: true,
+    strategyConfig: activeWorkfrontStrategy
+  });
+});
+
+app.post("/api/workfront/strategy", requireAuth, (req, res) => {
+  const { strategy, scope } = req.body;
+  if (strategy && ["WORKFRONT_DIRECT", "WORKFRONT_FUSION"].includes(strategy)) {
+    activeWorkfrontStrategy.strategy = strategy;
+  }
+  if (scope && typeof scope === "object") {
+    activeWorkfrontStrategy.scope = { ...activeWorkfrontStrategy.scope, ...scope };
+  }
+  activeWorkfrontStrategy.updatedAt = new Date().toISOString();
+  activeWorkfrontStrategy.updatedBy = req.session?.username || "admin";
+
+  res.json({
+    success: true,
+    message: `Estrategia de Workfront actualizada a: ${activeWorkfrontStrategy.strategy}`,
+    strategyConfig: activeWorkfrontStrategy
+  });
+});
 
 app.get("/api/workfront/metadata", (req, res) => {
   res.json(getWorkfrontMetadata());

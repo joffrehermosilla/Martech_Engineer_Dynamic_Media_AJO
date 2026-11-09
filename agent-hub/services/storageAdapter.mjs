@@ -584,6 +584,7 @@ const localDbInstance = new LocalDatabase();
 // Instancia remota MongoClient
 let cachedMongoClient = null;
 let cachedRemoteDb = null;
+let atlasAttemptFailedUntil = 0;
 
 /**
  * Obtener la base de datos según la política de ejecución
@@ -637,13 +638,22 @@ export async function getDb() {
     return cachedRemoteDb;
   }
 
+  // Si falló recientemente la conexión remota, usar fallback inmediato sin bloquear
+  if (Date.now() < atlasAttemptFailedUntil) {
+    return localDbInstance;
+  }
+
   if (MONGODB_URI && !MONGODB_URI.includes("<username>")) {
     try {
       const client = new MongoClient(MONGODB_URI, {
-        serverSelectionTimeoutMS: 2500,
-        connectTimeoutMS: 2500
+        serverSelectionTimeoutMS: 1500,
+        connectTimeoutMS: 1500
       });
-      await client.connect();
+      const connectPromise = client.connect();
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(() => reject(new Error("Timeout de conexión a MongoDB Atlas (1500ms)")), 1500)
+      );
+      await Promise.race([connectPromise, timeoutPromise]);
       cachedMongoClient = client;
       cachedRemoteDb = client.db(DB_NAME);
       console.log(`[StorageAdapter] Conexión Atlas exitosa en modo AUTO (${DB_NAME})`);
@@ -658,6 +668,7 @@ export async function getDb() {
       };
       return cachedRemoteDb;
     } catch (err) {
+      atlasAttemptFailedUntil = Date.now() + 60000; // Esperar 1 minuto antes de reintentar
       console.warn(`[StorageAdapter] Conexión a MongoDB Atlas no disponible en modo AUTO: ${err.message}. Operando con adaptador local determinista.`);
     }
   } else {

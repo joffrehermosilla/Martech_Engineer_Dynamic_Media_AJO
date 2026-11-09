@@ -517,24 +517,288 @@
       .app *, #toast, #mainNav { transition: none !important; }
     }
 
-    /* Contenido aún sin migrar: conserva la paleta oscura antigua dentro de #mainContent.
-       Quitar cada token de aquí cuando todas las secciones usen el sistema nuevo. */
-    #mainContent {
-      --bg: #05080E; --surface: #0A0F1A;
-      --ink-1: #F0F4F8; --ink-2: #8899B4; --ink-3: #4A5A72;
-      --danger: #EF4444; --success: #10B981;
-      --radius: 12px; --font-mono: "JetBrains Mono", monospace;
-      max-width: none; margin: 0;
-      background: #05080E; color: var(--ink-1); font-family: var(--font-ui);
+    /* ── TEMA OSCURO HOMOLOGADO (Gris Pliego de Control / Slate) ── */
+    html[data-theme="dark"], html[data-theme="dark"] #loginModal, html[data-theme="dark"] .app, html[data-theme="dark"] #mainContent {
+      --bg: #12151B;
+      --surface: #181D26;
+      --surface-2: #212735;
+      --surface-card: #1D2330;
+      --field: #161A24;
+      --line: #2B3547;
+      --line-mid: #3B4860;
+      --line-soft: #232B3A;
+      --hover: #262E3E;
+      --ink-1: #F0F4F8;
+      --ink-2: #98A7BD;
+      --ink-3: #65758E;
+      --border: #2B3547;
+      --scrim: rgba(0, 0, 0, 0.7);
     }
-    /* Cabecera de sección (sistema nuevo) como franja clara sobre el contenido antiguo */
+    
+    html[data-theme="dark"] #mainContent {
+      background: var(--bg);
+      color: var(--ink-1);
+    }
+    html[data-theme="dark"] #mainContent .section-head {
+      background: var(--surface);
+      color: var(--ink-1);
+      border-bottom: 1px solid var(--line);
+    }
+    html[data-theme="dark"] #mainContent .section-head h1 {
+      color: var(--ink-1);
+    }
+    html[data-theme="dark"] #mainContent .section-head__stage {
+      color: var(--ink-2);
+    }
+    html[data-theme="dark"] #loginModal {
+      background: var(--bg);
+      color: var(--ink-1);
+    }
+    html[data-theme="dark"] .lm-stage {
+      border-color: var(--line);
+    }
+    html[data-theme="dark"] .lm-stage--you {
+      background: var(--surface);
+    }
+    html[data-theme="dark"] .lm-input {
+      background: var(--field);
+      border-color: var(--line);
+      color: var(--ink-1);
+    }
+    html[data-theme="dark"] input, html[data-theme="dark"] select, html[data-theme="dark"] textarea {
+      background: var(--field);
+      border-color: var(--border);
+      color: var(--ink-1);
+    }
+
+    /* ── TEMA CLARO (Pliego de Control) ── */
+    html[data-theme="light"], html[data-theme="light"] #loginModal, html[data-theme="light"] .app, html[data-theme="light"] #mainContent {
+      --bg: #EEECE6;
+      --surface: #F8F7F3;
+      --surface-2: #EAE8E1;
+      --surface-card: #FFFFFF;
+      --field: #FFFFFF;
+      --line: #0E0E0C;
+      --line-mid: #B9B6AC;
+      --line-soft: #D6D3CA;
+      --hover: #E3E1DA;
+      --ink-1: #0E0E0C;
+      --ink-2: #4A4943;
+      --ink-3: #8A877E;
+      --border: #D6D3CA;
+      --scrim: rgba(14, 14, 12, .45);
+    }
+    html[data-theme="light"] #mainContent {
+      background: var(--surface);
+      color: var(--ink-1);
+    }
+    html[data-theme="light"] #mainContent .section-head {
+      background: var(--surface);
+      color: var(--ink-1);
+      border-bottom: 1px solid var(--line-soft);
+    }
+    html[data-theme="light"] .card {
+      background: var(--surface-card);
+      border: 1px solid var(--line-soft);
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    }
+    html[data-theme="light"] input, html[data-theme="light"] select, html[data-theme="light"] textarea {
+      background: var(--field);
+      border: 1px solid var(--line-soft);
+      color: var(--ink-1);
+    }
+
+    #mainContent {
+      max-width: none; margin: 0;
+      color: var(--ink-1); font-family: var(--font-ui);
+    }
     #mainContent .section-head {
-      --ink-1: #0E0E0C; --ink-2: #4A4943;
       margin: -40px -48px 28px; padding: 40px 48px 24px;
-      background: #F8F7F3; color: var(--ink-1); font-family: 'IBM Plex Sans', system-ui, sans-serif;
+      font-family: 'IBM Plex Sans', system-ui, sans-serif;
     }
     @media (max-width: 960px) {
       #mainContent .section-head { margin: -24px -16px 24px; padding: 24px 16px 20px; }
+    }
+
+    /* ── BOCADILLO DE INFORMACIÓN / TOOLTIPS TIPO REFERENCIA (?) ── */
+    .field-tooltip-wrap {
+      display: inline-flex;
+      align-items: center;
+      position: relative;
+      margin-left: 6px;
+      vertical-align: middle;
+    }
+    .field-tooltip-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 17px;
+      height: 17px;
+      min-width: 17px;
+      border-radius: 50%;
+      background: #FF7800;
+      color: #FFFFFF;
+      font-family: var(--font-sans, system-ui, sans-serif);
+      font-size: 11px;
+      font-weight: 700;
+      line-height: 1;
+      cursor: pointer;
+      border: none;
+      padding: 0;
+      box-shadow: 0 1px 4px rgba(0,0,0,0.3);
+      transition: transform 0.15s ease, background 0.15s ease;
+      outline: none;
+    }
+    .field-tooltip-btn:hover, .field-tooltip-btn:focus-visible {
+      transform: scale(1.18);
+      background: #FF9020;
+    }
+    .field-tooltip-bubble {
+      position: absolute;
+      left: calc(100% + 10px);
+      top: 50%;
+      transform: translateY(-50%);
+      background: #181C26;
+      color: #F0F4F8;
+      border: 1px solid #3B4860;
+      border-radius: 8px;
+      padding: 9px 13px;
+      font-size: 12px;
+      line-height: 1.45;
+      font-weight: 400;
+      width: max-content;
+      max-width: 290px;
+      white-space: normal;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, 0.55);
+      z-index: 9999;
+      pointer-events: none;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.18s ease, transform 0.18s ease, visibility 0s linear 0.18s;
+      text-transform: none;
+      letter-spacing: normal;
+    }
+    /* Pico / Flecha hacia el icono ? */
+    .field-tooltip-bubble::before {
+      content: "";
+      position: absolute;
+      right: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      border-width: 6px;
+      border-style: solid;
+      border-color: transparent #3B4860 transparent transparent;
+    }
+    .field-tooltip-bubble::after {
+      content: "";
+      position: absolute;
+      right: 100%;
+      top: 50%;
+      transform: translateY(-50%);
+      border-width: 5px;
+      border-style: solid;
+      border-color: transparent #181C26 transparent transparent;
+    }
+    .field-tooltip-wrap:hover .field-tooltip-bubble,
+    .field-tooltip-btn:focus .field-tooltip-bubble,
+    .field-tooltip-wrap.active .field-tooltip-bubble {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+      transform: translateY(-50%);
+      transition: opacity 0.18s ease, transform 0.18s ease;
+    }
+
+    /* ── ESTRATEGIA WORKFRONT & FUSION ── */
+    .strategy-card {
+      background: var(--surface-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1.25rem 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+    .strategy-selector-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    @media (max-width: 768px) {
+      .strategy-selector-grid { grid-template-columns: 1fr; }
+    }
+    .strategy-choice {
+      border: 2px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 1rem;
+      background: var(--surface-2);
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      flex-direction: column;
+      gap: 0.4rem;
+    }
+    .strategy-choice.selected {
+      border-color: var(--accent);
+      background: rgba(30, 63, 208, 0.08);
+    }
+    .strategy-choice-head {
+      display: flex;
+      align-items: center;
+      gap: 0.6rem;
+      font-weight: 700;
+      font-size: 0.95rem;
+      color: var(--ink-1);
+    }
+    .strategy-choice p {
+      font-size: 0.82rem;
+      color: var(--ink-2);
+      line-height: 1.4;
+      margin: 0;
+    }
+    .scope-pill-group {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 0.8rem;
+    }
+    .scope-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.4rem;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 0.35rem 0.85rem;
+      font-size: 0.8rem;
+      color: var(--ink-1);
+      cursor: pointer;
+      user-select: none;
+    }
+    .scope-pill input { width: auto; margin: 0; }
+
+    /* ── RESPONSIVE GENERAL ── */
+    @media (max-width: 1024px) {
+      .grid-2, .grid-3 { grid-template-columns: 1fr !important; }
+      .compositor-grid { grid-template-columns: 1fr !important; }
+      .editor-layout { grid-template-columns: 1fr !important; height: auto !important; }
+      .wf-metric-grid { grid-template-columns: 1fr 1fr !important; }
+    }
+    @media (max-width: 640px) {
+      .wf-metric-grid { grid-template-columns: 1fr !important; }
+      #mainContent { padding: 16px 12px !important; }
+      .card { padding: 1rem !important; }
+      .btn { width: 100%; justify-content: center; }
+      .format-tabs { width: 100%; }
+      .format-tab { flex: 1; text-align: center; }
+      .field-tooltip-bubble {
+        left: auto;
+        right: 0;
+        top: calc(100% + 8px);
+        transform: none;
+      }
+      .field-tooltip-bubble::before, .field-tooltip-bubble::after {
+        display: none;
+      }
     }
 
     /* ── MAIN LAYOUT ─────────────────────────────────────── */
@@ -1217,6 +1481,11 @@
 
         <div id="roleBadge" class="role-badge"><span id="roleIcon"></span><span id="roleLabel"></span></div>
 
+        <button type="button" class="btn-sec" onclick="toggleTheme()" id="themeToggleBtn" title="Alternar Modo Claro / Oscuro">
+          <span id="themeToggleIco">🌓</span>
+          <span class="btn-sec__txt" id="themeToggleTxt">Tema Oscuro</span>
+        </button>
+
         <span class="session__sep" aria-hidden="true"></span>
 
         <button type="button" class="btn-sec" onclick="doLogout()">
@@ -1237,13 +1506,31 @@
         <p class="nav-group__label" id="ng-gen">01 · Generar</p>
         <button class="tab-btn" data-tab="damcraft" data-roles="ADMIN,VCD,MARTECH" onclick="switchTab('damcraft')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="4" width="18" height="16" rx="1"/><circle cx="9" cy="10" r="2"/><path d="M21 16l-5-5-8 8"/></svg><span>DAM Craft Studio</span></button>
-<button class="tab-btn" data-tab="editor" data-roles="ADMIN,VCD,MARTECH" onclick="switchTab('editor')">
+        <button class="tab-btn" data-tab="editor" data-roles="ADMIN,VCD,MARTECH" onclick="switchTab('editor')">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 20h4L19 9l-4-4L4 16z"/><path d="M13.5 6.5l4 4"/></svg><span>Editor nativo</span></button>
+        <button class="tab-btn" data-tab="compositor" data-roles="ADMIN,VCD,MARTECH" onclick="switchTab('compositor')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polygon points="12 2 2 7 12 12 22 7 12 2"/><polyline points="2 17 12 22 22 17"/><polyline points="2 12 12 17 22 12"/></svg><span>Mesa Multi-Asset</span></button>
       </div>
 
       <div class="nav-group" role="group" aria-labelledby="ng-gov">
         <p class="nav-group__label" id="ng-gov">02 · Gobernar</p>
         <button class="tab-btn" data-tab="governance" data-roles="ADMIN,MARTECH" onclick="switchTab('governance')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6z"/><path d="M9 12l2 2 4-4"/></svg><span>Gobernanza</span></button>
+      </div>
+
+      <div class="nav-group" role="group" aria-labelledby="ng-pub">
+        <p class="nav-group__label" id="ng-pub">03 · Aprobar y publicar</p>
+        <button class="tab-btn" data-tab="notifications" data-roles="ADMIN,MARTECH" onclick="switchTab('notifications')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="17" height="17" rx="1"/><path d="M8 12l3 3 5-6"/></svg><span>Aprobaciones</span></button>
+        <button class="tab-btn" data-tab="catalog" data-roles="ADMIN,MARTECH,VCD,VIEWER" onclick="switchTab('catalog')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7"/><rect x="13.5" y="3.5" width="7" height="7"/><rect x="3.5" y="13.5" width="7" height="7"/><rect x="13.5" y="13.5" width="7" height="7"/></svg><span>Catálogo DAM</span></button>
+      </div>
+
+      <div class="nav-group" role="group" aria-labelledby="ng-wf">
+        <p class="nav-group__label" id="ng-wf">04 · Orquestación</p>
+        <button class="tab-btn" data-tab="workfront" data-roles="ADMIN,MARTECH,VCD" onclick="switchTab('workfront')">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5"/></svg><span>Workfront & Fusion</span></button>
+      </div>
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3l7.5 3v5.5c0 4.6-3.2 8.2-7.5 9.5-4.3-1.3-7.5-4.9-7.5-9.5V6z"/><path d="M9 12l2 2 4-4"/></svg><span>Gobernanza</span></button>
       </div>
 
@@ -1535,8 +1822,26 @@
     <section id="tab-connections">
       <div class="section-head">
         <p class="section-head__stage">Configuración</p>
-        <h1>Conexiones</h1>
+        <h1>Conexiones & Variables .env.local</h1>
       </div>
+
+      <!-- ── CARD: DIAGNÓSTICO & CONEXIÓN .ENV.LOCAL ── -->
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div class="card-header">
+          <h2 class="card-title">🔌 Estado de Conectividad con .env.local</h2>
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <span class="badge badge-success" id="envLocalStatusBadge">.env.local DETECTADO</span>
+            <button class="btn btn-secondary btn-sm" onclick="loadEnvStatus()">🔄 Probar Conexión</button>
+          </div>
+        </div>
+        <p style="color:var(--ink-2); font-size:0.88rem; margin-bottom:1rem;">
+          Comprueba la disponibilidad de las credenciales y servicios configurados en el archivo <code>.env.local</code> (MongoDB Atlas, Groq, Gemini, AEM, CDP y Dynamic Media).
+        </p>
+        <div id="envStatusGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:0.75rem;">
+          <div style="color:var(--ink-3); font-size:0.85rem;">Cargando estado de variables de entorno...</div>
+        </div>
+      </div>
+
       <div class="grid-2">
         <div class="card">
           <div class="card-header">
@@ -2314,12 +2619,180 @@
       </div><!-- /editor-layout -->
     </section><!-- /tab-editor -->
 
-  
+    <!-- ── TAB: MESA DE MONTAJE MULTICAPA & INGESTA MASIVA (Fase 2) ── -->
+    <section id="tab-compositor">
+      <div class="section-head">
+        <p class="section-head__stage">01 · Generar & Componer</p>
+        <h1>Mesa de Montaje Multi-Asset</h1>
+      </div>
+
+      <!-- Ingesta Masiva de Múltiples Assets -->
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div class="card-header">
+          <h2 class="card-title">📥 Ingesta Masiva de Múltiples Assets</h2>
+          <span class="badge badge-info">BATCH DAM UPLOAD</span>
+        </div>
+        <p style="color:var(--ink-2); font-size:0.88rem; margin-bottom:1rem;">
+          Carga múltiples imágenes simultáneamente para incorporarlas al Catálogo DAM y disponer de ellas inmediatamente en la Mesa de Montaje.
+        </p>
+
+        <div class="batch-upload-box" onclick="document.getElementById('batchFileInput').click()">
+          <input type="file" id="batchFileInput" multiple accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;" onchange="handleBatchFileSelect(event)">
+          <div style="font-size:2.2rem; margin-bottom:0.5rem;">📂</div>
+          <div style="font-weight:700; color:var(--ink-1); font-size:1rem;">Haz clic o arrastra varios assets aquí</div>
+          <div style="font-size:0.8rem; color:var(--ink-3); margin-top:0.25rem;">Formatos soportados: PNG, JPEG, WebP, SVG</div>
+          <div id="batchSelectedSummary" style="margin-top:0.75rem; font-weight:600; color:var(--bcp-orange); display:none;"></div>
+        </div>
+
+        <div class="grid-2">
+          <div class="form-row">
+            <label for="batchInitiativeSelect">Iniciativa Asociada</label>
+            <select id="batchInitiativeSelect">
+              <option value="INIT-BCP-CAMP-2026-01">INIT-BCP-CAMP-2026-01 | Campaña Verano BCP</option>
+              <option value="INIT-BCP-CARD-2026-02">INIT-BCP-CARD-2026-02 | Tarjeta Visa Signature Gastronomía</option>
+              <option value="INIT-BCP-MORT-2026-03">INIT-BCP-MORT-2026-03 | Hipotecario MiVivienda Verde</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label for="batchCategorySelect">Categoría DAM</label>
+            <select id="batchCategorySelect">
+              <option value="CAMPAIGN_HERO">CAMPAIGN_HERO (Fondo Principal)</option>
+              <option value="PRODUCT_RENDER">PRODUCT_RENDER (Tarjeta / Producto)</option>
+              <option value="PROMO_BADGE">PROMO_BADGE (Sello / Oferta)</option>
+              <option value="LEGAL_DISCLAIMER">LEGAL_DISCLAIMER (Legales / T&C)</option>
+              <option value="GENERAL">GENERAL</option>
+            </select>
+          </div>
+        </div>
+
+        <button type="button" class="btn btn-primary" id="btnBatchUpload" onclick="executeBatchUpload()">
+          🚀 Ingestar Activos en Lote al Catálogo
+        </button>
+        <div id="batchUploadStatus" class="result-box" style="margin-top:0.75rem; display:none;"></div>
+      </div>
+
+      <!-- Mesa de Montaje Multicapa Grid -->
+      <div class="card">
+        <div class="card-header">
+          <h2 class="card-title">🧩 Mesa de Montaje Multicapa & Composición de Nuevo Asset</h2>
+          <div style="display:flex; gap:0.5rem; align-items:center;">
+            <select id="canvasFormatPreset" onchange="updateCanvasPreset(this.value)" style="width:auto; padding:0.4rem 0.6rem; font-size:0.85rem;">
+              <option value="1200x628">AJO InWeb Banner (1200×628)</option>
+              <option value="800x800">WhatsApp Flow Card (800×800)</option>
+              <option value="1080x1080">Instagram Square (1080×1080)</option>
+              <option value="600x300">Email Header (600×300)</option>
+              <option value="1080x1920">Stories / TikTok (1080×1920)</option>
+            </select>
+            <span class="badge badge-success" id="canvasStatsLabel">0 capas</span>
+          </div>
+        </div>
+
+        <div class="compositor-grid">
+          <!-- Columna 1: Piezas Disponibles del Catálogo -->
+          <div>
+            <div style="font-weight:700; font-size:0.85rem; color:var(--ink-1); margin-bottom:0.6rem; display:flex; justify-content:space-between; align-items:center;">
+              <span>📚 Piezas Aprobadas</span>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="populateCompositorPicker()">🔄</button>
+            </div>
+            <div id="compositorAssetPicker" style="display:flex; flex-direction:column; gap:0.5rem; max-height:480px; overflow-y:auto; padding-right:4px;">
+              <!-- Piezas pobladas por JS -->
+            </div>
+            <div style="margin-top:0.75rem;">
+              <button type="button" class="btn btn-orange btn-sm" onclick="addCustomBadgeLayer()" style="width:100%;">
+                🏷️ + Sello Oficial Campaña BCP
+              </button>
+            </div>
+          </div>
+
+          <!-- Columna 2: Canvas Interactivo -->
+          <div style="display:flex; flex-direction:column; align-items:center; background:var(--bg); border:1px solid var(--border); border-radius:var(--radius-sm); padding:1rem; min-height:420px; justify-content:center; position:relative;">
+            <canvas id="multiLayerCanvas" width="1200" height="628" style="max-width:100%; height:auto; box-shadow:0 8px 30px rgba(0,0,0,0.5); border-radius:4px;"></canvas>
+            <div style="margin-top:0.75rem; font-size:0.75rem; color:var(--ink-3); text-align:center;">
+              Arrastra y ajusta opacidades, escala o Z-index en la pila de capas a la derecha.
+            </div>
+          </div>
+
+          <!-- Columna 3: Pila de Capas y Certificación -->
+          <div style="display:flex; flex-direction:column; gap:1rem;">
+            <div>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
+                <span style="font-weight:700; font-size:0.85rem; color:var(--ink-1);">📑 Pila de Capas</span>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="clearAllLayers()" style="padding:0.2rem 0.5rem; font-size:0.75rem;">Limpiar</button>
+              </div>
+              <div id="layerStackList" style="display:flex; flex-direction:column; gap:0.5rem; max-height:260px; overflow-y:auto;">
+                <!-- Capas en stack -->
+              </div>
+            </div>
+
+            <!-- Generación de nuevo asset integrado -->
+            <div style="border-top:1px solid var(--border); padding-top:1rem;">
+              <div class="form-row">
+                <label for="compositeAssetTitle">Nombre del Nuevo Activo Compuesto</label>
+                <input type="text" id="compositeAssetTitle" value="BCP_Promo_Verano_Compuesta_2026">
+              </div>
+              <div class="form-row">
+                <label for="compositeChannel">Canal Destino AJO</label>
+                <select id="compositeChannel">
+                  <option value="AJO_INWEB">Adobe Journey Optimizer (InWeb)</option>
+                  <option value="WHATSAPP">WhatsApp Flow Card (Meta)</option>
+                  <option value="EMAIL">Adobe Campaign Email</option>
+                  <option value="MOBILE_APP">Banca Móvil BCP (InApp)</option>
+                </select>
+              </div>
+              <button type="button" class="btn btn-primary" id="btnGenerateComposite" onclick="generateAndCertifyComposite()" style="width:100%;">
+                ✨ Generar y Certificar Nuevo Activo
+              </button>
+              <div id="compositingStatus" class="result-box" style="margin-top:0.75rem; display:none;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
     <!-- ── TAB: ADOBE WORKFRONT & FUSION ── -->
     <section id="tab-workfront">
       <div class="section-head">
         <p class="section-head__stage">04 · Orquestación & Integraciones</p>
         <h1>Adobe Workfront & Fusion Engine</h1>
+      </div>
+
+      <!-- ── SWITCH DE ESTRATEGIA WORKFRONT & FUSION ── -->
+      <div class="strategy-card">
+        <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
+          <div>
+            <h2 style="font-size:1.05rem; font-weight:700; color:var(--ink-1); margin:0;">🔀 Estrategia Activa de Integración Workfront</h2>
+            <p style="font-size:0.82rem; color:var(--ink-2); margin:0.2rem 0 0;">Alterna entre conexión directa API / Webhooks y orquestación con Workfront Fusion iPaaS.</p>
+          </div>
+          <span class="badge badge-success" id="wfActiveStrategyBadge">FUSION ACTIVADO</span>
+        </div>
+
+        <div class="strategy-selector-grid">
+          <div class="strategy-choice" id="choiceWfDirect" onclick="selectWfStrategy('WORKFRONT_DIRECT')">
+            <div class="strategy-choice-head">
+              <input type="radio" name="wfStrategyRadio" id="radioWfDirect" value="WORKFRONT_DIRECT" onchange="selectWfStrategy('WORKFRONT_DIRECT')">
+              <span>Adobe Workfront Directo</span>
+            </div>
+            <p>Conexión directa vía Document Webhooks API RFC-compliant. Aprobaciones formales de proofs, actualización de estados de tareas y registro en la consola de auditoría.</p>
+          </div>
+
+          <div class="strategy-choice selected" id="choiceWfFusion" onclick="selectWfStrategy('WORKFRONT_FUSION')">
+            <div class="strategy-choice-head">
+              <input type="radio" name="wfStrategyRadio" id="radioWfFusion" value="WORKFRONT_FUSION" checked onchange="selectWfStrategy('WORKFRONT_FUSION')">
+              <span>Adobe Workfront con Fusion (iPaaS)</span>
+            </div>
+            <p>Orquestación automatizada de escenarios multitarea: ingesta automática de briefs, validación de gobernanza BCP, disparo de transformaciones y entrega a Adobe Journey Optimizer.</p>
+          </div>
+        </div>
+
+        <div style="margin-top:1.2rem; border-top:1px solid var(--border); padding-top:1rem;">
+          <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-2);">Alcance de la Estrategia (Scope de Automatización):</span>
+          <div class="scope-pill-group">
+            <label class="scope-pill"><input type="checkbox" id="scopeBriefs" checked onchange="handleScopeChange()"> 📥 Ingesta de Briefs desde Tareas</label>
+            <label class="scope-pill"><input type="checkbox" id="scopeApprovals" checked onchange="handleScopeChange()"> ✅ Aprobaciones & Proofing Formal</label>
+            <label class="scope-pill"><input type="checkbox" id="scopeCompositing" checked onchange="handleScopeChange()"> 🧩 Composición Multi-Asset</label>
+            <label class="scope-pill"><input type="checkbox" id="scopeAjoSync" checked onchange="handleScopeChange()"> ⚡ Sincronización AEM Dynamic Media & AJO</label>
+          </div>
+        </div>
       </div>
 
       <!-- Métricas y Estado de Webhooks -->
@@ -2501,15 +2974,228 @@
     let lastPcJobMeta = null;
 
     // ═══════════════════════════════════════════════════
+    // THEME SWITCH (Modo Oscuro Slate / Modo Claro Pliego)
+    // ═══════════════════════════════════════════════════
+    function initTheme() {
+      const stored = localStorage.getItem("dam_theme") || "dark";
+      applyTheme(stored);
+    }
+
+    function applyTheme(theme) {
+      document.documentElement.setAttribute("data-theme", theme);
+      localStorage.setItem("dam_theme", theme);
+      const isDark = theme === "dark";
+      const txt = document.getElementById("themeToggleTxt");
+      const ico = document.getElementById("themeToggleIco");
+      if (txt) txt.textContent = isDark ? "Tema Oscuro" : "Tema Claro";
+      if (ico) ico.textContent = isDark ? "🌙" : "☀️";
+    }
+
+    function toggleTheme() {
+      const current = document.documentElement.getAttribute("data-theme") || "dark";
+      const next = current === "dark" ? "light" : "dark";
+      applyTheme(next);
+      showToast(`Tema cambiado a: ${next === "dark" ? "Oscuro (Gris Corporativo)" : "Claro (Pliego de Control)"}`, "info");
+    }
+
+    // ═══════════════════════════════════════════════════
+    // CONECTIVIDAD .ENV.LOCAL
+    // ═══════════════════════════════════════════════════
+    async function loadEnvStatus() {
+      const grid = document.getElementById("envStatusGrid");
+      const badge = document.getElementById("envLocalStatusBadge");
+      if (!grid) return;
+
+      grid.innerHTML = '<div style="color:var(--ink-3); font-size:0.85rem;">Verificando credenciales de .env.local...</div>';
+
+      try {
+        const resp = await apiFetch("/api/system/env-status");
+        if (badge) {
+          badge.textContent = resp.hasEnvLocal ? "✅ .env.local ACTIVO" : (resp.hasEnv ? "⚠️ .env DETECTADO" : "ℹ️ ENTORNO DEL SISTEMA");
+          badge.className = resp.hasEnvLocal ? "badge badge-success" : "badge badge-warning";
+        }
+
+        const entries = Object.entries(resp.variables || {});
+        grid.innerHTML = entries.map(([key, item]) => {
+          const isOk = item.configured;
+          const statusBg = isOk ? "rgba(16,185,129,0.08)" : "rgba(239,68,68,0.08)";
+          const statusBorder = isOk ? "rgba(16,185,129,0.3)" : "rgba(239,68,68,0.3)";
+          const statusColor = isOk ? "var(--success)" : "var(--danger)";
+          return `
+            <div style="background:var(--surface-2); border:1px solid ${statusBorder}; border-radius:var(--radius-sm); padding:0.85rem; display:flex; flex-direction:column; gap:0.35rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center;">
+                <span style="font-family:var(--font-mono); font-size:0.75rem; font-weight:700; color:var(--ink-1);">${key}</span>
+                <span style="font-size:0.7rem; font-weight:700; color:${statusColor}; background:${statusBg}; padding:0.15rem 0.4rem; border-radius:3px;">
+                  ${isOk ? "CONFIGURADO" : "NO DEFINIDO"}
+                </span>
+              </div>
+              <div style="font-family:var(--font-mono); font-size:0.72rem; color:var(--ink-2); word-break:break-all;">
+                ${item.preview || '<span style="color:var(--ink-3);">Sin valor</span>'}
+              </div>
+              <div style="font-size:0.7rem; color:var(--ink-3); margin-top:auto;">
+                ${item.description}
+              </div>
+            </div>
+          `;
+        }).join("");
+      } catch (err) {
+        grid.innerHTML = `<div style="color:var(--danger); font-size:0.85rem;">Error al verificar .env.local: ${err.message}</div>`;
+      }
+    }
+
+    // ═══════════════════════════════════════════════════
+    // WORKFRONT STRATEGY & SCOPE SWITCH
+    // ═══════════════════════════════════════════════════
+    async function loadWfStrategy() {
+      try {
+        const resp = await apiFetch("/api/workfront/strategy");
+        if (resp && resp.strategyConfig) {
+          applyWfStrategyUI(resp.strategyConfig);
+        }
+      } catch (err) {
+        console.warn("No se pudo cargar la estrategia de Workfront:", err);
+      }
+    }
+
+    function applyWfStrategyUI(config) {
+      const isFusion = config.strategy === "WORKFRONT_FUSION";
+      const badge = document.getElementById("wfActiveStrategyBadge");
+      const choiceDirect = document.getElementById("choiceWfDirect");
+      const choiceFusion = document.getElementById("choiceWfFusion");
+      const radioDirect = document.getElementById("radioWfDirect");
+      const radioFusion = document.getElementById("radioWfFusion");
+
+      if (badge) {
+        badge.textContent = isFusion ? "FUSION ORQUESTADO" : "WORKFRONT DIRECTO";
+        badge.className = isFusion ? "badge badge-success" : "badge badge-info";
+      }
+      if (choiceDirect && choiceFusion) {
+        choiceDirect.classList.toggle("selected", !isFusion);
+        choiceFusion.classList.toggle("selected", isFusion);
+      }
+      if (radioDirect && radioFusion) {
+        radioDirect.checked = !isFusion;
+        radioFusion.checked = isFusion;
+      }
+      if (config.scope) {
+        if (document.getElementById("scopeBriefs")) document.getElementById("scopeBriefs").checked = Boolean(config.scope.briefs);
+        if (document.getElementById("scopeApprovals")) document.getElementById("scopeApprovals").checked = Boolean(config.scope.approvals);
+        if (document.getElementById("scopeCompositing")) document.getElementById("scopeCompositing").checked = Boolean(config.scope.compositing);
+        if (document.getElementById("scopeAjoSync")) document.getElementById("scopeAjoSync").checked = Boolean(config.scope.ajoSync);
+      }
+    }
+
+    async function selectWfStrategy(strategy) {
+      const scope = getWfCurrentScope();
+      try {
+        const resp = await apiFetch("/api/workfront/strategy", {
+          method: "POST",
+          body: JSON.stringify({ strategy, scope })
+        });
+        if (resp.strategyConfig) {
+          applyWfStrategyUI(resp.strategyConfig);
+          showToast(`Estrategia activa: ${strategy === 'WORKFRONT_FUSION' ? 'Workfront Fusion (iPaaS)' : 'Adobe Workfront Directo'}`, "success");
+        }
+      } catch (err) {
+        showToast(err.message, "danger");
+      }
+    }
+
+    function getWfCurrentScope() {
+      return {
+        briefs: document.getElementById("scopeBriefs")?.checked ?? true,
+        approvals: document.getElementById("scopeApprovals")?.checked ?? true,
+        compositing: document.getElementById("scopeCompositing")?.checked ?? true,
+        ajoSync: document.getElementById("scopeAjoSync")?.checked ?? true
+      };
+    }
+
+    async function handleScopeChange() {
+      const strategy = document.getElementById("radioWfDirect")?.checked ? "WORKFRONT_DIRECT" : "WORKFRONT_FUSION";
+      const scope = getWfCurrentScope();
+      try {
+        await apiFetch("/api/workfront/strategy", {
+          method: "POST",
+          body: JSON.stringify({ strategy, scope })
+        });
+        showToast("Alcance (Scope) de Workfront actualizado.", "info");
+      } catch (err) {
+        console.warn("Error al guardar scope de Workfront:", err);
+      }
+    }
+
+    // ═══════════════════════════════════════════════════
+    // BOCADILLOS DE INFORMACIÓN / TOOLTIPS UNIVERSALES (?)
+    // ═══════════════════════════════════════════════════
+    function initFieldTooltips() {
+      const labels = document.querySelectorAll(".form-row label, .lm-field label, .slider-row label, .card-header label");
+      labels.forEach(lbl => {
+        if (lbl.querySelector(".field-tooltip-wrap")) return;
+
+        // Buscar el input asociado
+        const forId = lbl.getAttribute("for");
+        let targetEl = forId ? document.getElementById(forId) : null;
+        if (!targetEl) {
+          const parent = lbl.closest(".form-row, .lm-field, .slider-row, div");
+          if (parent) targetEl = parent.querySelector("input, select, textarea");
+        }
+
+        const id = targetEl ? (targetEl.id || targetEl.getAttribute("name")) : "";
+        const helpItem = (id && typeof FIELD_HELP_DICTIONARY !== 'undefined' && FIELD_HELP_DICTIONARY[id]) ? FIELD_HELP_DICTIONARY[id] : null;
+
+        let tooltipText = "";
+        if (helpItem && helpItem.desc) {
+          tooltipText = helpItem.desc;
+        } else if (targetEl && targetEl.getAttribute("title")) {
+          tooltipText = targetEl.getAttribute("title");
+        } else if (lbl.getAttribute("title")) {
+          tooltipText = lbl.getAttribute("title");
+        } else {
+          const labelClean = lbl.innerText.trim().replace(/\s*\(\?\)\s*$/, "");
+          tooltipText = `Especifica el parámetro '${labelClean}' para el procesamiento, validación y entrega de Dynamic Media / AJO.`;
+        }
+
+        const wrap = document.createElement("span");
+        wrap.className = "field-tooltip-wrap";
+        wrap.innerHTML = `
+          <button type="button" class="field-tooltip-btn" aria-label="Ayuda" onclick="toggleTooltipBubble(event, this)">?</button>
+          <span class="field-tooltip-bubble" role="tooltip">${tooltipText}</span>
+        `;
+        lbl.appendChild(wrap);
+      });
+    }
+
+    function toggleTooltipBubble(e, btn) {
+      e.stopPropagation();
+      const wrap = btn.closest(".field-tooltip-wrap");
+      if (!wrap) return;
+      const wasActive = wrap.classList.contains("active");
+      document.querySelectorAll(".field-tooltip-wrap.active").forEach(w => w.classList.remove("active"));
+      if (!wasActive) {
+        wrap.classList.add("active");
+      }
+    }
+
+    document.addEventListener("click", () => {
+      document.querySelectorAll(".field-tooltip-wrap.active").forEach(w => w.classList.remove("active"));
+    });
+
+    // ═══════════════════════════════════════════════════
     // INIT
     // ═══════════════════════════════════════════════════
     async function init() {
+      initTheme();
       await loadSystemMode();
       if (currentToken) {
         const ok = await verifyExistingSession();
-        if (ok) { showApp(); return; }
+        if (ok) { 
+          showApp(); 
+          setTimeout(initFieldTooltips, 200); 
+          return; 
+        }
       }
       showLogin();
+      setTimeout(initFieldTooltips, 200);
     }
 
     async function loadSystemMode() {
@@ -2553,6 +3239,7 @@
 
     function showLogin() {
       document.getElementById("loginModal").style.display = "flex";
+      setTimeout(initFieldTooltips, 100);
     }
 
     function showApp() {
@@ -2577,6 +3264,8 @@
       loadFlowTemplates();
       loadNotifications();
       loadConnections();
+      loadEnvStatus();
+      loadWfStrategy();
 
       // Activate first visible tab
       const firstVisibleTab = document.querySelector(".tab-btn:not([style*='none'])");
@@ -2584,6 +3273,7 @@
         const tabId = firstVisibleTab.getAttribute("data-tab");
         switchTab(tabId, firstVisibleTab);
       }
+      setTimeout(initFieldTooltips, 200);
     }
 
     function filterTabsByRole(role, allowedTabs) {
@@ -2700,8 +3390,11 @@
       if (tabId === "catalog") loadCatalog();
       if (tabId === "notifications") loadNotifications();
       if (tabId === "admin") { loadUsers(); loadPolicies(); loadSquads(); loadApiKeys(); }
-      if (tabId === "connections") loadConnections();
+      if (tabId === "connections") { loadConnections(); loadEnvStatus(); }
       if (tabId === "editor") { editorOnTabOpen(); initGeoPanel(); }
+      if (tabId === "compositor") { initCompositor(); }
+      if (tabId === "workfront") { loadWorkfrontEvents(); loadWfStrategy(); }
+      setTimeout(initFieldTooltips, 150);
     }
 
     function switchAdminTab(sub) {
@@ -2778,7 +3471,7 @@
       return dims[op] || { w: 1200, h: 628 };
     }
 
-    async function runDAM CraftJob() {
+    async function runDamCraftJob() {
       const output = document.getElementById("pcResultOutput");
       const preview = document.getElementById("pcPreviewBox");
       const statusEl = document.getElementById("pcJobStatus");
@@ -4077,6 +4770,118 @@
         desc: "Dispara la acción seleccionada comunicándose con el servicio de orquestación en tiempo real.",
         flow: "Registra la ejecución en el audit trail y refresca la tabla de eventos.",
         gov: "Audita cada interacción entre Workfront, Fusion y el Agent Hub."
+      },
+
+      // Autenticación & Login
+      "loginUsername": {
+        title: "Campo: Usuario de la Plataforma",
+        desc: "Identificador del operador (admin, martech1, designer1, viewer1). Asigna el perfil de permisos RBAC para gobernar o crear piezas.",
+        flow: "Valida las credenciales contra el catálogo seguro de usuarios (Local-First / Mongo) y emite un token de sesión.",
+        gov: "Mandamiento 14: Acceso restringido por roles segregados."
+      },
+      "loginPassword": {
+        title: "Campo: Contraseña de Acceso",
+        desc: "Clave de seguridad cifrada con salt SHA-256 para verificar la identidad del colaborador antes de autorizar transformaciones.",
+        flow: "Se coteja contra la base de datos sin viajar en texto plano.",
+        gov: "Directriz de seguridad de información bancaria BCP."
+      },
+
+      // Gobernanza & Mandamientos
+      "govInitiativeId": {
+        title: "Selector: Iniciativa Corporativa BCP",
+        desc: "Selecciona el marco de negocio y presupuesto que autoriza la creación o modificación de piezas de marketing.",
+        flow: "Determina las reglas de negocio y políticas de cumplimiento aplicables a los prompts.",
+        gov: "Mandamiento 4: Iniciativas verificadas en catálogo oficial."
+      },
+      "govIntention": {
+        title: "Selector: Intención del Activo",
+        desc: "Define el propósito comercial o transaccional de la comunicación (Promoción, Bienvenida, Sensible/Créditos).",
+        flow: "Si se clasifica como sensible (CREDIT_DEFAULT), exige revisión humana obligatoria.",
+        gov: "Mandamiento 9: Protección al consumidor y reglas SBS."
+      },
+      "govChannel": {
+        title: "Selector: Canal Destino de Entrega",
+        desc: "Punto de contacto digital donde el asset impactará al cliente (InWeb, WhatsApp, Content Page, Email).",
+        flow: "Condiciona las restricciones de texto, peso máximo de entrega y contraste en Dynamic Media.",
+        gov: "Mandamiento 2: Paridad técnica de entrega."
+      },
+      "govBrief": {
+        title: "Campo: Brief / Prompt Creativo Propuesto",
+        desc: "Descripción textual de la pieza requerida. El motor de gobernanza la audita contra términos prohibidos y alucinaciones.",
+        flow: "Pasa por el validador antes de poder ser enviado a generación por IA o edición.",
+        gov: "Mandamiento 1: Prohibido promesas falsas ('100% garantizado', 'dinero fácil')."
+      },
+
+      // Editor Nativo & Transformaciones
+      "editorTargetW": {
+        title: "Campo: Ancho Objetivo (Píxeles)",
+        desc: "Ancho exacto en píxeles del lienzo o recorte final.",
+        flow: "Garantiza fidelidad visual sin interpolación destructiva.",
+        gov: "Mandamiento 2: Proporciones oficiales de marca."
+      },
+      "editorTargetH": {
+        title: "Campo: Alto Objetivo (Píxeles)",
+        desc: "Alto exacto en píxeles del lienzo o recorte final.",
+        flow: "Garantiza fidelidad visual sin interpolación destructiva.",
+        gov: "Mandamiento 2: Proporciones oficiales de marca."
+      },
+      "editorActorInput": {
+        title: "Campo: Actor / Diseñador Responsable",
+        desc: "Nombre o ID del diseñador que ejecuta las transformaciones.",
+        flow: "Se estampa en los metadatos EXIF / XMP y en el registro de auditoría de la versión generada.",
+        gov: "Mandamiento 8: Trazabilidad y no repudio."
+      },
+
+      // Contexto Geográfico
+      "geoRegion": {
+        title: "Selector: Región / Mercado Geográfico",
+        desc: "Ajusta las propuestas visuales según la zona geográfica (Costa, Sierra Andina, Caribe, etc.).",
+        flow: "Evita alucinaciones culturales o climáticas según la ubicación del consumidor.",
+        gov: "Mandamiento 11: Coherencia geográfica y contextual."
+      },
+      "geoSeason": {
+        title: "Selector: Época / Estacionalidad Hemisférica",
+        desc: "Ajusta las imágenes según el hemisferio (ej: en LATAM, diciembre es verano soleado, no invierno con nieve).",
+        flow: "Impide incongruencias visuales en campañas de temporada.",
+        gov: "Mandamiento 11: Reglas anti-alucinación hemisférica."
+      },
+      "geoUseCase": {
+        title: "Campo: Caso de Uso / Producto de Campaña",
+        desc: "Nombre del producto financiero o comercial para personalizar los elementos gráficos sugeridos.",
+        flow: "Alimenta el generador de prompts adaptados a la región.",
+        gov: "Mandamiento 4: Correspondencia con la oferta de valor del banco."
+      },
+      "placesQuery": {
+        title: "Campo: Búsqueda de Sede / Ubicación Local",
+        desc: "Permite consultar datos de Google Places / Adobe Places para enriquecer los metadatos de la pieza.",
+        flow: "Proporciona contexto urbano, puntos de referencia y coordenadas.",
+        gov: "Protección de datos y localización oficial de agencias."
+      },
+
+      // Conexiones de Base de Datos
+      "connName": {
+        title: "Campo: Nombre de la Conexión",
+        desc: "Etiqueta identificadora para el pool de datos externo (ej: Producción Atlas BCP).",
+        flow: "Permite alternar entre bases de datos según el ambiente.",
+        gov: "Mandamiento 5: Persistencia desacoplada."
+      },
+      "connType": {
+        title: "Selector: Motor de Base de Datos",
+        desc: "Tipo de base de datos a conectar (MongoDB Atlas, PostgreSQL, MySQL, Redis, etc.).",
+        flow: "Inicializa el driver correspondiente para sincronizar políticas y gobernanza.",
+        gov: "Mandamiento 5: Resiliencia Multi-Cloud."
+      },
+      "connHost": {
+        title: "Campo: Host / URI de Conexión",
+        desc: "Cadena de conexión segura (TLS/SSL) hacia el cluster de base de datos.",
+        flow: "Utiliza variables encriptadas en reposo.",
+        gov: "Normas de ciberseguridad bancaria."
+      },
+      "connDatabase": {
+        title: "Campo: Nombre de la Base de Datos",
+        desc: "Esquema o base de datos específica donde residen las colecciones de assets y mandamientos.",
+        flow: "Asegura aislamiento multitenant.",
+        gov: "Segregación de datos de producción y desarrollo."
       }
     };
 
