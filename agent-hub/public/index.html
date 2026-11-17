@@ -1730,7 +1730,156 @@
         <p class="section-head__stage">03 · Aprobar y publicar</p>
         <h1>Catálogo DAM</h1>
       </div>
-      <div class="card">
+            <!-- ── BLOQUE 1: MESA DE MONTAJE MULTICAPA (COMPOSITOR) ── -->
+      <div class="card" style="margin-bottom:1.5rem;" id="compositorSection">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">🎨 Mesa de Montaje Multicapa (Compositor de Piezas)</h2>
+            <p style="font-size:0.82rem; color:var(--ink-2); margin-top:0.25rem;">
+              Traslapa imágenes JPG/PNG locales o piezas aprobadas del catálogo DAM para componer un nuevo activo visual de alto impacto.
+            </p>
+          </div>
+          <div style="display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap;">
+            <select id="compositorPresetSelect" onchange="updateCanvasPreset(this.value)" style="width:auto; padding:0.35rem 0.6rem; font-size:0.8rem;"
+              title="Selecciona la resolución objetivo del nuevo activo compuesto según el canal de salida en AJO.">
+              <option value="1200x628">AJO InWeb Banner (1200×628)</option>
+              <option value="800x800">WhatsApp Flow Card (800×800)</option>
+              <option value="1080x1080">Instagram Cuadrado (1080×1080)</option>
+              <option value="1080x1920">Stories / TikTok Vertical (1080×1920)</option>
+              <option value="600x300">Email Header (600×300)</option>
+            </select>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="clearAllLayers()" title="Elimina todas las capas montadas en el lienzo.">🗑️ Limpiar Lienzo</button>
+          </div>
+        </div>
+
+        <div class="compositor-grid">
+          <!-- Columna 1: Selector de Piezas y Carga Local -->
+          <div style="display:flex; flex-direction:column; gap:1rem;">
+            <!-- Cargar imagen local como capa -->
+            <div style="background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:0.85rem;">
+              <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-2); display:block; margin-bottom:0.5rem;">
+                📁 Imagen Local como Capa
+              </span>
+              <input type="file" id="compositorFileInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;" onchange="handleCompositorLocalFile(event)" multiple>
+              <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('compositorFileInput').click()" style="width:100%; margin-bottom:0.4rem;"
+                title="Carga una o varias imágenes JPG, PNG o WebP desde tu computadora para traslaparlas inmediatamente en el lienzo.">
+                ➕ Cargar JPG / PNG Local
+              </button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="addCustomBadgeLayer()" style="width:100%;"
+                title="Añade un sello corporativo BCP u oferta comercial prediseñada al lienzo.">
+                🏷️ Añadir Sello BCP
+              </button>
+            </div>
+
+            <!-- Piezas Aprobadas del Catálogo DAM -->
+            <div>
+              <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-2); display:block; margin-bottom:0.5rem;">
+                💎 Piezas Aprobadas del Catálogo DAM
+              </span>
+              <div id="compositorAssetPicker" style="display:flex; flex-direction:column; gap:0.5rem; max-height:280px; overflow-y:auto; padding-right:0.25rem;">
+                <div style="font-size:0.8rem; color:var(--ink-3); text-align:center; padding:1rem;">Cargando piezas aprobadas...</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Columna 2: Lienzo Canvas Multicapa -->
+          <div class="canvas-preview-wrap">
+            <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:0.5rem; font-size:0.75rem; color:var(--ink-2);">
+              <span id="canvasStatsLabel">0 capas activas</span>
+              <span>Lienzo HTML5 Canvas 2D</span>
+            </div>
+            <canvas id="multiLayerCanvas" width="1200" height="628"></canvas>
+            
+            <!-- Controles de exportación / generación -->
+            <div style="width:100%; margin-top:1rem; display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; align-items:end;">
+              <div>
+                <label style="font-size:0.72rem; font-weight:700; color:var(--ink-2); display:block; margin-bottom:0.25rem;">Título del Nuevo Activo Compuesto:</label>
+                <input type="text" id="compositeAssetTitle" value="BCP_Composicion_Multicapa_2026" style="padding:0.4rem 0.6rem; font-size:0.8rem; width:100%;">
+              </div>
+              <div style="display:flex; gap:0.5rem;">
+                <button type="button" class="btn btn-orange" id="btnGenerateComposite" onclick="generateAndCertifyComposite()" style="flex:1;"
+                  title="Exporta la composición en alta resolución como imagen binaria real y la registra en el catálogo DAM y Workfront.">
+                  ✨ Generar y Certificar Activo
+                </button>
+              </div>
+            </div>
+            <div style="margin-top:0.5rem; width:100%; display:flex; align-items:center; gap:0.5rem; font-size:0.78rem; color:var(--ink-2);">
+              <input type="checkbox" id="syncWithFusionCheckbox" checked>
+              <label for="syncWithFusionCheckbox">Sincronizar automáticamente con Data Store de Adobe Workfront Fusion</label>
+            </div>
+            <div id="compositingStatus" style="display:none; margin-top:0.75rem; width:100%; font-size:0.8rem; padding:0.5rem; background:rgba(0,0,0,0.4); border-radius:4px;"></div>
+          </div>
+
+          <!-- Columna 3: Pila de Capas (Layer Stack) -->
+          <div style="display:flex; flex-direction:column;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
+              <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-2);">
+                📑 Pila de Capas (Z-Index)
+              </span>
+              <span style="font-size:0.72rem; color:var(--ink-3);">Arrastre o use ▲ ▼</span>
+            </div>
+            <div id="layerStackList" style="flex:1; max-height:420px; overflow-y:auto; padding-right:0.25rem;">
+              <div style="font-size:0.85rem; color:var(--ink-3); text-align:center; padding:1.5rem;">
+                No hay capas montadas. Añade una imagen local o pieza del catálogo.
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── BLOQUE 2: CARGA MASIVA DE ACTIVOS (BATCH UPLOAD) ── -->
+      <div class="card" style="margin-bottom:1.5rem;">
+        <div class="card-header">
+          <div>
+            <h2 class="card-title">📦 Carga Masiva de Activos (Batch Upload)</h2>
+            <p style="font-size:0.82rem; color:var(--ink-2); margin-top:0.25rem;">
+              Ingesta simultáneamente múltiples imágenes (JPG, PNG, WebP) para alimentarlas al Catálogo DAM y ponerlas a disposición del compositor.
+            </p>
+          </div>
+        </div>
+
+        <div class="batch-upload-box" id="batchDropZone" onclick="document.getElementById('batchFileInput').click()">
+          <input type="file" id="batchFileInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;" onchange="handleBatchFileSelect(event)" multiple>
+          <div style="font-size:2rem; margin-bottom:0.5rem;">📤</div>
+          <div style="font-weight:700; font-size:0.95rem; color:var(--ink-1); margin-bottom:0.25rem;">
+            Arrastra y suelta múltiples archivos de imagen aquí, o haz clic para explorar
+          </div>
+          <div style="font-size:0.78rem; color:var(--ink-3);">
+            Soporta PNG, JPG, WebP y SVG · Procesamiento soberano en navegador y servidor
+          </div>
+        </div>
+
+        <div id="batchSelectedSummary" style="display:none; margin-bottom:1rem; font-size:0.85rem; color:var(--bcp-orange); font-weight:600;"></div>
+
+        <div style="display:grid; grid-template-columns:1fr 1fr auto; gap:0.75rem; align-items:end;">
+          <div>
+            <label style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:var(--ink-2); display:block; margin-bottom:0.3rem;">Iniciativa BCP:</label>
+            <select id="batchInitiativeSelect" style="padding:0.45rem 0.6rem; font-size:0.82rem; width:100%;">
+              <option value="INIT-BCP-CAMP-2026-01">INIT-BCP-CAMP-2026-01 (Campaña Verano BCP)</option>
+              <option value="INIT-BCP-CARD-2026-02">INIT-BCP-CARD-2026-02 (Tarjetas & Promociones)</option>
+              <option value="INIT-BCP-MORT-2026-03">INIT-BCP-MORT-2026-03 (Hipotecario Verde)</option>
+            </select>
+          </div>
+          <div>
+            <label style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:var(--ink-2); display:block; margin-bottom:0.3rem;">Categoría / Rol de Pieza:</label>
+            <select id="batchCategorySelect" style="padding:0.45rem 0.6rem; font-size:0.82rem; width:100%;">
+              <option value="PIECE_APPROVED">PIECE_APPROVED (Pieza Lista para Componer)</option>
+              <option value="BACKGROUND">BACKGROUND (Fondo / Textura)</option>
+              <option value="BADGE_STICKER">BADGE_STICKER (Sello / Logo / Badge)</option>
+              <option value="PRODUCT_RENDER">PRODUCT_RENDER (Tarjeta / Producto)</option>
+              <option value="GENERAL">GENERAL (Asset General)</option>
+            </select>
+          </div>
+          <div>
+            <button type="button" class="btn btn-primary" id="btnBatchUpload" onclick="executeBatchUpload()" style="white-space:nowrap;">
+              🚀 Ingestar Activos en Lote
+            </button>
+          </div>
+        </div>
+        <div id="batchUploadStatus" style="display:none; margin-top:0.75rem; font-size:0.82rem;"></div>
+      </div>
+
+<div class="card">
         <div class="card-header">
           <h2 class="card-title">📦 Catálogo Oficial de Assets</h2>
           <div style="display:flex; gap:0.5rem; align-items:center;">
@@ -2918,6 +3067,51 @@
         </div>
       </div>
 
+      <!-- Tarjeta 4: Disparador en Vivo a Adobe Workfront Fusion (Data Store) -->
+      <div class="card" style="margin-top:1.5rem; border:1px solid rgba(0, 132, 255, 0.4); background: rgba(0, 42, 143, 0.08);">
+        <div class="card-header">
+          <div style="display:flex; align-items:center; gap:0.6rem;">
+            <span style="font-size:1.4rem;">⚡</span>
+            <div>
+              <h2 class="card-title" style="margin-bottom:0.2rem;">Adobe Workfront Fusion — Conexión en Vivo con Data Store</h2>
+              <p style="font-size:0.8rem; color:var(--ink-2);">
+                Envía eventos en tiempo real al webhook configurado en Fusion para ingestarlos en el Data Store remoto y alternar flujos.
+              </p>
+            </div>
+          </div>
+          <span class="badge badge-info">FUSION LIVE 443</span>
+        </div>
+
+        <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
+          <div>
+            <label style="font-size:0.72rem; font-weight:700; color:var(--ink-2); display:block; margin-bottom:0.3rem;">Webhook URL de Workfront Fusion:</label>
+            <input type="text" id="liveFusionUrl" value="https://hook.fusion.adobe.com/nxb3d90rt8tc32zeu98fz9sr7it9hg5o" style="font-family:var(--font-mono); font-size:0.8rem; width:100%;">
+          </div>
+          <div>
+            <label style="font-size:0.72rem; font-weight:700; color:var(--ink-2); display:block; margin-bottom:0.3rem;">Usuario (authUser):</label>
+            <input type="text" id="liveFusionUser" value="DYNAMICTEST" style="font-family:var(--font-mono); font-size:0.8rem; width:100%;">
+          </div>
+          <div>
+            <label style="font-size:0.72rem; font-weight:700; color:var(--ink-2); display:block; margin-bottom:0.3rem;">Contraseña (authPass):</label>
+            <input type="password" id="liveFusionPass" value="DYNAMICTEST01" style="font-family:var(--font-mono); font-size:0.8rem; width:100%;">
+          </div>
+        </div>
+
+        <div class="form-row">
+          <label style="font-size:0.72rem; font-weight:700; color:var(--ink-2); display:block; margin-bottom:0.3rem;">Payload / Datos enviados en el nodo "data" hacia el Data Store:</label>
+          <textarea id="liveFusionPayloadText" rows="3" style="font-family:var(--font-mono); font-size:0.8rem; width:100%;">{"action":"USE_CASE_EVALUATION","initiativeId":"INIT-BCP-CAMP-2026-01","projectName":"Campaña BCP Dynamic Media Verano","assetId":"ast_003","status":"APPROVED","channel":"AJO_INWEB","actor":"martech.lead@viabcp.com","notes":"Verificado contra mandamientos de gobernanza BCP y listo para Dynamic Media."}</textarea>
+        </div>
+
+        <div style="display:flex; gap:0.75rem; align-items:center;">
+          <button type="button" class="btn btn-primary" id="btnSendLiveFusion" onclick="sendLiveWorkfrontFusion()">
+            ⚡ Disparar al Webhook de Fusion (Data Store)
+          </button>
+          <span id="liveFusionSpinner" style="display:none; font-size:0.85rem; color:var(--bcp-orange);">⏳ Transmitiendo por puerto seguro HTTPS 443...</span>
+        </div>
+
+        <div id="liveFusionResult" style="display:none; margin-top:1rem; padding:0.85rem; background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:var(--radius-sm); font-family:var(--font-mono); font-size:0.82rem;"></div>
+      </div>
+
       <!-- Tarjeta 3: Consola de Auditoría y Eventos Webhook en Tiempo Real -->
       <div class="card" style="margin-top:1.5rem;">
         <div class="card-header">
@@ -3377,7 +3571,7 @@
 
       // Lazy loads on tab switch
       if (tabId === "providers") loadProviders();
-      if (tabId === "catalog") loadCatalog();
+      if (tabId === "catalog") { loadCatalog(); setTimeout(initCompositor, 300); }
       if (tabId === "notifications") loadNotifications();
       if (tabId === "admin") { loadUsers(); loadPolicies(); loadSquads(); loadApiKeys(); }
       if (tabId === "connections") { loadConnections(); loadEnvStatus(); }
@@ -5004,6 +5198,108 @@
 
 
     // ═════════════════════════════════════════════════════════════════
+    // ── CARGA DE ARCHIVO LOCAL COMO CAPA EN EL COMPOSITOR ──
+    async function handleCompositorLocalFile(event) {
+      const files = Array.from(event.target.files || []);
+      if (files.length === 0) return;
+
+      for (const file of files) {
+        if (!file.type.startsWith("image/")) {
+          showToast(`Archivo ${file.name} no es una imagen válida.`, "warning");
+          continue;
+        }
+
+        const reader = new FileReader();
+        await new Promise((resolve) => {
+          reader.onload = (e) => {
+            const dataUrl = e.target.result;
+            const img = new Image();
+            img.onload = () => {
+              const layerId = "layer_local_" + Date.now() + "_" + Math.floor(Math.random() * 1000);
+              compositorLayers.push({
+                id: layerId,
+                assetId: "local_" + file.name.replace(/\.[^/.]+$/, ""),
+                title: file.name,
+                img: img,
+                x: 40 + compositorLayers.length * 25,
+                y: 40 + compositorLayers.length * 25,
+                scale: 0.6,
+                opacity: 1.0,
+                blendMode: "source-over"
+              });
+              renderCompositorCanvas();
+              updateLayerStackUI();
+              showToast(`Capa local añadida: ${file.name}`, "success");
+              resolve();
+            };
+            img.onerror = () => {
+              showToast(`Error al decodificar la imagen: ${file.name}`, "danger");
+              resolve();
+            };
+            img.src = dataUrl;
+          };
+          reader.readAsDataURL(file);
+        });
+      }
+      event.target.value = "";
+    }
+
+    // ── DISPARAR EN VIVO A WORKFRONT FUSION WEBHOOK ──
+    async function sendLiveWorkfrontFusion() {
+      const url = document.getElementById("liveFusionUrl").value.trim();
+      const user = document.getElementById("liveFusionUser").value.trim();
+      const pass = document.getElementById("liveFusionPass").value.trim();
+      const payloadText = document.getElementById("liveFusionPayloadText").value.trim();
+      const resultDiv = document.getElementById("liveFusionResult");
+      const spinner = document.getElementById("liveFusionSpinner");
+      const btn = document.getElementById("btnSendLiveFusion");
+
+      let parsedPayload = {};
+      try {
+        parsedPayload = JSON.parse(payloadText);
+      } catch (err) {
+        showToast("El payload debe ser un JSON válido.", "danger");
+        return;
+      }
+
+      btn.disabled = true;
+      spinner.style.display = "inline";
+      resultDiv.style.display = "none";
+
+      try {
+        const resp = await apiFetch("/api/workfront/fusion/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            webhookUrl: url,
+            authUser: user || null,
+            authPass: pass || null,
+            data: parsedPayload
+          })
+        });
+
+        resultDiv.style.display = "block";
+        resultDiv.innerHTML = `
+          <div style="color:var(--success); font-weight:bold; margin-bottom:0.4rem;">
+            ✅ Estado: ${resp.statusText || 'Accepted'} (HTTP ${resp.statusCode || 200})
+          </div>
+          <div style="color:var(--ink-2); font-size:0.75rem; margin-bottom:0.4rem;">
+            Event ID: <code>${resp.eventId}</code> | Latencia: <code>${resp.latencyMs}ms</code> | Destino: <code>${resp.targetUrl}</code>
+          </div>
+          <pre style="background:rgba(0,0,0,0.5); padding:0.5rem; border-radius:4px; overflow-x:auto; color:var(--ink-1); margin:0;">${JSON.stringify(resp.dataResponse || resp, null, 2)}</pre>
+        `;
+        showToast("✅ Evento transmitido exitosamente a Workfront Fusion.", "success");
+        loadWorkfrontEvents();
+      } catch (err) {
+        resultDiv.style.display = "block";
+        resultDiv.innerHTML = `<div style="color:var(--danger);">❌ Error de transmisión: ${err.message}</div>`;
+        showToast(err.message, "danger");
+      } finally {
+        btn.disabled = false;
+        spinner.style.display = "none";
+      }
+    }
+
     // MESA DE MONTAJE MULTICAPA (TRASLAPE DE PIEZAS APROBADAS)
     // ═════════════════════════════════════════════════════════════════
     let compositorLayers = [];

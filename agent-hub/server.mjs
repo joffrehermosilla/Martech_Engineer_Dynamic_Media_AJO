@@ -9,7 +9,7 @@ import { getProviderStatus, executePromptWithFallback } from "./services/provide
 import { validateAssetRequest, getDb, registerAssetInCatalog, getStorageStatus } from "./services/governanceEngine.mjs";
 import { executeDamCraftEdit } from "./services/damcraftAdapter.mjs";
 import {
-  getWorkfrontMetadata, processWorkfrontWebhook, executeFusionAction, getRecentWorkfrontEvents
+  getWorkfrontMetadata, processWorkfrontWebhook, executeFusionAction, getRecentWorkfrontEvents, sendToWorkfrontFusion
 } from "./services/workfrontService.mjs";
 import {
   executeAssetTransform, listAssetVersions, getAssetDetails,
@@ -573,7 +573,17 @@ app.post("/api/editor/composite", requireAuth, async (req, res) => {
     const jobsDir = path.resolve(__dirname, "../photocraft/jobs", jobId);
     await fs.promises.mkdir(jobsDir, { recursive: true });
     const fileName = `composite_${compositeAssetId}.${outputFormat}`;
-    await fs.promises.writeFile(path.join(jobsDir, fileName), compositeSvg, "utf-8");
+    const filePath = path.join(jobsDir, fileName);
+
+    // Si viene imageDataUrl (base64 generado por el canvas HTML5), guardamos la imagen binaria real (PNG/JPG)
+    if (req.body.imageDataUrl && req.body.imageDataUrl.startsWith("data:image/")) {
+      const base64Data = req.body.imageDataUrl.replace(/^data:image\/\w+;base64,/, "");
+      const binaryBuffer = Buffer.from(base64Data, "base64");
+      await fs.promises.writeFile(filePath, binaryBuffer);
+    } else {
+      // Fallback a SVG vectorial cuando no hay canvas en cliente
+      await fs.promises.writeFile(filePath, compositeSvg, "utf-8");
+    }
 
     const deliveryUrl = `/damcraft/jobs/${jobId}/${fileName}`;
     const compositeDoc = {
@@ -600,6 +610,19 @@ app.post("/api/editor/composite", requireAuth, async (req, res) => {
       actor: req.session?.username || "designer1",
       timestamp: new Date()
     }).catch(() => {});
+
+    // Notificar opcionalmente a Workfront Fusion para sincronización inmediata con su Data Store
+    if (req.body.syncWithFusion) {
+      sendToWorkfrontFusion({
+        action: "COMPOSITE_ASSET_READY",
+        assetId: compositeAssetId,
+        title,
+        status: "PENDING_APPROVAL",
+        deliveryUrl,
+        layersCount: sortedLayers.length,
+        actor: req.session?.username || "designer1"
+      }).catch(() => {});
+    }
 
     res.json({ success: true, compositeAsset: compositeDoc, jobId, deliveryUrl });
   } catch (err) {
@@ -681,6 +704,17 @@ app.post("/api/workfront/webhook", async (req, res) => {
 app.post("/api/workfront/fusion/trigger", async (req, res) => {
   try {
     const result = await executeFusionAction(req.body);
+    res.json(result);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/workfront/fusion/send", requireAuth, async (req, res) => {
+  try {
+    const { data, webhookUrl, authUser, authPass } = req.body;
+    const actor = req.session?.username || "martech1";
+    const result = await sendToWorkfrontFusion(data || req.body, { webhookUrl, authUser, authPass, actor });
     res.json(result);
   } catch (err) {
     res.status(500).json({ error: err.message });

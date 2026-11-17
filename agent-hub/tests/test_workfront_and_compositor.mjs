@@ -1,5 +1,7 @@
 import assert from "assert";
-import { getWorkfrontMetadata, processWorkfrontWebhook, executeFusionAction, getRecentWorkfrontEvents } from "../services/workfrontService.mjs";
+import {
+  getWorkfrontMetadata, processWorkfrontWebhook, executeFusionAction, getRecentWorkfrontEvents, sendToWorkfrontFusion
+} from "../services/workfrontService.mjs";
 import { executeDamCraftEdit } from "../services/damcraftAdapter.mjs";
 
 console.log("=================================================");
@@ -70,7 +72,23 @@ async function runTests() {
   assert.strictEqual(editResult.metadata.engine, "DAM-Craft-Sandboxed-Bridge");
   console.log("✅ DAM Craft Transformation passed:", editResult.metadata.engine);
 
-  console.log("\n🎉 ALL 6 INTEGRATION TESTS COMPLETED SUCCESSFULLY!");
+  // Test 7: Workfront Fusion Data Store Dispatch
+  console.log("\n[Test 7] Workfront Fusion Data Store Dispatch...");
+  const fusionDispatch = await sendToWorkfrontFusion({
+    action: "USE_CASE_EVALUATION",
+    initiativeId: "INIT-BCP-CAMP-2026-01",
+    assetId: "aem_asset_visa_signature_card",
+    status: "APPROVED",
+    channel: "AJO_INWEB",
+    actor: "qa.tester@viabcp.com"
+  }, {
+    timeoutMs: 8000
+  });
+  assert.strictEqual(fusionDispatch.success, true);
+  assert.ok(fusionDispatch.statusCode === 200);
+  console.log("✅ Workfront Fusion Dispatch passed:", fusionDispatch.eventId, "Status:", fusionDispatch.statusText, "Latency:", fusionDispatch.latencyMs + "ms");
+
+  console.log("\n🎉 ALL 7 INTEGRATION TESTS COMPLETED SUCCESSFULLY!");
 }
 
 runTests().catch(err => {

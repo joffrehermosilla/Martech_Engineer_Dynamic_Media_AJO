@@ -292,6 +292,20 @@ En infraestructuras bancarias corporativas bajo normativas de ciberseguridad PCI
 
 
 
+
+## Mandamiento 19. Integración Soberana con Adobe Workfront Fusion (Data Store) y Desacoplamiento de Rust
+
+1. **Protocolo de Integración con Workfront Fusion:**
+   - La plataforma se comunicará con los escenarios de Adobe Workfront Fusion a través de Webhooks REST sobre HTTPS puerto 443.
+   - El payload enviado hacia Fusion DEBERÁ estructurarse con toda la información de negocio en el nodo `"data"` (datos de caso de uso, iniciativa, assetId, aprobación, capas compuestas y estado de gobernanza), cumpliendo con el estándar de ingestión directa del **Data Store** de Workfront Fusion.
+   - La respuesta estándar de Fusion (`200 OK` con body `"Accepted"`) se procesará de forma asíncrona y se registrará en la colección `workfront_fusion_logs` para auditoría y linaje.
+   - Las credenciales y URLs de los webhooks de Fusion se parametrizarán exclusivamente mediante variables de entorno en `.env.local` (`WORKFRONT_FUSION_WEBHOOK_URL`, `WORKFRONT_FUSION_FALLBACK_URL`, `WORKFRONT_FUSION_USERNAME`, `WORKFRONT_FUSION_PASSWORD`), permitiendo su rotación sin modificar código fuente.
+
+2. **Desacoplamiento Tecnológico de Rust (HTML5 Canvas 2D Soberano):**
+   - El motor nativo de manipulación y composición de imágenes para el entorno web, GitHub Pages y agentes MCP es **HTML5 Canvas 2D API (`CanvasRenderingContext2D`)** sin dependencias externas pesadas ni binarios de compilación nativa.
+   - El código en Rust ubicado en la carpeta `photocraft/` queda catalogado como motor opcional de alto rendimiento para procesamiento masivo por lotes en servidores dedicados, pero **BAJO NINGUNA CIRCUNSTANCIA** será una dependencia bloqueante ni obligatoria para el funcionamiento del Editor Nativo, el Compositor Multicapa o el despliegue en GitHub Pages.
+   - La manipulación de imágenes DEBERÁ ser real (cargando archivos binarios JPG, PNG, WebP mediante `FileReader`, aplicando transformaciones, capas, traslapes, filtros y exportando imágenes binarias reales decodificadas desde base64). Queda estrictamente prohibido simular transformaciones con degradados o placeholders SVG estáticos cuando se requiera procesar imágenes reales.
+
 ---
 
 # III. FASES OBLIGATORIAS DEL PROYECTO
