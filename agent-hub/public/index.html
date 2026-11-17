@@ -1930,10 +1930,13 @@
         </div>
         <div class="flow-template-grid" id="flowTemplateGrid">Cargando plantillas...</div>
         <div style="display:flex; gap:0.75rem; align-items:center; flex-wrap:wrap;">
-          <div class="form-row" style="flex:1; min-width:200px; margin:0;">
-            <input type="text" id="flowTitle" placeholder="Título del diagrama (opcional)" style="margin-bottom:0;">
+          <div class="form-row" style="flex:1; min-width:180px; margin:0;">
+            <input type="text" id="flowTitle" placeholder="Título del flujo (ej: WhatsApp Flows BCP)" style="margin-bottom:0;">
           </div>
-          <button class="btn btn-primary" onclick="generateFlowPreview()">⚡ Generar Vista Previa</button>
+          <div class="form-row" style="flex:2; min-width:260px; margin:0;">
+            <input type="text" id="flowPromptInput" placeholder="Prompt IA: ej. Enrutamiento WhatsApp Flows a Azure Function e ingesta CDP..." style="margin-bottom:0;">
+          </div>
+          <button class="btn btn-primary" onclick="generateFlowPreview()">⚡ Generar con Agente IA</button>
           <button class="btn btn-secondary" onclick="downloadFlowHtml()">⬇️ Descargar HTML</button>
         </div>
       </div>
@@ -3079,7 +3082,7 @@
               </p>
             </div>
           </div>
-          <span class="badge badge-info">FUSION LIVE 443</span>
+          <span class="badge badge-success" title="Canal seguro oficial a través del puerto estándar HTTPS 443 (sin bloqueo en la red bancaria)">HTTPS PUERTO 443 (CANAL SEGURO)</span>
         </div>
 
         <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
@@ -3847,7 +3850,7 @@
         const res = await fetch("/api/flow-studio/generate", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ title, template: selectedFlowTemplate })
+          body: JSON.stringify({ title, prompt: document.getElementById("flowPromptInput")?.value || "", template: selectedFlowTemplate })
         });
         const html = await res.text();
         frame.srcdoc = html;
@@ -5653,7 +5656,7 @@
 
         tbody.innerHTML = events.slice(0, 15).map(e => `
           <tr>
-            <td style="color:var(--ink-2);">${new Date(e.timestamp).toLocaleTimeString()}</td>
+            <td style="color:var(--ink-2);">${e.processedAt || e.timestamp ? new Date(e.processedAt || e.timestamp).toLocaleTimeString() : "Reciente"}</td>
             <td><span class="badge ${e.eventType.includes('APPROVED') ? 'badge-success' : e.eventType.includes('REJECTED') ? 'badge-danger' : 'badge-info'}">${e.eventType}</span></td>
             <td style="font-weight:600; color:var(--ink-1);">${e.documentId || e.initiativeId || '-'}</td>
             <td>${e.status || 'PROCESSED'}</td>

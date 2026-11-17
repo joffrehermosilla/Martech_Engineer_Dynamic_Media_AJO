@@ -301,13 +301,50 @@ app.post("/api/flow-studio/generate", async (req, res) => {
   try {
     const { title, prompt, template } = req.body;
     const templateKey = template || "AEM_DYNAMIC_MEDIA_E2E";
-    const model = FLOW_TEMPLATES[templateKey]?.model || DEFAULT_AEM_FLOW_MODEL;
+    const baseModel = FLOW_TEMPLATES[templateKey]?.model || DEFAULT_AEM_FLOW_MODEL;
+    
+    // Clonar modelo profundo para personalizarlo sin alterar las plantillas base en memoria
+    const model = JSON.parse(JSON.stringify(baseModel));
+    
+    const flowTitle = title && title.trim() ? title.trim() : (FLOW_TEMPLATES[templateKey]?.label || "Mapa Dinámico de Arquitectura");
+    const heroTitle = title && title.trim() ? `Flujo Adaptado: ${title.trim()}` : (FLOW_TEMPLATES[templateKey]?.label || "Arquitectura Dinámica de Integración");
+    let lead = "Mapa interactivo generado por Agente IA con trazabilidad técnica entre AEM Dynamic Media, DAM Craft, Workfront, AJO y canales salientes.";
+    
+    // Si viene prompt, adaptamos la narrativa del flujo y los nodos clave
+    if (prompt && prompt.trim()) {
+      lead = `Caso de uso adaptado por Agente IA: "${prompt.trim()}". Validado contra mandamientos de gobernanza BCP y políticas de entrega multicanal.`;
+      
+      // Personalizar el nodo de entrada (brief/solicitud)
+      const briefNode = model.nodes.find(n => n.id === "n_brief" || n.cd === "INITIATIVE_VALIDATE");
+      if (briefNode) {
+        briefNode.t = title || "Solicitud de Asset Personalizada";
+        briefNode.s = prompt.length > 36 ? prompt.slice(0, 33) + "..." : prompt;
+      }
+      
+      // Personalizar el primer recorrido (Tour)
+      if (model.tours && model.tours[0]) {
+        model.tours[0].name = `Recorrido Personalizado: ${title || prompt.slice(0, 28)}`;
+        if (model.tours[0].steps && model.tours[0].steps[0]) {
+          model.tours[0].steps[0].title = `1. Requerimiento: ${title || 'Caso Específico'}`;
+          model.tours[0].steps[0].desc = prompt;
+        }
+      }
+    }
+
     const html = await renderFlowToHtml(model, {
-      title: title || "Mapa Dinámico de Arquitectura Generado",
+      title: flowTitle,
       badge: "FLOW STUDIO IA",
-      brandTitle: title || "Flujo de Arquitectura y Trazabilidad",
-      brandSub: "Generado Dinámicamente por Agente IA"
+      brandTitle: flowTitle,
+      brandSub: lead,
+      heroTitle,
+      lead
     });
+    res.setHeader("Content-Type", "text/html; charset=utf-8");
+    res.send(html);
+  } catch (err) {
+    res.status(500).send("Error generando flujo con IA: " + err.message);
+  }
+});
     res.setHeader("Content-Type", "text/html; charset=utf-8");
     res.send(html);
   } catch (err) {

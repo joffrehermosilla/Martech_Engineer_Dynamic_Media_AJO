@@ -407,11 +407,17 @@ export async function renderFlowToHtml(model = DEFAULT_AEM_FLOW_MODEL, options =
   const badge = options.badge || "BCP ARQUITECTURA";
   const brandTitle = options.brandTitle || "Flow Studio • Entendimiento Técnico";
   const brandSub = options.brandSub || "Diagramas Dinámicos Interactivos de Arquitectura & Trazabilidad";
+  const heroTitle = options.heroTitle || options.title || "Arquitectura Dinámica de Integración";
+  const lead = options.lead || options.brandSub || "Mapa interactivo generado dinámicamente con trazabilidad entre AEM Dynamic Media, DAM Craft, Workfront, AJO y canales salientes.";
+  const note = options.note || `<div class="hero-stat-badge" style="display:flex;align-items:center;gap:0.5rem;background:rgba(255,120,0,0.1);border:1px solid rgba(255,120,0,0.3);padding:0.6rem 1rem;border-radius:10px;"><span style="color:#FF7800;font-weight:bold;font-size:1.1rem;">⚡ AGENTE IA ACTIVO</span><span style="font-size:0.75rem;color:#A5B4CB;">Arquitectura adaptada en tiempo real</span></div>`;
 
   template = template.replaceAll("{{TITLE}}", title);
   template = template.replaceAll("{{BADGE}}", badge);
   template = template.replaceAll("{{BRAND_TITLE}}", brandTitle);
   template = template.replaceAll("{{BRAND_SUB}}", brandSub);
+  template = template.replaceAll("{{HERO_TITLE}}", heroTitle);
+  template = template.replaceAll("{{LEAD}}", lead);
+  template = template.replaceAll("{{NOTE}}", note);
   template = template.replaceAll("{{LANE_VARS}}", "");
   template = template.replaceAll("{{FOOTER}}", "Banco de Crédito del Perú BCP • Arquitectura de Integración Martech Dynamic Media & AJO");
 
