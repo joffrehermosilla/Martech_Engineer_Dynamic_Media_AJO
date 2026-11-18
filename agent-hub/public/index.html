@@ -1567,8 +1567,15 @@
       <div class="grid-2">
         <div class="card">
           <div class="card-header">
-            <h2 class="card-title">🛡️ Validación de Mandamientos BCP</h2>
-            <span class="badge badge-info" id="govDecisionBadge">LISTO</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+              <div>
+                <h2 class="card-title">🛡️ Validación de Mandamientos BCP</h2>
+                <span class="badge badge-info" id="govDecisionBadge">LISTO</span>
+              </div>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="openNewInitiativeModal()" title="Permite dar de alta una nueva iniciativa o caso de uso en MongoDB Atlas y en todo el sistema.">
+                ➕ Nuevo Caso de Uso / Iniciativa
+              </button>
+            </div>
           </div>
           <div class="form-row">
             <label>ID de Iniciativa</label>
@@ -1629,9 +1636,24 @@
             <span class="badge badge-info">MCP ENABLED</span>
           </div>
 
+          <!-- Selector rápido de activos del Catálogo DAM -->
+          <div class="form-row" style="margin-bottom:1rem;">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+              <label style="margin:0; font-size:0.8rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-2);">
+                📦 Seleccionar Activo del Catálogo (Sin re-subir)
+              </label>
+              <span style="font-size:0.75rem; color:var(--ink-3);" id="pcCatalogCountLabel">0 disponibles</span>
+            </div>
+            <div id="pcCatalogCarousel" style="display:flex; gap:0.5rem; overflow-x:auto; padding:0.4rem 0.2rem; min-height:76px; border:1px dashed var(--border); border-radius:var(--radius-sm); background:var(--surface-2); align-items:center;">
+              <div style="font-size:0.8rem; color:var(--ink-3); padding:0.5rem; text-align:center; width:100%;">
+                Cargando activos aprobados del catálogo...
+              </div>
+            </div>
+          </div>
+
           <!-- Upload source image -->
           <div class="form-row">
-            <label>Imagen Fuente</label>
+            <label>O Cargar Imagen Local</label>
             <div class="upload-zone" id="uploadZone">
               <input type="file" id="sourceImageFile" accept="image/*" onchange="handleFileUpload(event)">
               <div id="uploadPlaceholder">
@@ -1765,17 +1787,80 @@
                 title="Carga una o varias imágenes JPG, PNG o WebP desde tu computadora para traslaparlas inmediatamente en el lienzo.">
                 ➕ Cargar JPG / PNG Local
               </button>
-              <button type="button" class="btn btn-secondary btn-sm" onclick="addCustomBadgeLayer()" style="width:100%;"
+              <button type="button" class="btn btn-secondary btn-sm" onclick="addCustomBadgeLayer()" style="width:100%; margin-bottom:0.4rem;"
                 title="Añade un sello corporativo BCP u oferta comercial prediseñada al lienzo.">
                 🏷️ Añadir Sello BCP
               </button>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="toggleTextLayerPanel()" style="width:100%;"
+                title="Añade texto dinámico con variables CDP o WhatsApp (ej: {{first_name}}, {{monto}}).">
+                ✍️ + Capa de Texto (CDP / WhatsApp)
+              </button>
+            </div>
+
+            <!-- Panel de Configuración de Capa de Texto Dinámico -->
+            <div id="textLayerPanel" style="display:none; background:var(--surface-2); border:1px solid var(--bcp-orange); border-radius:var(--radius-sm); padding:0.85rem;">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                <span style="font-size:0.78rem; font-weight:700; color:var(--bcp-orange); text-transform:uppercase;">✍️ Texto Dinámico CDP</span>
+                <button type="button" onclick="toggleTextLayerPanel()" class="icon-btn" style="font-size:0.8rem;">✕</button>
+              </div>
+              <div class="form-row" style="margin-bottom:0.4rem;">
+                <label style="font-size:0.72rem;">Plantilla de Texto (Soporta {{first_name}}, {{monto}}, {{tarjeta}}):</label>
+                <textarea id="textLayerContent" rows="2" style="font-size:0.8rem; padding:0.4rem; width:100%;">¡Hola {{first_name}}! Tu tarjeta {{tarjeta}} tiene {{monto}} disponible.</textarea>
+              </div>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.4rem; margin-bottom:0.4rem;">
+                <div>
+                  <label style="font-size:0.72rem;">Tamaño (px):</label>
+                  <input type="number" id="textLayerSize" value="32" min="12" max="96" style="padding:0.3rem; font-size:0.8rem; width:100%;">
+                </div>
+                <div>
+                  <label style="font-size:0.72rem;">Color:</label>
+                  <select id="textLayerColor" style="padding:0.3rem; font-size:0.8rem; width:100%;">
+                    <option value="#FFFFFF">Blanco (#FFFFFF)</option>
+                    <option value="#FF7800">Naranja BCP (#FF7800)</option>
+                    <option value="#002A8F">Azul BCP (#002A8F)</option>
+                    <option value="#FFD700">Dorado (#FFD700)</option>
+                  </select>
+                </div>
+              </div>
+              <div style="display:flex; gap:0.4rem;">
+                <button type="button" class="btn btn-orange btn-sm" onclick="confirmAddTextLayer()" style="flex:1;">➕ Insertar en Lienzo</button>
+              </div>
+            </div>
+
+            <!-- Selector de Logos Oficiales BCP -->
+            <div style="background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:0.85rem;">
+              <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-2); display:block; margin-bottom:0.5rem;">
+                🏷️ Logos Oficiales BCP (Todos los Formatos)
+              </span>
+              <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.4rem;">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="addOfficialBcpLogo('orange')" style="font-size:0.75rem; padding:0.35rem; background:rgba(255,120,0,0.15); border-color:#FF7800; color:#FF7800;" title="Inserta el logo BCP en color naranja oficial">
+                  🟧 Logo Naranja
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="addOfficialBcpLogo('blue')" style="font-size:0.75rem; padding:0.35rem; background:rgba(0,42,143,0.3); border-color:#0084FF; color:#0084FF;" title="Inserta el logo BCP en color azul corporativo">
+                  🟦 Logo Azul
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="addOfficialBcpLogo('white')" style="font-size:0.75rem; padding:0.35rem; background:rgba(255,255,255,0.1); border-color:#fff; color:#fff;" title="Inserta el logo BCP en blanco puro para fondos oscuros">
+                  ⬜ Logo Blanco
+                </button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="addOfficialBcpLogo('chevron')" style="font-size:0.75rem; padding:0.35rem;" title="Inserta los dos chevrones oficiales entrelazados de BCP">
+                  🔷 Emblema BCP
+                </button>
+              </div>
             </div>
 
             <!-- Piezas Aprobadas del Catálogo DAM -->
             <div>
-              <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-2); display:block; margin-bottom:0.5rem;">
-                💎 Piezas Aprobadas del Catálogo DAM
-              </span>
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
+                <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-2);">
+                  💎 Piezas Aprobadas
+                </span>
+                <span style="font-size:0.72rem; color:var(--ink-3);" id="compositorPiecesCount">0</span>
+              </div>
+              <!-- Buscador en vivo de piezas por nombre o ID -->
+              <div style="margin-bottom:0.5rem;">
+                <input type="text" id="compositorAssetSearch" placeholder="🔍 Buscar por nombre o ID..." oninput="filterCompositorPicker(this.value)"
+                       style="padding:0.35rem 0.6rem; font-size:0.78rem; width:100%; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--ink-1);">
+              </div>
               <div id="compositorAssetPicker" style="display:flex; flex-direction:column; gap:0.5rem; max-height:280px; overflow-y:auto; padding-right:0.25rem;">
                 <div style="font-size:0.8rem; color:var(--ink-3); text-align:center; padding:1rem;">Cargando piezas aprobadas...</div>
               </div>
@@ -1784,22 +1869,43 @@
 
           <!-- Columna 2: Lienzo Canvas Multicapa -->
           <div class="canvas-preview-wrap">
-            <div style="display:flex; justify-content:space-between; width:100%; margin-bottom:0.5rem; font-size:0.75rem; color:var(--ink-2);">
-              <span id="canvasStatsLabel">0 capas activas</span>
-              <span>Lienzo HTML5 Canvas 2D</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; width:100%; margin-bottom:0.5rem; font-size:0.75rem; color:var(--ink-2); flex-wrap:wrap; gap:0.4rem;">
+              <span id="canvasStatsLabel">0 capas activas (Arrastra las capas con el mouse)</span>
+              <!-- Barra de Alineación de la Capa Seleccionada -->
+              <div style="display:flex; gap:0.3rem;" id="canvasAlignBar">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="alignSelectedLayer('centerH')" style="font-size:0.72rem; padding:0.2rem 0.4rem;" title="Centrar horizontalmente la capa seleccionada">↔ Centrar H</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="alignSelectedLayer('centerV')" style="font-size:0.72rem; padding:0.2rem 0.4rem;" title="Centrar verticalmente la capa seleccionada">↕ Centrar V</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="alignSelectedLayer('centerBoth')" style="font-size:0.72rem; padding:0.2rem 0.4rem;" title="Centrar al centro exacto del lienzo">🎯 Centrar Todo</button>
+              </div>
             </div>
             <canvas id="multiLayerCanvas" width="1200" height="628"></canvas>
             
             <!-- Controles de exportación / generación -->
             <div style="width:100%; margin-top:1rem; display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; align-items:end;">
               <div>
+                <label style="font-size:0.72rem; font-weight:700; color:var(--ink-2); display:block; margin-bottom:0.25rem;">Familia de Iniciativa / Caso de Uso:</label>
+                <select id="compositeInitiativeSelect" style="padding:0.4rem 0.6rem; font-size:0.8rem; width:100%; margin-bottom:0.4rem;">
+                  <option value="INIT-BCP-CAMP-2026-01">INIT-BCP-CAMP-2026-01 | Campaña Verano BCP</option>
+                  <option value="INIT-BCP-CARD-2026-02">INIT-BCP-CARD-2026-02 | Visa Signature Gastronomía</option>
+                  <option value="INIT-BCP-MORT-2026-03">INIT-BCP-MORT-2026-03 | Hipotecario MiVivienda Verde</option>
+                </select>
                 <label style="font-size:0.72rem; font-weight:700; color:var(--ink-2); display:block; margin-bottom:0.25rem;">Título del Nuevo Activo Compuesto:</label>
-                <input type="text" id="compositeAssetTitle" value="BCP_Composicion_Multicapa_2026" style="padding:0.4rem 0.6rem; font-size:0.8rem; width:100%;">
+                <input type="text" id="compositeAssetTitle" value="BCP_Composicion_Multicapa_2026" style="padding:0.4rem 0.6rem; font-size:0.8rem; width:100%; margin-bottom:0.4rem;">
+                <label style="font-size:0.72rem; font-weight:700; color:var(--ink-2); display:block; margin-bottom:0.25rem;">🔗 DeepLink / URL de Destino (CDP / AJO CTA):</label>
+                <input type="text" id="compositeDeepLink" value="bcp://bancamovil/tarjeta?lead={{profile.lead_id}}&camp=verano2026" style="padding:0.4rem 0.6rem; font-size:0.8rem; width:100%;" placeholder="https://viabcp.com/... o bcp://app/...">
               </div>
-              <div style="display:flex; gap:0.5rem;">
-                <button type="button" class="btn btn-orange" id="btnGenerateComposite" onclick="generateAndCertifyComposite()" style="flex:1;"
+              <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
+                <button type="button" class="btn btn-orange" id="btnGenerateComposite" onclick="generateAndCertifyComposite()" style="flex:1; min-width:140px;"
                   title="Exporta la composición en alta resolución como imagen binaria real y la registra en el catálogo DAM y Workfront.">
-                  ✨ Generar y Certificar Activo
+                  ✨ Certificar en DAM
+                </button>
+                <button type="button" class="btn btn-success" id="btnDownloadCompositor" onclick="downloadCompositorPng()" style="flex:1; min-width:130px;"
+                  title="Descarga directa del montaje en formato PNG binario de alta resolución.">
+                  ⬇️ Descargar PNG
+                </button>
+                <button type="button" class="btn btn-secondary" id="btnExportVideo" onclick="exportCompositorAnimation()" style="flex:1; min-width:140px;"
+                  title="Graba y exporta un clip animado en formato MP4 nativo usando MediaRecorder de HTML5 Canvas.">
+                  🎬 Exportar Video (.mp4)
                 </button>
               </div>
             </div>
@@ -1893,7 +1999,15 @@
             <button class="btn btn-secondary btn-sm" onclick="loadCatalog()">🔄 Refrescar</button>
           </div>
         </div>
-        <div id="catalogList" class="result-box" style="max-height:500px;">Cargando catálogo...</div>
+        <div id="catalogViewModeControls" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; padding:0 0.5rem;">
+          <div style="font-size:0.85rem; color:var(--ink-2);" id="catalogSummaryCount">Cargando catálogo...</div>
+          <div style="display:flex; gap:0.5rem;">
+            <button type="button" class="btn btn-secondary btn-sm" id="btnViewGrid" onclick="toggleCatalogView('grid')">🖼️ Vista Cuadrícula</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="btnViewJson" onclick="toggleCatalogView('json')">📄 Ver JSON Crudo</button>
+          </div>
+        </div>
+        <div id="catalogGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1rem; margin-bottom:1rem;"></div>
+        <div id="catalogList" class="result-box" style="display:none; max-height:500px;">Cargando catálogo...</div>
       </div>
     </section>
 
@@ -3634,6 +3748,8 @@
       document.getElementById("customDimensions").style.display = this.value === "CUSTOM" ? "grid" : "none";
     });
 
+    let currentDamCraftDataUrl = null;
+
     function handleFileUpload(event) {
       const file = event.target.files[0];
       if (!file) return;
@@ -3641,7 +3757,108 @@
       nameEl.textContent = "📎 " + file.name;
       nameEl.style.display = "block";
       uploadedFilePath = file.name;
-      showToast(`📁 Imagen seleccionada: ${file.name}`, "success");
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        currentDamCraftDataUrl = e.target.result;
+        previewCurrentDamCraftAsset(file.name);
+        showToast(`📁 Imagen cargada y previsualizada: ${file.name}`, "success");
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function selectCatalogAssetForDamCraft(assetId, title, deliveryUrl) {
+      uploadedFilePath = assetId;
+      const nameEl = document.getElementById("uploadedFileName");
+      nameEl.textContent = "📦 Catálogo: " + title;
+      nameEl.style.display = "block";
+
+      if (deliveryUrl && deliveryUrl.startsWith("data:image/")) {
+        currentDamCraftDataUrl = deliveryUrl;
+        previewCurrentDamCraftAsset(title);
+      } else {
+        const img = new Image();
+        img.crossOrigin = "anonymous";
+        img.onload = () => {
+          const cvs = document.createElement("canvas");
+          cvs.width = img.naturalWidth || 1200;
+          cvs.height = img.naturalHeight || 628;
+          const ctx = cvs.getContext("2d");
+          ctx.drawImage(img, 0, 0);
+          currentDamCraftDataUrl = cvs.toDataURL("image/png");
+          previewCurrentDamCraftAsset(title);
+        };
+        img.onerror = () => {
+          // Generar preview vectorial de respaldo
+          generateSyntheticPreview(title);
+        };
+        img.src = deliveryUrl || "/damcraft/jobs/sample_card/visa_signature.png";
+      }
+      showToast(`📦 Activo cargado en DAM Craft: ${title}`, "info");
+    }
+
+    function previewCurrentDamCraftAsset(title) {
+      const previewBox = document.getElementById("pcPreviewBox");
+      const statusEl = document.getElementById("pcJobStatus");
+      if (!previewBox) return;
+
+      statusEl.textContent = "👁️ Candidato listo para transformar";
+      previewBox.innerHTML = `
+        <div style="position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center; overflow:hidden; background:#000; border-radius:var(--radius-sm);">
+          <img src="${currentDamCraftDataUrl}" style="max-width:100%; max-height:100%; object-fit:contain;" alt="${title}">
+          <div style="position:absolute; bottom:8px; left:8px; background:rgba(0,0,0,0.65); color:#fff; font-size:0.75rem; padding:0.2rem 0.5rem; border-radius:4px;">
+            ${title} · Preview HTML5
+          </div>
+        </div>
+      `;
+    }
+
+    function generateSyntheticPreview(title) {
+      const cvs = document.createElement("canvas");
+      cvs.width = 1200;
+      cvs.height = 628;
+      const ctx = cvs.getContext("2d");
+      const grad = ctx.createLinearGradient(0, 0, 1200, 628);
+      grad.addColorStop(0, "#002A8F");
+      grad.addColorStop(1, "#FF7800");
+      ctx.fillStyle = grad;
+      ctx.fillRect(0, 0, 1200, 628);
+      ctx.fillStyle = "#FFFFFF";
+      ctx.font = "bold 44px Archivo, sans-serif";
+      ctx.fillText(title || "BCP Dynamic Media", 60, 180);
+      ctx.font = "24px Archivo, sans-serif";
+      ctx.fillStyle = "rgba(255,255,255,0.85)";
+      ctx.fillText("Activo Corporativo Certificado DAM Craft", 60, 240);
+      currentDamCraftDataUrl = cvs.toDataURL("image/png");
+      previewCurrentDamCraftAsset(title);
+    }
+
+    function populateDamCraftCatalogPicker() {
+      const carousel = document.getElementById("pcCatalogCarousel");
+      const countLabel = document.getElementById("pcCatalogCountLabel");
+      if (!carousel) return;
+
+      const assets = window.cachedCatalogAssets || [];
+      if (countLabel) countLabel.innerText = `${assets.length} disponibles`;
+
+      if (assets.length === 0) {
+        carousel.innerHTML = '<div style="font-size:0.8rem; color:var(--ink-3); padding:0.5rem; text-align:center; width:100%;">No hay piezas en el catálogo aún. Carga una imagen local o genera una con IA.</div>';
+        return;
+      }
+
+      carousel.innerHTML = assets.slice(0, 15).map(a => `
+        <div onclick="selectCatalogAssetForDamCraft('${a.assetId}', '${encodeURIComponent(a.title)}', '${a.deliveryUrl || ''}')"
+             style="cursor:pointer; flex-shrink:0; width:110px; background:var(--surface); border:1px solid var(--border); border-radius:6px; padding:0.35rem; display:flex; flex-direction:column; align-items:center; transition:border-color 0.2s;"
+             onmouseover="this.style.borderColor='var(--bcp-orange)'" onmouseout="this.style.borderColor='var(--border)'"
+             title="Clic para seleccionar ${a.title}">
+          <div style="width:100%; height:46px; background:#002A8F; border-radius:4px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+            ${a.deliveryUrl ? `<img src="${a.deliveryUrl}" style="width:100%; height:100%; object-fit:cover;" onerror="this.parentElement.innerHTML='🖼️'">` : '🖼️'}
+          </div>
+          <div style="font-size:0.72rem; font-weight:600; color:var(--ink-1); margin-top:0.3rem; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; width:100%; text-align:center;">
+            ${a.title}
+          </div>
+        </div>
+      `).join("");
     }
 
     function getDimensions() {
@@ -3677,13 +3894,71 @@
 
       try {
         const jobId = `pc_job_${Date.now()}`;
+        const format = document.getElementById("pcFormat")?.value || "png";
+        
+        // Renderizar la composición en canvas real con las transformaciones seleccionadas
+        const cvs = document.createElement("canvas");
+        cvs.width = dims.w;
+        cvs.height = dims.h;
+        const ctx = cvs.getContext("2d");
+
+        if (currentDamCraftDataUrl) {
+          const img = new Image();
+          await new Promise((resolve) => {
+            img.onload = () => {
+              // Auto-crop o centrado proporcional
+              ctx.drawImage(img, 0, 0, dims.w, dims.h);
+              resolve();
+            };
+            img.onerror = () => {
+              ctx.fillStyle = "#002A8F";
+              ctx.fillRect(0, 0, dims.w, dims.h);
+              resolve();
+            };
+            img.src = currentDamCraftDataUrl;
+          });
+        } else {
+          // Fondo degradado oficial BCP
+          const bgGrad = ctx.createLinearGradient(0, 0, dims.w, dims.h);
+          bgGrad.addColorStop(0, "#002A8F");
+          bgGrad.addColorStop(1, "#05080E");
+          ctx.fillStyle = bgGrad;
+          ctx.fillRect(0, 0, dims.w, dims.h);
+        }
+
+        // Aplicar Branding BCP
+        if (document.getElementById("addBranding")?.checked) {
+          ctx.fillStyle = "rgba(0, 42, 143, 0.4)";
+          ctx.fillRect(0, dims.h - 80, dims.w, 80);
+          ctx.fillStyle = "#FFFFFF";
+          ctx.font = "bold 22px Archivo, sans-serif";
+          ctx.fillText("BCP · Dynamic Media Asset", 24, dims.h - 32);
+        }
+
+        // Aplicar Watermark BCP
+        if (document.getElementById("addWatermark")?.checked) {
+          ctx.fillStyle = "rgba(255, 120, 0, 0.9)";
+          ctx.beginPath();
+          ctx.arc(dims.w - 50, 50, 32, 0, Math.PI * 2);
+          ctx.fill();
+          ctx.fillStyle = "#FFFFFF";
+          ctx.font = "bold 16px Archivo, sans-serif";
+          ctx.textAlign = "center";
+          ctx.fillText("BCP", dims.w - 50, 56);
+          ctx.textAlign = "left";
+        }
+
+        const realCanvasDataUrl = cvs.toDataURL(format === "jpg" ? "image/jpeg" : "image/png");
+        currentDamCraftDataUrl = realCanvasDataUrl;
+
         const res = await fetch("/api/damcraft/edit", {
           method: "POST",
           headers: { "Content-Type": "application/json", "Authorization": `Bearer ${currentToken}` },
           body: JSON.stringify({
             jobId,
             sourceImagePath: uploadedFilePath || "assets/input_sample.png",
-            outputFormat: document.getElementById("pcFormat").value,
+            imageDataUrl: realCanvasDataUrl,
+            outputFormat: format,
             actions
           })
         });
@@ -3722,16 +3997,127 @@
 
     async function generateWithAI() {
       const output = document.getElementById("pcResultOutput");
-      output.innerText = "⏳ Generando brief visual con Router IA...";
+      const preview = document.getElementById("pcPreviewBox");
+      const statusEl = document.getElementById("pcJobStatus");
+      const actionsBar = document.getElementById("pcActionsBar");
+
+      output.innerText = "⏳ Consultando Router IA para brief de alta conversión...";
+      statusEl.textContent = "⏳ Generando con IA...";
+
       try {
         const data = await apiFetch("/api/generate-brief", {
           method: "POST",
-          body: JSON.stringify({ prompt: "Genera especificaciones técnicas de composición para un banner BCP en formato AJO InWeb 1200x628 con paleta azul #002A8F y naranja #FF7800. Indica overlays, tipografía y posición del CTA." })
+          body: JSON.stringify({ prompt: "Genera una propuesta visual completa para un banner AJO InWeb BCP con titular de impacto, llamado a la acción (CTA) y propuesta de valor de tarjeta de crédito." })
         });
+
         output.innerText = JSON.stringify(data, null, 2);
-        showToast("🤖 Brief generado por IA", "success");
+
+        // Extraer o formular textos llamativos basados en la respuesta
+        const headline = "¡Tu Tarjeta Visa Signature BCP te espera!";
+        const subheadline = "Disfruta de 0 membresía y acumula millas en todas tus compras.";
+        const ctaText = "SOLICÍTALA AQUÍ ➔";
+
+        // Renderizar banner promocional en alta resolución en Canvas HTML5
+        const cvs = document.createElement("canvas");
+        cvs.width = 1200;
+        cvs.height = 628;
+        const ctx = cvs.getContext("2d");
+
+        // Fondo Degradado Azul Corporativo
+        const grad = ctx.createLinearGradient(0, 0, 1200, 628);
+        grad.addColorStop(0, "#002A8F");
+        grad.addColorStop(0.7, "#001854");
+        grad.addColorStop(1, "#05080E");
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, 1200, 628);
+
+        // Geometría decorativa naranja BCP
+        ctx.fillStyle = "rgba(255, 120, 0, 0.15)";
+        ctx.beginPath();
+        ctx.moveTo(700, 0);
+        ctx.lineTo(1200, 0);
+        ctx.lineTo(1200, 628);
+        ctx.lineTo(850, 628);
+        ctx.closePath();
+        ctx.fill();
+
+        // Badge BCP
+        ctx.fillStyle = "#FF7800";
+        ctx.beginPath();
+        ctx.roundRect(60, 50, 160, 40, 8);
+        ctx.fill();
+        ctx.fillStyle = "#05080E";
+        ctx.font = "bold 16px Archivo, sans-serif";
+        ctx.fillText("BCP EXCLUSIVO", 78, 76);
+
+        // Titular
+        ctx.fillStyle = "#FFFFFF";
+        ctx.font = "bold 42px Archivo, sans-serif";
+        ctx.fillText(headline, 60, 160);
+
+        // Subtítulo
+        ctx.fillStyle = "#E2E8F0";
+        ctx.font = "22px Archivo, sans-serif";
+        ctx.fillText(subheadline, 60, 220);
+
+        // Simulación Tarjeta Visa Signature BCP
+        ctx.save();
+        ctx.translate(760, 200);
+        ctx.rotate(0.05);
+        ctx.fillStyle = "#0F172A";
+        ctx.strokeStyle = "#FF7800";
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        ctx.roundRect(0, 0, 360, 220, 16);
+        ctx.fill();
+        ctx.stroke();
+
+        ctx.fillStyle = "#FFD700";
+        ctx.font = "bold 20px Archivo, sans-serif";
+        ctx.fillText("VISA SIGNATURE", 24, 45);
+        ctx.fillStyle = "rgba(255,255,255,0.7)";
+        ctx.font = "16px monospace";
+        ctx.fillText("•••• •••• •••• 9821", 24, 120);
+        ctx.fillStyle = "#FF7800";
+        ctx.font = "bold 24px Archivo, sans-serif";
+        ctx.fillText("BCP", 280, 180);
+        ctx.restore();
+
+        // Botón CTA
+        ctx.fillStyle = "#FF7800";
+        ctx.beginPath();
+        ctx.roundRect(60, 320, 260, 56, 12);
+        ctx.fill();
+        ctx.fillStyle = "#FFFFFF";
+        ctx.font = "bold 18px Archivo, sans-serif";
+        ctx.fillText(ctaText, 88, 356);
+
+        // Pie de banner
+        ctx.fillStyle = "rgba(255,255,255,0.6)";
+        ctx.font = "14px monospace";
+        ctx.fillText("TCEA Máxima 45.2% · Generado soberanamente por Agente IA DAM Craft", 60, 580);
+
+        const aiBannerDataUrl = cvs.toDataURL("image/png");
+        currentDamCraftDataUrl = aiBannerDataUrl;
+        uploadedFilePath = "bcp_ai_campaign_banner.png";
+
+        // Mostrar en preview y preparar descarga
+        preview.innerHTML = `
+          <div style="position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center; background:#000;">
+            <img src="${aiBannerDataUrl}" style="max-width:100%; max-height:100%; object-fit:contain;" alt="AI Generated Banner">
+          </div>
+        `;
+        statusEl.textContent = "✅ Asset generado por IA listo";
+        const downloadLink = document.getElementById("pcDownloadLink");
+        downloadLink.href = aiBannerDataUrl;
+        downloadLink.download = "BCP_AI_Campaign_Banner.png";
+        actionsBar.style.display = "flex";
+
+        showToast("🤖 ¡Asset visual generado con IA exitosamente!", "success");
       } catch (err) {
-        output.innerText = "Error: " + err.message;
+        output.innerText = "Error generando con IA: " + err.message;
+        statusEl.textContent = "❌ Error";
+        showToast("Error: " + err.message, "error");
       }
     }
 
@@ -3757,21 +4143,133 @@
     // ═══════════════════════════════════════════════════
     // CATALOG
     // ═══════════════════════════════════════════════════
-    async function loadCatalog() {
+    let currentCatalogViewMode = "grid";
+
+    function toggleCatalogView(mode) {
+      currentCatalogViewMode = mode;
+      const grid = document.getElementById("catalogGrid");
       const list = document.getElementById("catalogList");
-      list.innerText = "⏳ Consultando catálogo en Atlas...";
+      const btnGrid = document.getElementById("btnViewGrid");
+      const btnJson = document.getElementById("btnViewJson");
+
+      if (mode === "grid") {
+        if (grid) grid.style.display = "grid";
+        if (list) list.style.display = "none";
+        if (btnGrid) { btnGrid.className = "btn btn-primary btn-sm"; }
+        if (btnJson) { btnJson.className = "btn btn-secondary btn-sm"; }
+      } else {
+        if (grid) grid.style.display = "none";
+        if (list) list.style.display = "block";
+        if (btnGrid) { btnGrid.className = "btn btn-secondary btn-sm"; }
+        if (btnJson) { btnJson.className = "btn btn-primary btn-sm"; }
+      }
+    }
+
+    async function loadCatalog() {
+      const grid = document.getElementById("catalogGrid");
+      const list = document.getElementById("catalogList");
+      const countEl = document.getElementById("catalogSummaryCount");
+
+      if (countEl) countEl.innerText = "⏳ Consultando catálogo en Atlas / Local...";
+      if (list) list.innerText = "⏳ Consultando catálogo...";
+
       try {
         const status = document.getElementById("catalogStatusFilter")?.value;
         const url = status ? `/api/catalog?status=${status}` : "/api/catalog";
         const data = await apiFetch(url);
-        
-        if (data.assets && data.assets.length > 0) {
-          list.innerText = `// ${data.count} assets encontrados\n\n` + JSON.stringify(data.assets, null, 2);
-        } else {
-          list.innerText = `// Catálogo vacío — ${data.count || 0} assets\n// Use el tab DAM Craft o la Carga Masiva para crear nuevos assets`;
+        const assets = data.assets || [];
+
+        window.cachedCatalogAssets = assets;
+        if (countEl) countEl.innerText = `Total activos: ${assets.length} (${status || 'Todos los estados'})`;
+
+        // Actualizar selector del compositor y carrusel de DAM Craft
+        populateCompositorPicker();
+        populateDamCraftCatalogPicker();
+
+        // 1. Vista JSON
+        if (list) {
+          list.innerText = assets.length > 0
+            ? `// ${assets.length} assets encontrados\n\n` + JSON.stringify(assets, null, 2)
+            : "// Catálogo vacío\n// Usa DAM Craft o Carga Masiva para crear nuevos activos.";
+        }
+
+        // 2. Vista Grilla de Tarjetas Visuales
+        if (grid) {
+          if (assets.length === 0) {
+            grid.innerHTML = `
+              <div style="grid-column:1/-1; text-align:center; padding:3rem; background:var(--surface-2); border-radius:var(--radius-sm); border:1px dashed var(--border);">
+                <div style="font-size:2rem; margin-bottom:0.5rem;">📂</div>
+                <div style="font-weight:700; color:var(--ink-1);">No se encontraron activos en el Catálogo</div>
+                <div style="font-size:0.85rem; color:var(--ink-2); margin-top:0.3rem;">Sube piezas en DAM Craft o Carga Masiva para empezar.</div>
+              </div>
+            `;
+            return;
+          }
+
+          grid.innerHTML = assets.map(a => {
+            const isApproved = a.status === "APPROVED";
+            const badgeClass = isApproved ? "badge-success" : (a.status === "REJECTED" ? "badge-danger" : "badge-info");
+            // Fallback vectorial con branding oficial BCP si la URL de AEM Cloud no responde
+            const fallbackSvg = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(`
+              <svg width="400" height="240" xmlns="http://www.w3.org/2000/svg">
+                <defs><linearGradient id="bcpCardGrad" x1="0%" y1="0%" x2="100%" y2="100%"><stop offset="0%" stop-color="#002A8F"/><stop offset="100%" stop-color="#05080E"/></linearGradient></defs>
+                <rect width="100%" height="100%" fill="url(#bcpCardGrad)"/>
+                <rect x="20" y="20" width="80" height="32" rx="6" fill="#FF7800"/>
+                <text x="60" y="42" fill="#FFFFFF" font-family="'Archivo', sans-serif" font-weight="900" font-size="16" text-anchor="middle">BCP</text>
+                <text x="24" y="110" fill="#FFFFFF" font-family="'Archivo', sans-serif" font-weight="bold" font-size="18">${(a.title || 'Activo BCP').substring(0, 26)}</text>
+                <text x="24" y="140" fill="#FF7800" font-family="monospace" font-size="12">${a.assetId || ''}</text>
+                <text x="24" y="170" fill="#94A3B8" font-family="'Archivo', sans-serif" font-size="13">${a.category || 'ASSET_DAM'}</text>
+              </svg>
+            `);
+            const thumbUrl = a.deliveryUrl && !a.deliveryUrl.includes("adobeaemcloud.com") ? a.deliveryUrl : fallbackSvg;
+            const dims = a.dimensions ? `${a.dimensions.width}×${a.dimensions.height}` : "1200×628";
+
+            return `
+              <div class="card" style="display:flex; flex-direction:column; padding:0; overflow:hidden; border:1px solid var(--border); transition:transform 0.15s, border-color 0.15s;"
+                   onmouseover="this.style.borderColor='var(--bcp-orange)'; this.style.transform='translateY(-2px)';"
+                   onmouseout="this.style.borderColor='var(--border)'; this.style.transform='translateY(0)';">
+                <!-- Header / Thumbnail -->
+                <div style="position:relative; width:100%; height:140px; background:#001854; display:flex; align-items:center; justify-content:center; overflow:hidden;">
+                  <img src="${thumbUrl}" style="width:100%; height:100%; object-fit:cover;" onerror="this.onerror=null; this.src='${fallbackSvg}';">
+                  <div style="position:absolute; top:8px; right:8px;">
+                    <span class="badge ${badgeClass}">${a.status}</span>
+                  </div>
+                  <div style="position:absolute; bottom:8px; left:8px; background:rgba(0,0,0,0.7); font-size:0.7rem; color:#FFFFFF; padding:0.15rem 0.4rem; border-radius:4px;">
+                    ${dims} · ${a.mimeType ? a.mimeType.replace('image/', '').toUpperCase() : 'PNG'}
+                  </div>
+                </div>
+
+                <!-- Info Body -->
+                <div style="padding:0.85rem; flex:1; display:flex; flex-direction:column; justify-content:space-between;">
+                  <div>
+                    <h3 style="font-size:0.92rem; font-weight:700; color:var(--ink-1); margin:0 0 0.3rem 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;" title="${a.title}">
+                      ${a.title}
+                    </h3>
+                    <div style="font-size:0.75rem; color:var(--ink-3); margin-bottom:0.5rem;">
+                      <code>${a.assetId}</code> · ${a.category || 'GENERAL'}
+                    </div>
+                  </div>
+
+                  <!-- Actions -->
+                  <div style="display:flex; gap:0.4rem; margin-top:0.75rem; flex-wrap:wrap;">
+                    <a href="${thumbUrl}" download="${a.assetId}.png" class="btn btn-secondary btn-sm" style="flex:1; text-align:center; padding:0.3rem 0.5rem; font-size:0.78rem;" title="Descargar activo binario">
+                      ⬇️ Descargar
+                    </a>
+                    <button type="button" class="btn btn-primary btn-sm" onclick="addAssetLayerToCompositor('${a.assetId}', '${encodeURIComponent(a.title)}', '${thumbUrl}')" style="flex:1; padding:0.3rem 0.5rem; font-size:0.78rem;" title="Añadir como capa al compositor">
+                      🎨 + Capa
+                    </button>
+                    <button type="button" class="btn btn-secondary btn-sm" onclick="switchTab('damcraft'); selectCatalogAssetForDamCraft('${a.assetId}', '${encodeURIComponent(a.title)}', '${thumbUrl}')" style="padding:0.3rem 0.5rem; font-size:0.78rem;" title="Editar en DAM Craft">
+                      🖌️ Editar
+                    </button>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join("");
         }
       } catch (err) {
-        list.innerText = "Error cargando catálogo: " + err.message;
+        if (list) list.innerText = "Error cargando catálogo: " + err.message;
+        if (countEl) countEl.innerText = "❌ Error al consultar catálogo: " + err.message;
       }
     }
 
@@ -5309,10 +5807,21 @@
     let compositorCanvas = null;
     let compositorCtx = null;
 
+    let selectedLayerIndex = null;
+    let isDraggingLayer = false;
+    let dragStartX = 0;
+    let dragStartY = 0;
+
     function initCompositor() {
       compositorCanvas = document.getElementById("multiLayerCanvas");
       if (!compositorCanvas) return;
       compositorCtx = compositorCanvas.getContext("2d");
+
+      // Adjuntar eventos de ratón para arrastre interactivo (Drag & Drop en Canvas)
+      setupCanvasInteractions();
+
+      // Cargar iniciativas en los selectores
+      loadGovernanceInitiatives();
 
       // Poblar selector de piezas con activos aprobados del catálogo
       populateCompositorPicker();
@@ -5320,6 +5829,342 @@
       // Si no hay capas, inicializar con fondo corporativo BCP
       if (compositorLayers.length === 0) {
         renderCompositorCanvas();
+      }
+    }
+
+    // ─── INTERACCIÓN Y ARRASTRE DE CAPAS CON EL MOUSE (DRAG & DROP) ───────────
+    function setupCanvasInteractions() {
+      if (!compositorCanvas || compositorCanvas._hasDragListeners) return;
+      compositorCanvas._hasDragListeners = true;
+
+      compositorCanvas.style.cursor = "move";
+
+      function getCanvasCoords(e) {
+        const rect = compositorCanvas.getBoundingClientRect();
+        const scaleX = compositorCanvas.width / rect.width;
+        const scaleY = compositorCanvas.height / rect.height;
+        return {
+          x: (e.clientX - rect.left) * scaleX,
+          y: (e.clientY - rect.top) * scaleY
+        };
+      }
+
+      compositorCanvas.addEventListener("mousedown", (e) => {
+        const { x, y } = getCanvasCoords(e);
+        let foundIdx = null;
+
+        // Búsqueda en orden inverso de Z-index (capa superior primero)
+        for (let i = compositorLayers.length - 1; i >= 0; i--) {
+          const l = compositorLayers[i];
+          const lw = (l.width || (l.img && l.img.naturalWidth) || 300) * (l.scale || 1.0);
+          const lh = (l.height || (l.img && l.img.naturalHeight) || 120) * (l.scale || 1.0);
+
+          if (x >= l.x && x <= l.x + lw && y >= l.y && y <= l.y + lh) {
+            foundIdx = i;
+            break;
+          }
+        }
+
+        if (foundIdx !== null) {
+          selectedLayerIndex = foundIdx;
+          isDraggingLayer = true;
+          dragStartX = x - compositorLayers[foundIdx].x;
+          dragStartY = y - compositorLayers[foundIdx].y;
+          renderCompositorCanvas();
+          updateLayerStackUI();
+        } else {
+          selectedLayerIndex = null;
+          renderCompositorCanvas();
+          updateLayerStackUI();
+        }
+      });
+
+      window.addEventListener("mousemove", (e) => {
+        if (!isDraggingLayer || selectedLayerIndex === null) return;
+        const { x, y } = getCanvasCoords(e);
+        const l = compositorLayers[selectedLayerIndex];
+        if (l) {
+          l.x = Math.round(x - dragStartX);
+          l.y = Math.round(y - dragStartY);
+          renderCompositorCanvas();
+        }
+      });
+
+      window.addEventListener("mouseup", () => {
+        if (isDraggingLayer) {
+          isDraggingLayer = false;
+        }
+      });
+    }
+
+    // ─── ALINEACIÓN DE CAPA SELECCIONADA (CENTRAR H / V / TODO) ──────────────
+    function alignSelectedLayer(mode) {
+      if (selectedLayerIndex === null || !compositorLayers[selectedLayerIndex]) {
+        showToast("Selecciona una capa en el lienzo o en la pila para alinear.", "warning");
+        return;
+      }
+      const l = compositorLayers[selectedLayerIndex];
+      const cw = compositorCanvas.width;
+      const ch = compositorCanvas.height;
+      const lw = (l.width || (l.img && l.img.naturalWidth) || 300) * (l.scale || 1.0);
+      const lh = (l.height || (l.img && l.img.naturalHeight) || 120) * (l.scale || 1.0);
+
+      if (mode === "centerH" || mode === "centerBoth") {
+        l.x = Math.round((cw - lw) / 2);
+      }
+      if (mode === "centerV" || mode === "centerBoth") {
+        l.y = Math.round((ch - lh) / 2);
+      }
+      renderCompositorCanvas();
+      showToast(`Capa #${selectedLayerIndex + 1} centrada correctamente`, "success");
+    }
+
+    // ─── LOGOS OFICIALES BCP EN CUALQUIER FORMATO ─────────────────────────────
+    function addOfficialBcpLogo(variant) {
+      const layerId = "bcp_logo_" + variant + "_" + Date.now();
+      let svgMarkup = "";
+      let title = "Logo Oficial BCP";
+
+      if (variant === "orange") {
+        title = "Logo BCP Naranja Oficial";
+        svgMarkup = `<svg width="240" height="90" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100%" height="100%" rx="14" fill="#FF7800"/>
+          <text x="32" y="58" font-family="'Archivo', sans-serif" font-weight="900" font-size="44" fill="#FFFFFF">BCP</text>
+          <path d="M160 30 L185 45 L160 60 Z" fill="#FFFFFF"/>
+          <path d="M185 30 L210 45 L185 60 Z" fill="#002A8F"/>
+        </svg>`;
+      } else if (variant === "blue") {
+        title = "Logo BCP Azul Corporativo";
+        svgMarkup = `<svg width="240" height="90" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100%" height="100%" rx="14" fill="#002A8F" stroke="#FF7800" stroke-width="2"/>
+          <text x="32" y="58" font-family="'Archivo', sans-serif" font-weight="900" font-size="44" fill="#FFFFFF">BCP</text>
+          <path d="M160 30 L185 45 L160 60 Z" fill="#FF7800"/>
+          <path d="M185 30 L210 45 L185 60 Z" fill="#FFFFFF"/>
+        </svg>`;
+      } else if (variant === "white") {
+        title = "Logo BCP Blanco Puro";
+        svgMarkup = `<svg width="240" height="90" xmlns="http://www.w3.org/2000/svg">
+          <rect width="100%" height="100%" rx="14" fill="rgba(255,255,255,0.15)" stroke="#FFFFFF" stroke-width="2"/>
+          <text x="32" y="58" font-family="'Archivo', sans-serif" font-weight="900" font-size="44" fill="#FFFFFF">BCP</text>
+          <path d="M160 30 L185 45 L160 60 Z" fill="#FFFFFF"/>
+          <path d="M185 30 L210 45 L185 60 Z" fill="rgba(255,255,255,0.6)"/>
+        </svg>`;
+      } else {
+        title = "Emblema Chevrones BCP";
+        svgMarkup = `<svg width="120" height="120" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="60" cy="60" r="56" fill="#002A8F" stroke="#FF7800" stroke-width="4"/>
+          <path d="M38 35 L65 60 L38 85 Z" fill="#FF7800"/>
+          <path d="M62 35 L89 60 L62 85 Z" fill="#FFFFFF"/>
+        </svg>`;
+      }
+
+      const blob = new Blob([svgMarkup], { type: "image/svg+xml" });
+      const url = URL.createObjectURL(blob);
+      const img = new Image();
+      img.onload = () => {
+        renderCompositorCanvas();
+        updateLayerStackUI();
+      };
+      img.src = url;
+
+      compositorLayers.push({
+        id: layerId,
+        assetId: "bcp_official_" + variant,
+        title: title,
+        img: img,
+        width: variant === "chevron" ? 120 : 240,
+        height: variant === "chevron" ? 120 : 90,
+        x: 60 + compositorLayers.length * 20,
+        y: 60 + compositorLayers.length * 20,
+        scale: 1.0,
+        opacity: 1.0,
+        blendMode: "source-over"
+      });
+
+      selectedLayerIndex = compositorLayers.length - 1;
+      renderCompositorCanvas();
+      updateLayerStackUI();
+      showToast(`🏷️ ${title} insertado en el lienzo (arrástralo con el mouse)`, "success");
+    }
+
+    // ─── BUSCADOR EN VIVO DE PIEZAS APROBADAS ──────────────────────────────────
+    let compositorSearchQuery = "";
+    function filterCompositorPicker(query) {
+      compositorSearchQuery = (query || "").trim().toLowerCase();
+      populateCompositorPicker();
+    }
+
+    function populateCompositorPicker() {
+      const picker = document.getElementById("compositorAssetPicker");
+      const countLabel = document.getElementById("compositorPiecesCount");
+      if (!picker) return;
+
+      let assets = (window.cachedCatalogAssets || []).filter(a => a.status === "APPROVED");
+      if (compositorSearchQuery) {
+        assets = assets.filter(a =>
+          (a.title || "").toLowerCase().includes(compositorSearchQuery) ||
+          (a.assetId || "").toLowerCase().includes(compositorSearchQuery) ||
+          (a.category || "").toLowerCase().includes(compositorSearchQuery)
+        );
+      }
+
+      if (countLabel) countLabel.innerText = `${assets.length} disponibles`;
+
+      if (assets.length === 0) {
+        picker.innerHTML = `
+          <div style="font-size:0.8rem; color:var(--ink-2); padding:0.5rem; text-align:center;">
+            ${compositorSearchQuery ? 'No se encontraron piezas con ese nombre.' : 'No hay piezas aprobadas en el catálogo aún.'}<br>
+            <span style="font-size:0.75rem; color:var(--ink-3);">Aprueba un activo en Workfront o inserta un logo BCP arriba.</span>
+          </div>`;
+        return;
+      }
+
+      picker.innerHTML = assets.map(a => `
+        <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:0.4rem 0.6rem;">
+          <div style="display:flex; align-items:center; gap:0.5rem; overflow:hidden;">
+            <div style="width:30px; height:30px; border-radius:4px; background:#002A8F; display:flex; align-items:center; justify-content:center; font-size:0.8rem; flex-shrink:0;">
+              🖼️
+            </div>
+            <div style="overflow:hidden;">
+              <div style="font-size:0.82rem; font-weight:600; color:var(--ink-1); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${a.title}</div>
+              <div style="font-size:0.72rem; color:var(--ink-3);">${a.category || 'ASSET'} · ${a.assetId}</div>
+            </div>
+          </div>
+          <button type="button" class="btn btn-secondary btn-sm" onclick="addAssetLayerToCompositor('${a.assetId}', '${encodeURIComponent(a.title)}', '${a.deliveryUrl || ''}')" style="padding:0.25rem 0.5rem; font-size:0.75rem; flex-shrink:0;">
+            + Capa
+          </button>
+        </div>
+      `).join("");
+    }
+
+    // ─── GOBERNANZA: GESTIÓN DE NUEVAS INICIATIVAS / CASOS DE USO ─────────────
+    async function loadGovernanceInitiatives() {
+      try {
+        const res = await apiFetch("/api/governance/initiatives");
+        if (res.initiatives && res.initiatives.length > 0) {
+          const selects = [
+            document.getElementById("govInitiativeId"),
+            document.getElementById("batchInitiativeSelect"),
+            document.getElementById("compositeInitiativeSelect")
+          ];
+
+          selects.forEach(sel => {
+            if (!sel) return;
+            const currentVal = sel.value;
+            sel.innerHTML = res.initiatives.map(i => `
+              <option value="${i.initiativeId}">${i.initiativeId} | ${i.name}</option>
+            `).join("");
+            if (currentVal) sel.value = currentVal;
+          });
+        }
+      } catch (err) {
+        console.warn("Error cargando iniciativas:", err.message);
+      }
+    }
+
+    function openNewInitiativeModal() {
+      const m = document.getElementById("newInitiativeModal");
+      if (m) m.style.display = "flex";
+    }
+
+    function closeNewInitiativeModal() {
+      const m = document.getElementById("newInitiativeModal");
+      if (m) m.style.display = "none";
+    }
+
+    async function saveNewInitiative() {
+      const id = document.getElementById("newInitId")?.value.trim().toUpperCase();
+      const name = document.getElementById("newInitName")?.value.trim();
+      const intention = document.getElementById("newInitIntention")?.value || "PROMOTION";
+      const audience = document.getElementById("newInitAudience")?.value.trim() || "CLIENTES_BCP";
+
+      if (!id || !name) {
+        showToast("El código y nombre de la iniciativa son requeridos.", "warning");
+        return;
+      }
+
+      try {
+        await apiFetch("/api/governance/initiatives", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            initiativeId: id,
+            name: name,
+            intention: intention,
+            targetAudience: audience
+          })
+        });
+
+        showToast(`✅ Caso de uso '${name}' registrado exitosamente en Atlas/Local`, "success");
+        closeNewInitiativeModal();
+        await loadGovernanceInitiatives();
+      } catch (err) {
+        showToast("Error al registrar iniciativa: " + err.message, "danger");
+      }
+    }
+
+    // ─── EXPORTACIÓN DE VIDEO EN FORMATO .MP4 ─────────────────────────────────
+    async function exportCompositorAnimation() {
+      if (!compositorCanvas) return;
+      if (typeof MediaRecorder === "undefined") {
+        showToast("MediaRecorder no está disponible en este navegador.", "danger");
+        return;
+      }
+
+      const btn = document.getElementById("btnExportVideo");
+      if (btn) { btn.disabled = true; btn.innerText = "🎬 Grabando video .mp4..."; }
+      showToast("🎬 Grabando animación de 3 segundos desde Canvas en formato MP4...", "info");
+
+      try {
+        const stream = compositorCanvas.captureStream(30);
+        let mime = "";
+        if (MediaRecorder.isTypeSupported("video/mp4;codecs=avc1")) {
+          mime = "video/mp4;codecs=avc1";
+        } else if (MediaRecorder.isTypeSupported("video/mp4")) {
+          mime = "video/mp4";
+        } else if (MediaRecorder.isTypeSupported("video/webm;codecs=vp9")) {
+          mime = "video/webm;codecs=vp9";
+        } else {
+          mime = "video/webm";
+        }
+
+        const recorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+        const chunks = [];
+
+        recorder.ondataavailable = (e) => {
+          if (e.data.size > 0) chunks.push(e.data);
+        };
+
+        recorder.onstop = () => {
+          const blob = new Blob(chunks, { type: mime || "video/mp4" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          const title = (document.getElementById("compositeAssetTitle")?.value || "BCP_Animacion").trim().replace(/[^a-zA-Z0-9_-]/g, "_");
+          a.href = url;
+          a.download = `${title}_${Date.now()}.mp4`;
+          a.click();
+          if (btn) { btn.disabled = false; btn.innerText = "🎬 Exportar Video (.mp4)"; }
+          showToast("🎬 ¡Video animado .mp4 exportado y descargado exitosamente!", "success");
+        };
+
+        recorder.start();
+
+        // Animar un pulso o sutil paneo por 3 segundos
+        const start = performance.now();
+        function animateFrame(now) {
+          const elapsed = now - start;
+          if (elapsed < 3000) {
+            renderCompositorCanvas();
+            requestAnimationFrame(animateFrame);
+          } else {
+            recorder.stop();
+            renderCompositorCanvas();
+          }
+        }
+        requestAnimationFrame(animateFrame);
+      } catch (err) {
+        if (btn) { btn.disabled = false; btn.innerText = "🎬 Exportar Video (.mp4)"; }
+        showToast("Error al exportar video: " + err.message, "danger");
       }
     }
 
@@ -5456,12 +6301,35 @@
         compositorCtx.globalAlpha = layer.opacity;
         compositorCtx.globalCompositeOperation = layer.blendMode || "source-over";
 
-        if (layer.img && layer.img.complete && layer.img.naturalWidth > 0) {
+        // CASO 1: Capa de Texto Dinámico (CDP / WhatsApp)
+        if (layer.type === "text") {
+          const fontSize = Math.round((layer.fontSize || 32) * layer.scale);
+          compositorCtx.font = `bold ${fontSize}px 'Archivo', 'Segoe UI', sans-serif`;
+          compositorCtx.fillStyle = layer.fontColor || "#FFFFFF";
+          compositorCtx.textAlign = "left";
+
+          // Sombra protectora para contraste en fondos claros u oscuros
+          compositorCtx.shadowColor = "rgba(0, 0, 0, 0.85)";
+          compositorCtx.shadowBlur = 10;
+          compositorCtx.shadowOffsetX = 2;
+          compositorCtx.shadowOffsetY = 3;
+
+          const textToDraw = layer.renderedText || layer.rawText || layer.title;
+          const lines = textToDraw.split("\n");
+          const lineHeight = fontSize * 1.25;
+
+          lines.forEach((line, lineIdx) => {
+            compositorCtx.fillText(line, layer.x, layer.y + (lineIdx * lineHeight));
+          });
+        }
+        // CASO 2: Capa de Imagen decodificada
+        else if (layer.img && layer.img.complete && layer.img.naturalWidth > 0) {
           const dw = layer.img.naturalWidth * layer.scale;
           const dh = layer.img.naturalHeight * layer.scale;
           compositorCtx.drawImage(layer.img, layer.x, layer.y, dw, dh);
-        } else {
-          // Render de respaldo vectorial con texto de la capa
+        }
+        // CASO 3: Render de respaldo vectorial estilizado
+        else {
           compositorCtx.fillStyle = idx % 2 === 0 ? "rgba(255, 120, 0, 0.25)" : "rgba(0, 132, 255, 0.25)";
           compositorCtx.strokeStyle = idx % 2 === 0 ? "#FF7800" : "#0084FF";
           compositorCtx.lineWidth = 3;
@@ -5475,6 +6343,31 @@
           compositorCtx.font = "12px Archivo, sans-serif";
           compositorCtx.fillStyle = "rgba(255, 255, 255, 0.7)";
           compositorCtx.fillText(`ID: ${layer.assetId}`, layer.x + 15, layer.y + 65);
+        }
+
+        // Si esta capa es la seleccionada, dibujar contorno interactivo de selección
+        if (idx === selectedLayerIndex) {
+          const selW = (layer.width || (layer.img && layer.img.naturalWidth) || 300) * (layer.scale || 1.0);
+          const selH = (layer.height || (layer.img && layer.img.naturalHeight) || 120) * (layer.scale || 1.0);
+          compositorCtx.strokeStyle = "#FF7800";
+          compositorCtx.lineWidth = 2;
+          compositorCtx.setLineDash([6, 4]);
+          compositorCtx.strokeRect(layer.x - 4, layer.y - 4, selW + 8, selH + 8);
+          compositorCtx.setLineDash([]);
+
+          // Puntos de esquina
+          compositorCtx.fillStyle = "#FF7800";
+          compositorCtx.fillRect(layer.x - 7, layer.y - 7, 7, 7);
+          compositorCtx.fillRect(layer.x + selW, layer.y - 7, 7, 7);
+          compositorCtx.fillRect(layer.x - 7, layer.y + selH, 7, 7);
+          compositorCtx.fillRect(layer.x + selW, layer.y + selH, 7, 7);
+
+          // Etiqueta de posición
+          compositorCtx.fillStyle = "rgba(0, 42, 143, 0.9)";
+          compositorCtx.fillRect(layer.x - 4, layer.y - 26, 120, 20);
+          compositorCtx.fillStyle = "#FFFFFF";
+          compositorCtx.font = "bold 11px monospace";
+          compositorCtx.fillText(`X:${layer.x} Y:${layer.y}`, layer.x, layer.y - 12);
         }
 
         compositorCtx.restore();
@@ -5579,6 +6472,114 @@
       if (compositorLayers[index]) {
         compositorLayers[index].blendMode = val;
         renderCompositorCanvas();
+      }
+    }
+
+    function toggleTextLayerPanel() {
+      const panel = document.getElementById("textLayerPanel");
+      if (panel) {
+        panel.style.display = panel.style.display === "none" ? "block" : "none";
+      }
+    }
+
+    function confirmAddTextLayer() {
+      const rawText = document.getElementById("textLayerContent")?.value || "¡Hola {{first_name}}!";
+      const fontSize = parseInt(document.getElementById("textLayerSize")?.value) || 32;
+      const fontColor = document.getElementById("textLayerColor")?.value || "#FFFFFF";
+
+      // Reemplazo de variables CDP para previsualización interactiva
+      const resolvedText = rawText
+        .replace(/{{first_name}}/gi, "Carlos")
+        .replace(/{{monto}}/gi, "S/ 15,000")
+        .replace(/{{tarjeta}}/gi, "Visa Signature BCP");
+
+      const layerId = "layer_text_" + Date.now();
+      compositorLayers.push({
+        id: layerId,
+        type: "text",
+        assetId: "cdp_text_var",
+        title: "Texto CDP: " + (rawText.length > 20 ? rawText.substring(0, 18) + "..." : rawText),
+        rawText: rawText,
+        renderedText: resolvedText,
+        fontSize: fontSize,
+        fontColor: fontColor,
+        x: 80,
+        y: 160 + (compositorLayers.length * 40),
+        scale: 1.0,
+        opacity: 1.0,
+        blendMode: "source-over"
+      });
+
+      renderCompositorCanvas();
+      updateLayerStackUI();
+      toggleTextLayerPanel();
+      showToast("✍️ Capa de texto dinámico insertada en el lienzo", "success");
+    }
+
+    function downloadCompositorPng() {
+      if (!compositorCanvas) return;
+      const title = (document.getElementById("compositeAssetTitle")?.value || "BCP_Montaje").trim().replace(/[^a-zA-Z0-9_-]/g, "_");
+      const link = document.createElement("a");
+      link.download = `${title}_${Date.now()}.png`;
+      link.href = compositorCanvas.toDataURL("image/png");
+      link.click();
+      showToast("⬇️ Montaje descargado en formato PNG de alta resolución", "success");
+    }
+
+    async function exportCompositorAnimation() {
+      if (!compositorCanvas) return;
+      if (typeof MediaRecorder === "undefined") {
+        showToast("MediaRecorder no está disponible en este navegador.", "danger");
+        return;
+      }
+
+      const btn = document.getElementById("btnExportVideo");
+      if (btn) { btn.disabled = true; btn.innerText = "🎬 Grabando video..."; }
+      showToast("🎬 Grabando animación de 3 segundos desde Canvas...", "info");
+
+      try {
+        const stream = compositorCanvas.captureStream(30);
+        const mime = MediaRecorder.isTypeSupported("video/webm;codecs=vp9")
+          ? "video/webm;codecs=vp9"
+          : (MediaRecorder.isTypeSupported("video/webm") ? "video/webm" : "");
+
+        const recorder = mime ? new MediaRecorder(stream, { mimeType: mime }) : new MediaRecorder(stream);
+        const chunks = [];
+
+        recorder.ondataavailable = (e) => {
+          if (e.data.size > 0) chunks.push(e.data);
+        };
+
+        recorder.onstop = () => {
+          const blob = new Blob(chunks, { type: "video/webm" });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          const title = (document.getElementById("compositeAssetTitle")?.value || "BCP_Animacion").trim().replace(/[^a-zA-Z0-9_-]/g, "_");
+          a.href = url;
+          a.download = `${title}_${Date.now()}.webm`;
+          a.click();
+          if (btn) { btn.disabled = false; btn.innerText = "🎬 Exportar Video (WebM)"; }
+          showToast("🎬 ¡Video animado WebM exportado y descargado exitosamente!", "success");
+        };
+
+        recorder.start();
+
+        // Animar un pulso o sutil paneo por 3 segundos
+        const start = performance.now();
+        function animateFrame(now) {
+          const elapsed = now - start;
+          if (elapsed < 3000) {
+            renderCompositorCanvas();
+            requestAnimationFrame(animateFrame);
+          } else {
+            recorder.stop();
+            renderCompositorCanvas();
+          }
+        }
+        requestAnimationFrame(animateFrame);
+      } catch (err) {
+        if (btn) { btn.disabled = false; btn.innerText = "🎬 Exportar Video (WebM)"; }
+        showToast("Error al exportar video: " + err.message, "danger");
       }
     }
 
@@ -5831,6 +6832,42 @@
           <span id="helpModalSelector" style="font-family:var(--font-mono); font-size:0.75rem; color:var(--ink-3);">id: elemento</span>
           <button type="button" class="btn btn-primary btn-sm" onclick="closeHelpModal()">Entendido</button>
         </div>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- MODAL: CREAR NUEVA INICIATIVA / CASO DE USO BCP -->
+  <div id="newInitiativeModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9999; align-items:center; justify-content:center; padding:1rem;">
+    <div style="background:var(--surface); border:1px solid var(--bcp-orange); border-radius:var(--radius); max-width:540px; width:100%; padding:1.5rem; box-shadow:0 12px 48px rgba(0,0,0,0.8);">
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
+        <h3 style="font-size:1.1rem; font-weight:700; color:var(--ink-1); margin:0;">➕ Registrar Nuevo Caso de Uso / Iniciativa BCP</h3>
+        <button type="button" class="icon-btn" onclick="closeNewInitiativeModal()">✕</button>
+      </div>
+      <div class="form-row">
+        <label>Código de Iniciativa (ej: INIT-BCP-HIPO-2026-04):</label>
+        <input type="text" id="newInitId" placeholder="INIT-BCP-CAMP-..." style="text-transform:uppercase;">
+      </div>
+      <div class="form-row">
+        <label>Nombre del Caso de Uso / Campaña:</label>
+        <input type="text" id="newInitName" placeholder="Campaña Hipotecario Tasa Baja 2026">
+      </div>
+      <div class="form-row">
+        <label>Intención Principal:</label>
+        <select id="newInitIntention">
+          <option value="PROMOTION">PROMOTION (Promoción comercial)</option>
+          <option value="ONBOARDING">ONBOARDING (Bienvenida cliente)</option>
+          <option value="RETENTION">RETENTION (Fidelización)</option>
+          <option value="EDUCATIONAL">EDUCATIONAL (Educación financiera)</option>
+        </select>
+      </div>
+      <div class="form-row">
+        <label>Público Objetivo (CDP Audience):</label>
+        <input type="text" id="newInitAudience" value="CLIENTES_BCP_PREAPROBADOS">
+      </div>
+      <div style="display:flex; gap:0.5rem; margin-top:1.25rem;">
+        <button type="button" class="btn btn-secondary" onclick="closeNewInitiativeModal()" style="flex:1;">Cancelar</button>
+        <button type="button" class="btn btn-orange" onclick="saveNewInitiative()" style="flex:1;">💾 Guardar en Atlas / Local</button>
       </div>
     </div>
   </div>

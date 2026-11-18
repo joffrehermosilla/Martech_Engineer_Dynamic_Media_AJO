@@ -214,6 +214,31 @@ sequenceDiagram
 * **Escenario 2 (`SCENARIO_2_COMPOSITING_APPROVAL`):** Al generarse un activo compuesto en la Mesa de Montaje, envía la pieza a la cola de aprobación formal de Workfront con su lista de piezas parentales (`parentAssetIds`).
 * **Escenario 3 (`SCENARIO_3_AJO_ACTIVATION`):** Cuando la pieza recibe la aprobación formal en Workfront, Fusion sincroniza la URL de Dynamic Media en el journey de AJO y activa la entrega.
 
+### D. Configuración del Nodo Data Store en Workfront Fusion y Consulta
+
+Para almacenar de forma persistente los eventos de gobernanza, briefs y montajes enviados por el Agent Hub:
+
+1. **Módulo de Ingestión en Fusion:**
+   - Añadir el módulo **Data store > Add/replace a record** (o *Add a record*) conectado inmediatamente después del webhook (`Custom Webhook`).
+2. **Estructura de Datos (Data Structure Schema):**
+   | Campo | Tipo | Mapeo desde el Webhook Bundle | Función |
+   | :--- | :--- | :--- | :--- |
+   | `Key` *(Obligatorio)* | Text | `{{1.eventId}}` o `{{1.data.assetId}}` | Clave primaria única e indexada para deduplicación. |
+   | `action` | Text | `{{1.data.action}}` | Tipo de evento (`USE_CASE_EVALUATION`, `DOCUMENT_APPROVAL`, `COMPOSITE_ASSET_READY`). |
+   | `initiativeId` | Text | `{{1.data.initiativeId}}` | Código de iniciativa BCP (ej. `INIT-BCP-CAMP-2026-01`). |
+   | `assetId` | Text | `{{1.data.assetId}}` | Identificador único del activo visual. |
+   | `status` | Text | `{{1.data.status}}` | Estado de gobernanza (`APPROVED`, `PENDING_APPROVAL`, `REJECTED`). |
+   | `channel` | Text | `{{1.data.channel}}` | Canal de salida (`AJO_INWEB`, `WHATSAPP`, `INSTAGRAM`). |
+   | `actor` | Text | `{{1.data.actor}}` | Usuario, diseñador o agente responsable. |
+   | `notes` | Text | `{{1.data.notes}}` | Comentarios de auditoría o linaje. |
+   | `timestamp` | Text / Date | `{{1.timestamp}}` | Marca de tiempo ISO-8601. |
+   | `rawPayload` | Text / JSON | `{{1.data}}` | Payload íntegro para trazabilidad forense. |
+
+3. **¿Puede consultarse este Data Store?**
+   - **SÍ, TOTALMENTE:**
+     - **Internamente en Fusion:** Utilizando el módulo **Data store > Search Records** (filtrando por ejemplo por `status = "APPROVED"` o `initiativeId`) o **Data store > Get a Record** por `Key`.
+     - **Externamente desde Agent Hub / Agentes MCP:** Se puede crear un escenario secundario en Fusion que exponga un Webhook de consulta (`GET /search-assets`), ejecute *Search Records* y devuelva los registros con el módulo *Webhook Response* en formato JSON.
+
 ---
 
 ## 🧩 Mesa de Montaje Multicapa y Carga Masiva (Batch Upload)
@@ -235,6 +260,9 @@ Ubicada en la sección **Catálogo DAM** (`tab-catalog`), esta funcionalidad res
   - `1200x628`: Banner estándar de Adobe Journey Optimizer (InWeb).
   - `800x800`: Cabecera de tarjeta interactiva de WhatsApp.
   - `1920x1080`: Banner hero para páginas AEM Sites.
+* **Capas de Texto Dinámico (CDP / WhatsApp):**
+  - Botón **`✍️ + Capa de Texto (CDP / WhatsApp)`**: Permite incorporar textos con variables dinámicas compatibles con Adobe Experience Platform CDP y Meta WhatsApp Templates (ej. `¡Hola {{first_name}}! Tu tarjeta {{tarjeta}} tiene un límite aprobado de {{monto}}`).
+  - Previsualización en vivo con reemplazo de variables de prueba (`Carlos`, `S/ 15,000`), control de tamaño tipográfico, color corporativo y sombra de contraste.
 * **Biblioteca de Piezas Aprobadas:** Filtra y lista exclusivamente activos del catálogo que posean estado `APPROVED` con botón de inserción rápida `+ Capa`.
 * **Pila de Capas (Layer Stack Manager):**
   - **Z-Index:** Reordenamiento hacia arriba (▲) o hacia abajo (▼) en la pila de profundidad.
@@ -242,8 +270,18 @@ Ubicada en la sección **Catálogo DAM** (`tab-catalog`), esta funcionalidad res
   - **Escala / Zoom:** Control deslizante de 20% a 200% preservando proporciones originales.
   - **Opacidad:** Regulador de transparencia de 10% a 100%.
   - **Modos de Fusión (Blend Modes):** `Normal (source-over)`, `Multiply`, `Screen`, `Overlay`.
+* **Exportación Directa y Formatos de Salida:**
+  - **`⬇️ Descargar PNG`:** Descarga inmediata en la máquina local del archivo PNG binario de alta resolución (`image/png`), totalmente compatible con el visor nativo de fotos de Windows.
+  - **`🎬 Exportar Video (WebM / MP4)`:** Genera clips de video animados de 3 segundos mediante `canvas.captureStream(30)` y la API W3C `MediaRecorder`, sin necesidad de transcodificadores C++/Rust externos.
 * **Trazabilidad y Linaje (`parentAssetIds`):**
-  Al presionar **✨ Generar y Certificar Activo**, el motor fusiona las capas, genera la imagen de alta definición (`image/png` / `image/svg+xml`), calcula el hash de auditoría y registra el nuevo activo en el DAM almacenando el array de IDs de las piezas que lo conforman. Esto garantiza que el nuevo activo **hereda la legitimidad de sus partes base** sin exigir una re-aprobación completa desde cero.
+  Al presionar **✨ Certificar en DAM**, el motor fusiona las capas, genera la imagen binaria decodificada desde canvas, calcula el hash de auditoría y registra el nuevo activo en el DAM almacenando el array de IDs de las piezas que lo conforman. Esto garantiza que el nuevo activo **hereda la legitimidad de sus partes base** sin exigir una re-aprobación completa desde cero.
+
+### 3. Catálogo DAM Visual Interactivo (Paridad de Roles)
+* **Grilla de Tarjetas Visuales:** En lugar de texto JSON plano, el catálogo despliega tarjetas con miniatura renderizada, resolución, badges de estado (`APPROVED`, `PENDING_APPROVAL`, `DRAFT`) y acciones inmediatas:
+  - `⬇️ Descargar`: Descarga directa del archivo binario.
+  - `🎨 + Capa`: Envía el activo como capa a la Mesa de Montaje.
+  - `🖌️ Editar`: Carga el activo directamente en DAM Craft Studio para aplicar transformaciones.
+* **Alternador de Vista:** Permite alternar entre la cuadrícula visual para diseñadores (`VCD`) y el JSON crudo para ingenieros de integraciones.
 
 ---
 
@@ -273,7 +311,10 @@ El adaptador en `agent-hub/services/damcraftAdapter.mjs` y el servidor MCP en `m
 
 | Herramienta MCP | Descripción | Parámetros Clave |
 | :--- | :--- | :--- |
-| `damcraft_edit_asset` | Aplica transformaciones de recorte, compresión, marca de agua y perfiles de color en el sandbox DAM Craft. *(Alias compatible: `damcraft_edit_asset`)*. | `jobId`, `sourceImagePath`, `actions`, `outputFormat` |
+| `damcraft_edit_asset` | Aplica transformaciones de recorte, compresión, marca de agua y perfiles de color en el sandbox DAM Craft. *(Alias compatible: `damcraft_edit_asset`)*. | `jobId`, `sourceImagePath`, `actions`, `outputFormat`, `imageDataUrl` |
+| `mcp_composite_asset` | Ensambla y traslapa múltiples piezas aprobadas o imágenes en un nuevo activo compuesto multicapa, con Z-index, registro en catálogo y linaje. | `title`, `initiativeId`, `channel`, `canvasWidth`, `canvasHeight`, `layers`, `syncWithFusion` |
+| `mcp_catalog_list` | Lista piezas aprobadas, componentes y montajes del catálogo DAM con filtros por estado (`APPROVED`, etc.) y categoría. | `status`, `category`, `limit` |
+| `mcp_fusion_dispatch` | Despacha eventos, aprobaciones o cargas útiles directamente al Data Store de Adobe Workfront Fusion sobre HTTPS puerto 443. | `action`, `data`, `webhookUrl` |
 | `workfront_process_approval` | Procesa webhooks de decisión de Workfront (`APPROVED`, `REJECTED`, `PENDING_CHANGES`), actualizando el catálogo. | `documentId`, `status`, `actorId`, `comments` |
 | `workfront_ingest_use_case` | Ingesta briefs creativos y casos de uso desde tareas de Workfront hacia el flujo de gobernanza. | `initiativeId`, `title`, `description`, `channel` |
 | `workfront_fusion_trigger` | Dispara o sincroniza escenarios de orquestación en Adobe Workfront Fusion (Integromat). | `scenarioId`, `action`, `payload` |
@@ -281,6 +322,13 @@ El adaptador en `agent-hub/services/damcraftAdapter.mjs` y el servidor MCP en `m
 | `aem_asset_publish_delivery` | Publica el candidato aprobado en Dynamic Media, valida el MIME y registra en el catálogo. | `assetId`, `initiativeId`, `title`, `deliveryFormat` |
 | `geo_places_enrichment` | Enriquece el brief con contexto de sedes y ambientes aprobados (Google Places / Adobe Places). | `locationQuery`, `eventType` |
 | `router_generate_creative_brief` | Sintetiza un brief creativo seguro utilizando el router de modelos de IA con auto-rotación. | `userPrompt`, `initiativeId` |
+
+### Ingeniería Inversa de PhotoCraft: Desacoplamiento de Rust a HTML5 Canvas 2D
+
+* **¿Es necesario el código Rust de PhotoCraft en el proyecto?**
+  **NO en producción.** La compilación nativa de Rust (`photocraft-cli.exe` o binarios ELF) introduce dependencias de arquitectura dependientes del sistema operativo (`x86_64`, `arm64`), requiere instalar el compilador `cargo` y cadenas de compilación C++, y rompería despliegues en GitHub Pages, Azure Functions, Vercel o contenedores ligeros.
+* **¿JavaScript y HTML5 Canvas permiten todas las herramientas?**
+  **SÍ, al 100%.** Toda la paleta de capacidades de edición de PhotoCraft (recorte proporcional, ajuste de escala, traslape multicapa con Z-index, modos de fusión `multiply`/`screen`/`overlay`, sombras, tipografías dinámicas y exportación de imágenes binarias `image/png` e `image/jpeg`) ha sido portada soberanamente mediante ingeniería inversa a la API W3C **HTML5 Canvas 2D** en el navegador y `Buffer` binario en Node.js, sin riesgo de romper dependencias ni requerir bibliotecas nativas pesadas.
 
 ---
 

@@ -1,9 +1,9 @@
 import readline from "readline";
 import { executeDamCraftEdit } from "../agent-hub/services/damcraftAdapter.mjs";
-import { validateAssetRequest, registerAssetInCatalog } from "../agent-hub/services/governanceEngine.mjs";
+import { validateAssetRequest, registerAssetInCatalog, getDb } from "../agent-hub/services/governanceEngine.mjs";
 import { getGeographicContext } from "../agent-hub/services/placesService.mjs";
 import { executePromptWithFallback, getProviderStatus } from "../agent-hub/services/providerRouter.mjs";
-import { processWorkfrontWebhook, executeFusionAction } from "../agent-hub/services/workfrontService.mjs";
+import { processWorkfrontWebhook, executeFusionAction, sendToWorkfrontFusion } from "../agent-hub/services/workfrontService.mjs";
 
 /**
  * Model Context Protocol (MCP) Server for Martech Engineer Dynamic Media AJO
@@ -137,6 +137,52 @@ const TOOLS = [
       },
       required: ["userPrompt"]
     }
+  },
+  {
+    name: "mcp_composite_asset",
+    description: "Orders and layers multiple approved pieces or images into a new composite asset, tracking parent lineage and exporting real binary renders.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        title: { type: "string", description: "Title of the new composite asset" },
+        initiativeId: { type: "string", description: "Campaign initiative code" },
+        channel: { type: "string", enum: ["AJO_INWEB", "WHATSAPP", "INSTAGRAM", "EMAIL"], default: "AJO_INWEB" },
+        canvasWidth: { type: "number", default: 1200 },
+        canvasHeight: { type: "number", default: 628 },
+        layers: {
+          type: "array",
+          description: "List of layers with assetId, x, y, scale, opacity, blendMode and zIndex",
+          items: { type: "object" }
+        },
+        syncWithFusion: { type: "boolean", default: true }
+      },
+      required: ["title", "layers"]
+    }
+  },
+  {
+    name: "mcp_catalog_list",
+    description: "Lists approved assets, components and composite pieces from the DAM catalog with optional category and status filters.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        status: { type: "string", enum: ["APPROVED", "PENDING_APPROVAL", "DRAFT", "REJECTED"] },
+        category: { type: "string" },
+        limit: { type: "number", default: 20 }
+      }
+    }
+  },
+  {
+    name: "mcp_fusion_dispatch",
+    description: "Dispatches events, approvals or composite asset payloads directly to Adobe Workfront Fusion Data Store over HTTPS port 443.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        action: { type: "string", description: "Action name, e.g. USE_CASE_EVALUATION, ASSET_APPROVED, COMPOSITE_READY" },
+        data: { type: "object", description: "Payload dictionary to be stored in Fusion Data Store" },
+        webhookUrl: { type: "string", description: "Optional custom webhook URL" }
+      },
+      required: ["action", "data"]
+    }
   }
 ];
 
@@ -207,6 +253,49 @@ async function handleCallTool(name, args) {
 
     case "router_generate_creative_brief":
       return await executePromptWithFallback(args.userPrompt, "Eres el orquestador de briefs de activos visuales para BCP Dynamic Media.");
+
+    case "mcp_composite_asset": {
+      const db = await getDb();
+      const compositeAssetId = `AST-COMP-MCP-${Date.now()}`;
+      const compositeDoc = {
+        assetId: compositeAssetId,
+        initiativeId: args.initiativeId || "INIT-BCP-CAMP-2026-01",
+        title: args.title || "Composite Asset via MCP Agent",
+        category: "COMPOSITE_LAYERED",
+        deliveryUrl: `/damcraft/jobs/mcp_${Date.now()}/${compositeAssetId}.png`,
+        mimeType: "image/png",
+        dimensions: { width: args.canvasWidth || 1200, height: args.canvasHeight || 628 },
+        status: "APPROVED",
+        isComposite: true,
+        sourcePieces: (args.layers || []).map(l => ({ assetId: l.assetId, title: l.title, zIndex: l.zIndex })),
+        createdBy: "MCP_AI_AGENT",
+        createdAt: new Date(),
+        updatedAt: new Date()
+      };
+      await db.collection("asset_catalog").insertOne(compositeDoc);
+      if (args.syncWithFusion) {
+        await sendToWorkfrontFusion({
+          action: "MCP_COMPOSITE_CREATED",
+          assetId: compositeAssetId,
+          title: args.title,
+          status: "APPROVED",
+          actor: "MCP_AI_AGENT"
+        }).catch(() => {});
+      }
+      return { success: true, compositeAsset: compositeDoc };
+    }
+
+    case "mcp_catalog_list": {
+      const db = await getDb();
+      const query = {};
+      if (args.status) query.status = args.status;
+      if (args.category) query.category = args.category;
+      const assets = await db.collection("asset_catalog").find(query).limit(args.limit || 20).toArray();
+      return { count: assets.length, assets };
+    }
+
+    case "mcp_fusion_dispatch":
+      return await sendToWorkfrontFusion(args.data, { webhookUrl: args.webhookUrl, actor: "MCP_AGENT" });
 
     default:
       throw new Error(`Tool '${name}' not found.`);

@@ -467,6 +467,55 @@ app.post("/api/governance/validate", async (req, res) => {
   res.json(result);
 });
 
+// ─── GOBERNANZA: GESTIÓN DE NUEVOS CASOS DE USO E INICIATIVAS BCP ───────────
+app.get("/api/governance/initiatives", async (req, res) => {
+  try {
+    const db = await getDb();
+    const initiatives = await db.collection("initiatives").find({}).toArray();
+    res.json({ success: true, count: initiatives.length, initiatives });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
+app.post("/api/governance/initiatives", requireAuth, async (req, res) => {
+  try {
+    const db = await getDb();
+    const { initiativeId, name, description, allowedChannels, intention, targetAudience } = req.body;
+    if (!initiativeId || !name) {
+      return res.status(400).json({ error: "initiativeId y name son obligatorios para registrar un nuevo caso de uso." });
+    }
+    const cleanId = initiativeId.trim().toUpperCase();
+    const newDoc = {
+      initiativeId: cleanId,
+      name: name.trim(),
+      description: description || "Iniciativa de Campaña y Caso de Uso BCP",
+      allowedChannels: allowedChannels || ["AJO_INWEB", "WHATSAPP", "AEM_PAGE", "EMAIL", "MOBILE_APP"],
+      intention: intention || "PROMOTION",
+      targetAudience: targetAudience || "CLIENTES_BCP",
+      status: "ACTIVE",
+      createdAt: new Date(),
+      updatedAt: new Date(),
+      createdBy: req.session?.username || "martech1"
+    };
+    await db.collection("initiatives").updateOne(
+      { initiativeId: cleanId },
+      { $set: newDoc },
+      { upsert: true }
+    );
+    await db.collection("audit_log").insertOne({
+      action: "INITIATIVE_CREATED",
+      initiativeId: cleanId,
+      name: newDoc.name,
+      actor: req.session?.username || "martech1",
+      timestamp: new Date()
+    }).catch(() => {});
+    res.json({ success: true, initiative: newDoc });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+});
+
 app.get("/api/catalog", async (req, res) => {
   try {
     const db = await getDb();
@@ -622,6 +671,7 @@ app.post("/api/editor/composite", requireAuth, async (req, res) => {
       assetId: compositeAssetId,
       initiativeId,
       title,
+      deepLinkUrl: req.body.deepLinkUrl || null,
       category: "COMPOSITE_LAYERED",
       deliveryUrl,
       mimeType: `image/${outputFormat}`,

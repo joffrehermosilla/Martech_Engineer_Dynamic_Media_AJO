@@ -306,6 +306,29 @@ En infraestructuras bancarias corporativas bajo normativas de ciberseguridad PCI
    - El código en Rust ubicado en la carpeta `photocraft/` queda catalogado como motor opcional de alto rendimiento para procesamiento masivo por lotes en servidores dedicados, pero **BAJO NINGUNA CIRCUNSTANCIA** será una dependencia bloqueante ni obligatoria para el funcionamiento del Editor Nativo, el Compositor Multicapa o el despliegue en GitHub Pages.
    - La manipulación de imágenes DEBERÁ ser real (cargando archivos binarios JPG, PNG, WebP mediante `FileReader`, aplicando transformaciones, capas, traslapes, filtros y exportando imágenes binarias reales decodificadas desde base64). Queda estrictamente prohibido simular transformaciones con degradados o placeholders SVG estáticos cuando se requiera procesar imágenes reales.
 
+## Mandamiento 20. Soberanía del Catálogo Visual, Capas Dinámicas CDP/WhatsApp, Media Video/GIF y Persistencia en Data Store de Fusion
+
+1. **Paridad Visual de Catálogo Multi-Rol (RBAC):**
+   - El Catálogo DAM no debe presentar salidas en JSON crudo como interfaz predeterminada. Todos los roles de usuario (Martech Engineer, Visual Content Designer - VCD `designer1`, y Administrador) deben acceder a una vista de tarjetas visuales enriquecidas con miniatura de alta fidelidad, estado de aprobación (`APPROVED`, `PENDING_APPROVAL`, `DRAFT`), dimensiones y botones de acción rápida: descarga binaria real (`.png`), inserción en el Compositor Multicapa y carga en DAM Craft Studio.
+   - Todo montaje compuesto o activo aprobado generado en la plataforma es universalmente accesible por todos los roles y sincronizado bidireccionalmente con MongoDB Atlas y el almacenamiento determinista local.
+
+2. **Capas de Texto Dinámico con Variables CDP y WhatsApp:**
+   - La Mesa de Montaje Multicapa DEBE incluir soporte nativo para capas de texto dinámico (`type: 'text'`).
+   - Estas capas deben admitir variables de personalización compatibles con Adobe Experience Platform CDP y plantillas de WhatsApp Flows (ej. `{{first_name}}`, `{{monto}}`, `{{tarjeta}}`), permitiendo previsualización interactiva con resolución en tiempo real de variables ficticias/reales de perfil, control tipográfico, escala, sombra de contraste y modo de fusión sin depender de microservicios externos.
+
+3. **Factibilidad Técnica y Exportación de Video / Animación (.webm / .mp4 / GIF):**
+   - El motor de composición HTML5 Canvas 2D ofrece soporte nativo para la generación de clips de video y formatos animados a través del estándar W3C `canvas.captureStream(fps)` y la API `MediaRecorder`.
+   - La plataforma DEBE permitir la exportación directa de clips animados en video (WebM/MP4) y secuencias de fotogramas sin requerir binarios externos de C++ o Rust (como ffmpeg nativo), garantizando compatibilidad absoluta con navegadores modernos y despliegues serverless.
+
+4. **Integridad de Formato Binario y Prevención de Corrupción de Archivos:**
+   - Queda estrictamente prohibido escribir cadenas de texto XML/SVG en archivos con extensión binaria (`.png`, `.jpg`, `.jpeg`). Los archivos con extensión `.png` deben contener exclusivamente la cabecera mágica y datos binarios válidos de PNG (`\x89PNG\r\n\x1a\n`), previniendo errores de incompatibilidad en visores de imágenes del sistema operativo (ej. Visor de fotos de Windows).
+   - Cuando se editen o compongan activos visuales en cliente, el lienzo HTML5 Canvas debe exportar un Data URL binario (`toDataURL('image/png')`) y el backend decodificarlo a un `Buffer.from(base64, 'base64')` para su persistencia en disco y catálogo.
+
+5. **Arquitectura y Consulta del Data Store de Adobe Workfront Fusion:**
+   - La configuración del nodo de almacenamiento en Workfront Fusion corresponde al módulo **Data store > Add/replace a record** vinculado a una estructura de datos indexada por `Key` (`{{1.eventId}}` o `{{1.data.assetId}}`).
+   - El Data Store de Fusion almacena de forma persistente: `action`, `initiativeId`, `assetId`, `status`, `channel`, `actor`, `notes`, `timestamp` y el payload completo.
+   - Dicho Data Store ES TOTALMENTE CONSULTABLE mediante los módulos nativos de Fusion **Data store > Search Records** y **Data store > Get a Record**, permitiendo a escenarios de Workfront o a los agentes MCP interrogar estados de activos y linaje de aprobaciones en tiempo real.
+
 ---
 
 # III. FASES OBLIGATORIAS DEL PROYECTO
