@@ -2,7 +2,7 @@
 
 > Documento vivo: se actualiza a medida que avanzamos. La sección **Bitácora** al final registra cada avance con fecha.
 >
-> **Última actualización:** 2026-11-02
+> **Última actualización:** 2026-11-20
 
 ---
 
@@ -129,16 +129,16 @@ Todo vive en `agent-hub/public/index.html` (una sola página; las "pantallas" so
 | --- | --- | --- | --- | --- |
 | 0 | Login | `#loginModal` | todos | ✅ Integrado |
 | 1 | Shell: header + navegación lateral | `#mainHeader`, `#mainNav` | todos | ✅ Integrado |
-| 2 | Gobernanza (validar briefs) | `#tab-governance` | ADMIN, MARTECH | ⬜ |
-| 3 | DAM Craft Studio (editar imagen, preview, enviar a aprobación) | `#tab-damcraft` | ADMIN, VCD | ⬜ |
-| 4 | Catálogo DAM | `#tab-catalog` | todos | ⬜ |
-| 5 | Agentes IA (proveedores) | `#tab-providers` | ADMIN, MARTECH | ⬜ |
-| 6 | Flow Studio (embebido) | `#tab-flow` | ADMIN, MARTECH, VCD | ⬜ |
-| 7 | Aprobaciones | `#tab-notifications` | ADMIN, MARTECH | ⬜ |
-| 8 | Conexiones a DBs externas | `#tab-connections` | ADMIN | ⬜ |
-| 9 | Admin Panel: Usuarios · Políticas DAM · Squads · API Keys · Generador de códigos | `#tab-admin` (5 sub-pestañas) | ADMIN | ⬜ |
+| 2 | Gobernanza (validar briefs) | `#tab-governance` | ADMIN, MARTECH | 🟨 Visual unificado (Pliego) |
+| 3 | DAM Craft Studio (editar imagen, preview, enviar a aprobación) | `#tab-damcraft` | ADMIN, VCD | 🟨 Visual unificado (Pliego) |
+| 4 | Catálogo DAM | `#tab-catalog` | todos | 🟨 Visual unificado (Pliego) |
+| 5 | Agentes IA (proveedores) | `#tab-providers` | ADMIN, MARTECH | 🟨 Visual unificado (Pliego) |
+| 6 | Flow Studio (embebido) | `#tab-flow` | ADMIN, MARTECH, VCD | 🟨 Visual unificado (Pliego) |
+| 7 | Aprobaciones | `#tab-notifications` | ADMIN, MARTECH | 🟨 Visual unificado (Pliego) |
+| 8 | Conexiones a DBs externas | `#tab-connections` | ADMIN | 🟨 Visual unificado (Pliego) |
+| 9 | Admin Panel: Usuarios · Políticas DAM · Squads · API Keys · Generador de códigos | `#tab-admin` (5 sub-pestañas) | ADMIN | 🟨 Visual unificado (Pliego) |
 | 10 | Geo Context (Places) | `#tab-places` | ADMIN, MARTECH | ⬜ |
-| 11 | Flow Studio standalone | `flow_studio/public/index.html` | — | ⬜ |
+| 11 | Flow Studio standalone | `flow_studio/public/index.html` | — | 🟨 Visual unificado (Pliego) |
 
 ---
 
@@ -187,3 +187,4 @@ Todo vive en `agent-hub/public/index.html` (una sola página; las "pantallas" so
 | 2026-10-28 | **Integrados login y shell** en `agent-hub/public/index.html`, rama `feat/ui-login-shell`, a partir de `login-modal-C.html` y `shell-C.html`. Fuentes IBM Plex añadidas; CSS antiguo del login, header, pestañas y toast reemplazado; tokens nuevos acotados a `#loginModal` y `.app/#toast`; tokens oscuros restaurados en `#mainContent` para el contenido sin migrar; cabecera de sección (etapa + título) en las 9 secciones; textos sin emojis en el botón de login y el toast de bienvenida; `toggleViewInfo()` muestra nombres legibles. Verificado con capturas (Chrome headless, sesión simulada sin tocar la base de datos): login escritorio/móvil/error, shell ADMIN/VCD/MARTECH, móvil con menú y toasts. Pendiente: prueba con servidor real. |
 | 2026-11-02 | `master` remoto fue reescrito por otra persona (fase 1 local-first y fase 2 editor nativo). Rediseño de login y shell rebasado encima; en `index.html` se conservó lo suyo: indicador de modo de almacenamiento (`loginModeBadge`, `storageModeBadge`) y pestaña **Editor nativo** en el grupo "01 · Generar". Tests (5 suites) y arranque del servidor OK. Subido a `master`. OmniRoute se subió por error y se **revirtió** en `master`; sigue disponible en la rama local `feat/omniroute`. |
 | 2026-11-10 | Corregido el descuadre del shell tras la fase 2.5 (Workfront + Fusion): en `agent-hub/public/index.html`, dentro de `#mainNav`, había un fragmento pegado dos veces después del grupo "04 · Orquestación" (la cola del botón Gobernanza + un `</div>` suelto + el grupo "03 · Aprobar y publicar" duplicado, con `id="ng-pub"` repetido). Ese `</div>` cerraba `.app` (el grid `nav | main`) antes de tiempo, así que `<main>` quedaba fuera del grid y todo el contenido caía debajo del menú. Eliminadas esas 10 líneas. Verificado en local (modo `local-json`, usuario admin): las 11 pestañas se pintan a la derecha del menú. Sin commit todavía. |
+| 2026-11-20 | Auditoría Impeccable (critique 19/40, audit 7/20; snapshot en `.impeccable/critique/`) y **unificación visual "Pliego de control"** en todo el contenido de `agent-hub/public/index.html` y en `flow_studio/public/index.html`. Solo diseño, sin funcionalidad nueva: capa CSS al final del `<style>` (IBM Plex, radio 2px, un solo acento cobalto, líneas en vez de sombras/brillos, tintas AA en oscuro y claro), overrides del editor con `#tab-editor`, emojis retirados de la interfaz (280 en Agent Hub, 15 en Flow Studio; ningún JS dependía de ellos), iconos SVG para Modo Explicativo y Tema, 63 `<label for>` enlazados y textos de 11px subidos a 12px. Archivo se mantiene solo para los textos que se dibujan en `<canvas>`. Móvil: cero desbordes horizontales (Admin tenía 190px). Verificado: 33 vistas (11 pestañas × oscuro, claro y móvil) más Flow Studio, sin regresiones; errores de consola idénticos a los de antes; `npm test` OK; detector de 96 a 8 hallazgos. **Pendientes funcionales (no tocados):** cancelar el `prompt()` de Aprobar/Rechazar igual envía la acción (`approveItem`/`rejectItem`); el `onerror` del thumbnail del catálogo rompe con `'Archivo'` (SyntaxError en consola); `{{MAP_W}}` sin sustituir en la preview de Flow Studio. Sin commit todavía. |

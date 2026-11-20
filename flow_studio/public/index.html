@@ -6,139 +6,169 @@
   <title>BCP Flow Studio | Generador de Diagramas Dinámicos</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
+    /* Design system "Pliego de control" (mismo que Agent Hub, tema oscuro) */
     :root {
-      --bg: #05080E;
-      --surface: #0A0F1A;
-      --surface-2: #0E1420;
-      --border: #1A2540;
+      --bg: #12151B;
+      --surface: #181D26;
+      --surface-2: #212735;
+      --field: #161A24;
+      --border: #2B3547;
+      --line: #2B3547;
+      --line-mid: #3B4860;
+      --hover: #262E3E;
       --ink-1: #F0F4F8;
-      --ink-2: #8899B4;
-      --ink-3: #4A5A72;
-      --bcp-orange: #FF7800;
+      --ink-2: #98A7BD;
+      --ink-3: #8794AA;
+      --accent: #1E3FD0;
+      --accent-hover: #2B4BE0;
+      --accent-ink: #9AABFF;
+      --focus: #8EA2FF;
+      --stage: #0B0D12;
+      --bcp-orange: #FF9A4D;
       --bcp-blue: #002A8F;
-      --success: #10B981;
-      --font-ui: "Archivo", system-ui, sans-serif;
-      --font-mono: "JetBrains Mono", monospace;
-      --radius: 10px;
+      --success: #5CD08F;
+      --font-ui: 'IBM Plex Sans', system-ui, sans-serif;
+      --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+      --radius: 2px;
+      color-scheme: dark;
     }
     * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       background-color: var(--bg);
       color: var(--ink-1);
       font-family: var(--font-ui);
+      -webkit-font-smoothing: antialiased;
       min-height: 100vh;
       display: flex;
       flex-direction: column;
     }
+    ::selection { background: color-mix(in srgb, var(--accent) 35%, transparent); }
     header {
-      background: var(--surface);
-      border-bottom: 1px solid var(--border);
-      padding: 0.9rem 2rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--line);
+      min-height: 64px;
+      padding: 0.75rem 24px;
       display: flex;
       justify-content: space-between;
       align-items: center;
+      gap: 16px;
+      flex-wrap: wrap;
     }
-    .brand { display: flex; align-items: center; gap: 0.75rem; }
+    .brand { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .brand strong { font-size: 17px; font-weight: 700; letter-spacing: -0.01em; }
     .badge {
-      background: linear-gradient(135deg, var(--bcp-blue), var(--bcp-orange));
-      color: #fff;
-      font-weight: 800;
-      padding: 0.35rem 0.75rem;
-      border-radius: 8px;
-      font-size: 0.85rem;
+      background: transparent;
+      color: var(--ink-2);
+      border: 1px solid var(--line-mid);
+      font: 600 12px/1 var(--font-mono);
+      letter-spacing: .04em;
+      padding: 8px 10px;
+      border-radius: var(--radius);
+      white-space: nowrap;
     }
+    .header-sub { font-size: 13px; color: var(--ink-2); margin-top: 2px; }
+    .header-actions { display: flex; gap: 8px; flex-wrap: wrap; }
     .main-layout {
       flex: 1;
       display: grid;
-      grid-template-columns: 380px 1fr;
-      height: calc(100vh - 62px);
+      grid-template-columns: 380px minmax(0, 1fr);
+      height: calc(100vh - 64px);
     }
     @media (max-width: 900px) {
-      .main-layout { grid-template-columns: 1fr; height: auto; }
+      .main-layout { grid-template-columns: minmax(0, 1fr); height: auto; }
+      .canvas-container { min-height: 70vh; }
+      header { padding: 12px 16px; }
     }
     .sidebar {
       background: var(--surface);
-      border-right: 1px solid var(--border);
-      padding: 1.25rem;
+      border-right: 1px solid var(--line);
+      padding: 20px;
       display: flex;
       flex-direction: column;
-      gap: 1rem;
+      gap: 20px;
       overflow-y: auto;
     }
-    .form-group { display: flex; flex-direction: column; gap: 0.35rem; }
-    label { font-size: 0.78rem; font-weight: 700; color: var(--ink-2); text-transform: uppercase; letter-spacing: 0.04em; }
+    .form-group { display: flex; flex-direction: column; gap: 8px; }
+    label { font: 600 13px/1.4 var(--font-ui); color: var(--ink-2); }
     textarea, select, input {
-      background: var(--bg);
-      border: 1px solid var(--border);
+      background: var(--field);
+      border: 1px solid #66758E;
       color: var(--ink-1);
       border-radius: var(--radius);
       padding: 0.6rem 0.85rem;
       font-family: inherit;
-      font-size: 0.85rem;
-      transition: border-color 0.2s;
+      font-size: 14px;
+      line-height: 1.5;
+      caret-color: var(--accent-ink);
+      transition: border-color 150ms ease, box-shadow 150ms ease;
     }
     textarea:focus, select:focus, input:focus {
       outline: none;
-      border-color: var(--bcp-orange);
+      border-color: var(--focus);
+      box-shadow: 0 0 0 1px var(--focus);
     }
     .btn {
-      background: linear-gradient(135deg, var(--bcp-orange), #FF9900);
+      background: var(--accent);
       color: #fff;
-      border: none;
+      border: 1px solid transparent;
       border-radius: var(--radius);
-      padding: 0.7rem;
+      min-height: 44px;
+      padding: 0 16px;
       font-family: inherit;
-      font-weight: 700;
+      font-weight: 600;
       cursor: pointer;
       display: flex;
       justify-content: center;
       align-items: center;
       gap: 0.5rem;
-      font-size: 0.88rem;
-      transition: all 0.2s;
+      font-size: 14px;
+      text-decoration: none;
+      transition: background-color 150ms ease, border-color 150ms ease;
     }
-    .btn:hover { opacity: 0.9; transform: translateY(-1px); }
+    .btn:hover { background: var(--accent-hover); }
+    .btn:focus-visible, .template-card:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
     .btn-secondary {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
+      background: transparent;
+      border: 1px solid #66758E;
       color: var(--ink-1);
     }
-    .btn-secondary:hover { border-color: var(--ink-2); transform: none; }
+    .btn-secondary:hover { background: var(--hover); border-color: var(--ink-2); }
 
     /* Template cards */
-    .template-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .template-list { display: flex; flex-direction: column; gap: 6px; }
     .template-card {
-      background: var(--surface-2);
-      border: 1px solid var(--border);
+      background: transparent;
+      border: 1px solid var(--line);
       border-radius: var(--radius);
-      padding: 0.85rem;
+      padding: 12px 14px;
       cursor: pointer;
-      transition: all 0.15s;
+      transition: background-color 150ms ease, border-color 150ms ease;
       display: flex;
       align-items: center;
-      gap: 0.75rem;
+      gap: 12px;
     }
-    .template-card:hover { border-color: rgba(255,120,0,0.4); background: rgba(255,120,0,0.04); }
-    .template-card.selected { border-color: var(--bcp-orange); background: rgba(255,120,0,0.08); }
-    .template-card .t-icon { font-size: 1.5rem; flex-shrink: 0; }
-    .template-card .t-body .t-name { font-weight: 700; font-size: 0.88rem; margin-bottom: 0.15rem; }
-    .template-card .t-body .t-desc { font-size: 0.75rem; color: var(--ink-2); line-height: 1.3; }
+    .template-card:hover { border-color: var(--line-mid); background: var(--hover); }
+    .template-card.selected { border-color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 10%, transparent); }
+    .template-card .t-icon { display: none; }   /* los iconos llegan como emoji desde la API */
+    .template-card .t-body .t-name { font-weight: 600; font-size: 14px; margin-bottom: 2px; }
+    .template-card .t-body .t-desc { font-size: 13px; color: var(--ink-2); line-height: 1.4; }
 
     .canvas-container {
-      background: #05080E;
+      background: var(--stage);
       position: relative;
       display: flex;
       flex-direction: column;
+      min-width: 0;
     }
     .canvas-toolbar {
       display: flex;
       align-items: center;
-      gap: 0.5rem;
-      padding: 0.75rem 1rem;
+      gap: 8px;
+      padding: 10px 16px;
       background: var(--surface);
-      border-bottom: 1px solid var(--border);
+      border-bottom: 1px solid var(--line);
       flex-wrap: wrap;
     }
     iframe {
@@ -148,17 +178,21 @@
     }
 
     .section-title {
-      font-size: 0.7rem;
-      font-weight: 800;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-      color: var(--ink-3);
-      margin-bottom: 0.3rem;
+      font: 500 12px/1.4 var(--font-mono);
+      color: var(--ink-2);
+      margin-bottom: 8px;
     }
+    .tip {
+      font-size: 13px; color: var(--ink-2); line-height: 1.5;
+      padding: 12px 14px; margin-top: auto;
+      border: 1px solid var(--line); border-radius: var(--radius);
+    }
+    .tip strong { color: var(--ink-1); }
 
-    ::-webkit-scrollbar { width: 5px; }
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
     ::-webkit-scrollbar-track { background: transparent; }
-    ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb { background: var(--line); border: 2px solid transparent; background-clip: padding-box; }
+    @media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
   </style>
 </head>
 <body>
@@ -168,12 +202,12 @@
       <span class="badge">FLOW STUDIO</span>
       <div>
         <strong>Entendimiento Dinámico & Arquitectura</strong>
-        <div style="font-size:0.72rem; color:var(--ink-2);">Diagramas Interactivos • Nodos Dinámicos • Export HTML</div>
+        <div class="header-sub">Diagramas Interactivos • Nodos Dinámicos • Export HTML</div>
       </div>
     </div>
-    <div style="display:flex; gap:0.5rem;">
-      <button class="btn btn-secondary" onclick="downloadCurrentHtml()" style="padding:0.5rem 0.85rem; font-size:0.82rem;">⬇️ Descargar HTML</button>
-      <a href="/" class="btn btn-secondary" style="padding:0.5rem 0.85rem; font-size:0.82rem; text-decoration:none;">← Volver al Hub</a>
+    <div class="header-actions">
+      <button class="btn btn-secondary" onclick="downloadCurrentHtml()">Descargar HTML</button>
+      <a href="/" class="btn btn-secondary">← Volver al Hub</a>
     </div>
   </header>
 
@@ -182,7 +216,7 @@
 
       <!-- Templates -->
       <div>
-        <div class="section-title">📐 Plantilla de Flujo</div>
+        <div class="section-title">Plantilla de Flujo</div>
         <div class="template-list" id="templateList">
           <!-- Populated dynamically -->
         </div>
@@ -190,21 +224,21 @@
 
       <!-- Title -->
       <div class="form-group">
-        <label>Título del Diagrama</label>
+        <label for="diagramTitle">Título del Diagrama</label>
         <input type="text" id="diagramTitle" value="Mapa E2E: Creación de Assets en AEM, DAM Craft y Entrega AJO InWeb">
       </div>
 
       <!-- Description -->
       <div class="form-group">
-        <label>Descripción / Contexto para el Agente</label>
+        <label for="promptInput">Descripción / Contexto para el Agente</label>
         <textarea id="promptInput" rows="6" placeholder="Describa el flujo, adjunte parámetros o JSON...">El flujo conecta la solicitud de activos de marketing con la validación de mandamientos en Mongo Atlas. Luego DAM Craft ejecuta transformaciones (crop, watermark) en un sandbox. El binario aprobado se envía por Direct Binary Upload a AEM DAM. Dynamic Media entrega URLs optimizadas (AVIF/WebP) consumidas por AJO InWeb y cabeceras WhatsApp.</textarea>
       </div>
 
-      <button class="btn" onclick="generateDynamicMap()">⚡ Generar Mapa Dinámico</button>
+      <button class="btn" onclick="generateDynamicMap()">Generar Mapa Dinámico</button>
 
-      <div style="font-size:0.78rem; color:var(--ink-3); line-height:1.4; padding:0.75rem; background:rgba(255,120,0,0.04); border:1px solid rgba(255,120,0,0.12); border-radius:8px; margin-top:auto;">
-        💡 <strong style="color:var(--ink-2);">Tip de Continuidad:</strong> Cualquier otra IA puede consumir el modelo JSON generado y publicar nuevos diagramas exportables.<br><br>
-        🖱️ <strong style="color:var(--ink-2);">Interacción:</strong> Haga click en los nodos del diagrama para ver detalles. Las rutas se iluminan al seleccionar un nodo.
+      <div class="tip">
+        <strong style="color:var(--ink-2);">Tip de Continuidad:</strong> Cualquier otra IA puede consumir el modelo JSON generado y publicar nuevos diagramas exportables.<br><br>
+        <strong style="color:var(--ink-2);">Interacción:</strong> Haga click en los nodos del diagrama para ver detalles. Las rutas se iluminan al seleccionar un nodo.
       </div>
     </div>
 
@@ -212,8 +246,8 @@
       <div class="canvas-toolbar">
         <span style="font-size:0.8rem; color:var(--ink-2);" id="currentTemplate">Plantilla: AEM Dynamic Media E2E</span>
         <div style="margin-left:auto; display:flex; gap:0.5rem;">
-          <button class="btn btn-secondary" onclick="reloadPreview()" style="padding:0.4rem 0.75rem; font-size:0.8rem;">🔄 Recargar</button>
-          <button class="btn btn-secondary" onclick="openInNewTab()" style="padding:0.4rem 0.75rem; font-size:0.8rem;">↗ Nueva pestaña</button>
+          <button class="btn btn-secondary" onclick="reloadPreview()">Recargar</button>
+          <button class="btn btn-secondary" onclick="openInNewTab()">↗ Nueva pestaña</button>
         </div>
       </div>
       <iframe id="diagramFrame" src="/api/flow-studio/preview"></iframe>
@@ -234,12 +268,12 @@
         console.warn("Templates load error:", err);
         // Fallback hardcoded
         const fallback = {
-          AEM_DYNAMIC_MEDIA_E2E: { label: "AEM Dynamic Media + DAM Craft + AJO E2E", icon: "⚡", description: "Flujo completo de creación y entrega" },
-          DAM_GOVERNANCE_ROLES: { label: "Gobierno DAM por Roles", icon: "🛡️", description: "Admin/Martech/VCD y aprobaciones" },
-          EMAIL_MARKETING: { label: "Email Marketing Campaign", icon: "📧", description: "Campaña email con AJO" },
-          SOCIAL_MEDIA: { label: "Social Media Multi-formato", icon: "📱", description: "Instagram, LinkedIn, Twitter" },
-          WORKFRONT_GOVERNANCE: { label: "Workfront + DAM Governance", icon: "🏢", description: "Assets vinculados a Workfront" },
-          WHATSAPP_AZURE_CDP: { label: "WhatsApp + Azure + CDP", icon: "💬", description: "Correlación de eventos WhatsApp" }
+          AEM_DYNAMIC_MEDIA_E2E: { label: "AEM Dynamic Media + DAM Craft + AJO E2E", icon: "", description: "Flujo completo de creación y entrega" },
+          DAM_GOVERNANCE_ROLES: { label: "Gobierno DAM por Roles", icon: "", description: "Admin/Martech/VCD y aprobaciones" },
+          EMAIL_MARKETING: { label: "Email Marketing Campaign", icon: "", description: "Campaña email con AJO" },
+          SOCIAL_MEDIA: { label: "Social Media Multi-formato", icon: "", description: "Instagram, LinkedIn, Twitter" },
+          WORKFRONT_GOVERNANCE: { label: "Workfront + DAM Governance", icon: "", description: "Assets vinculados a Workfront" },
+          WHATSAPP_AZURE_CDP: { label: "WhatsApp + Azure + CDP", icon: "", description: "Correlación de eventos WhatsApp" }
         };
         Object.assign(TEMPLATES, fallback);
         renderTemplateList();
@@ -250,7 +284,7 @@
       const list = document.getElementById("templateList");
       list.innerHTML = Object.entries(TEMPLATES).map(([key, t]) => `
         <div class="template-card ${key === selectedTemplate ? 'selected' : ''}" onclick="selectTemplate('${key}', this)">
-          <div class="t-icon">${t.icon || "📊"}</div>
+          <div class="t-icon">${t.icon || ""}</div>
           <div class="t-body">
             <div class="t-name">${t.label}</div>
             <div class="t-desc">${t.description || ""}</div>
@@ -284,10 +318,9 @@
       const title = document.getElementById("diagramTitle").value;
       const prompt = document.getElementById("promptInput").value;
 
-      iframe.srcdoc = `<div style='color:#fff;padding:3rem;font-family:sans-serif;background:#05080E;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;'>
-        <div style='font-size:2rem;'>⚡</div>
-        <div>Generando diagrama dinámico...</div>
-        <div style='font-size:0.85rem;color:#4A5A72;'>Procesando modelo y estructurando nodos</div>
+      iframe.srcdoc = `<div style='color:#fff;padding:3rem;font-family:sans-serif;background:#0B0D12;height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1rem;'>
+                <div>Generando diagrama dinámico...</div>
+        <div style='font-size:0.85rem;color:#98A7BD;'>Procesando modelo y estructurando nodos</div>
       </div>`;
 
       try {
@@ -298,9 +331,9 @@
         });
         const html = await res.text();
         iframe.srcdoc = html;
-        document.getElementById("currentTemplate").textContent = `✅ ${title}`;
+        document.getElementById("currentTemplate").textContent = `${title}`;
       } catch (err) {
-        iframe.srcdoc = `<div style='color:#EF4444;padding:2rem;font-family:sans-serif;background:#05080E;'>Error: ${err.message}</div>`;
+        iframe.srcdoc = `<div style='color:#EF4444;padding:2rem;font-family:sans-serif;background:#0B0D12;'>Error: ${err.message}</div>`;
       }
     }
 

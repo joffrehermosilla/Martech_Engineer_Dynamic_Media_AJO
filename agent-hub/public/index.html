@@ -7,7 +7,8 @@
   <meta name="description" content="Plataforma de gobierno y creación automatizada de assets: Dynamic Media & AJO Agent Hub">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <!-- Archivo solo se usa al dibujar los assets generados en <canvas> (no en la interfaz) -->
+  <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;700&display=swap" rel="stylesheet">
   <!-- Design system "Pliego de control" (login + shell) -->
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=IBM+Plex+Sans+Condensed:wght@600&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap">
   <style>
@@ -1335,6 +1336,371 @@
       font-weight: 600;
     }
 
+    /* ══════════════════════════════════════════════════════════════════════
+       UNIFICACIÓN "PLIEGO DE CONTROL" — contenido de las secciones
+       Solo presentación: lleva cada vista al sistema del login/shell
+       (IBM Plex, radio 2px, un único acento, líneas en vez de sombras).
+       Va al final para ganar en cascada sin tocar las reglas anteriores.
+       ══════════════════════════════════════════════════════════════════════ */
+
+    /* ── Tokens comunes (también para modales fuera de .app) ── */
+    :root {
+      --font-ui: 'IBM Plex Sans', system-ui, sans-serif;
+      --font-sans: 'IBM Plex Sans', system-ui, sans-serif;
+      --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+      --radius: 2px;
+      --radius-sm: 2px;
+      --border-glow: transparent;
+      --btn-success-bg: #1C7C4A; --btn-success-hover: #176B40;
+      --btn-danger-bg: #B42318;  --btn-danger-hover: #9A1E14;
+    }
+
+    /* ── Oscuro: tintas con contraste AA sobre todas las superficies ── */
+    html[data-theme="dark"], html[data-theme="dark"] .app, html[data-theme="dark"] #mainContent {
+      --ink-3: #8794AA;            /* ≥4.8:1 sobre --surface-2 */
+      --accent: #1E3FD0;           /* fondo de acción: 7.8:1 con blanco */
+      --accent-hover: #2B4BE0;
+      --accent-ink: #9AABFF;       /* acento como texto/borde sobre oscuro */
+      --focus: #8EA2FF;
+      --success: #5CD08F;  --danger: #FF8A80;  --warning: #F5B94A;  --info: #7CB4FF;
+      --bcp-orange: #FF9A4D;
+      --stage: #0B0D12;            /* fondo neutro de lienzos/previews */
+    }
+    /* ── Claro ── */
+    html[data-theme="light"], html[data-theme="light"] .app, html[data-theme="light"] #mainContent {
+      --ink-3: #67645C;            /* ≥4.8:1 sobre --surface-2 */
+      --accent: #1E3FD0;
+      --accent-hover: #1834B4;
+      --accent-ink: #1E3FD0;
+      --focus: #1E3FD0;
+      --success: #176B40;  --danger: #B42318;  --warning: #8A5A00;  --info: #1E3FD0;
+      --bcp-orange: #A84300;
+      --stage: #1A1A17;
+    }
+
+    body {
+      background-image: none;
+      font-family: var(--font-ui);
+    }
+    ::selection { background: color-mix(in srgb, var(--accent) 35%, transparent); }
+    input, textarea { caret-color: var(--accent-ink, var(--accent)); }
+
+    /* ── Tarjetas: una sola elevación (línea), sin sombra ── */
+    .card, html[data-theme] .card {
+      background: var(--surface-card);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: none;
+    }
+    html[data-theme="light"] .card { border-color: var(--line-soft); }
+    .card:hover { border-color: var(--line); }
+    html[data-theme="light"] .card:hover { border-color: var(--line-soft); }
+    .card-title { font-size: 17px; font-weight: 600; letter-spacing: -0.01em; line-height: 1.3; }
+
+    /* ── Formularios ── */
+    .form-row label {
+      text-transform: none; letter-spacing: 0;
+      font: 600 13px/1.4 var(--font-sans); color: var(--ink-2);
+    }
+    input, select, textarea,
+    html[data-theme] input, html[data-theme] select, html[data-theme] textarea {
+      background: var(--field);
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      color: var(--ink-1);
+      font-family: var(--font-sans);
+    }
+    /* Borde del campo ≥3:1 (WCAG 1.4.11): en claro la línea negra del login; en oscuro una pizarra media */
+    html[data-theme="dark"] input, html[data-theme="dark"] select, html[data-theme="dark"] textarea { border-color: #66758E; }
+    input[type="checkbox"], input[type="radio"], input[type="range"], input[type="color"] { accent-color: var(--accent); }
+    input::placeholder, textarea::placeholder { color: var(--ink-3); opacity: 1; }
+    input:focus, select:focus, textarea:focus,
+    input:focus-visible, select:focus-visible, textarea:focus-visible {
+      outline: none;
+      border-color: var(--focus);
+      box-shadow: 0 0 0 1px var(--focus);
+    }
+
+    /* ── Botones: planos, un acento ── */
+    .btn {
+      border-radius: var(--radius);
+      font-family: var(--font-sans); font-weight: 600; font-size: 14px; line-height: 1.2;
+      min-height: 40px;
+      transition: background-color 150ms ease, border-color 150ms ease, color 150ms ease;
+      text-decoration: none;
+    }
+    .btn-sm { min-height: 32px; font-size: 13px; }
+    .btn:hover { transform: none; box-shadow: none; }
+    .btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    .btn-primary, .btn-orange { background: var(--accent); color: #FFFFFF; }
+    .btn-primary:hover, .btn-orange:hover { background: var(--accent-hover); }
+    .btn-secondary { background: transparent; color: var(--ink-1); border: 1px solid var(--line); }
+    html[data-theme="dark"] .btn-secondary { border-color: #66758E; }
+    .btn-secondary:hover { background: var(--hover); border-color: var(--ink-2); }
+    .btn-success { background: var(--btn-success-bg); color: #FFFFFF; }
+    .btn-success:hover { background: var(--btn-success-hover); }
+    .btn-danger { background: var(--btn-danger-bg); color: #FFFFFF; }
+    .btn-danger:hover { background: var(--btn-danger-hover); }
+    .btn:disabled { opacity: 0.45; }
+
+    /* ── Insignias ── */
+    .badge {
+      border-radius: var(--radius);
+      font: 600 12px/1.3 var(--font-mono); letter-spacing: .04em;
+    }
+    .badge-allow  { color: var(--success); background: color-mix(in srgb, var(--success) 12%, transparent); border: 1px solid color-mix(in srgb, var(--success) 40%, transparent); }
+    .badge-deny   { color: var(--danger);  background: color-mix(in srgb, var(--danger) 12%, transparent);  border: 1px solid color-mix(in srgb, var(--danger) 40%, transparent); }
+    .badge-review { color: var(--warning); background: color-mix(in srgb, var(--warning) 12%, transparent); border: 1px solid color-mix(in srgb, var(--warning) 40%, transparent); }
+    .badge-info   { color: var(--info);    background: color-mix(in srgb, var(--info) 12%, transparent);    border: 1px solid color-mix(in srgb, var(--info) 40%, transparent); }
+    .conn-type-badge { border-radius: var(--radius); font-family: var(--font-mono); color: var(--info); background: color-mix(in srgb, var(--info) 12%, transparent); }
+
+    /* ── Bloques de resultado, tablas y listas ── */
+    .result-box { background: var(--field); border-color: var(--line); color: var(--ink-2); }
+    .status-dot.dot-green, .dot-green { box-shadow: none; }
+    .dot-orange { background: var(--warning); box-shadow: none; }
+    .data-table th {
+      text-transform: none; letter-spacing: 0;
+      font: 500 12px/1.4 var(--font-mono); color: var(--ink-2);
+      border-bottom-color: var(--line);
+    }
+    .data-table td { border-bottom-color: var(--line-soft); }
+    .data-table tr:hover td { background: var(--hover); }
+    .wf-events-table th, .wf-events-table td { border-bottom-color: var(--line-soft); }
+    .provider-pill, .conn-card, .notif-item, .layer-item-card, .wf-metric-card, .strategy-card, .help-item-box { border-radius: var(--radius); }
+    .provider-pill:hover, .notif-item:hover { border-color: var(--line-mid, var(--line)); }
+    .notif-item .notif-icon:empty, .preview-placeholder .icon:empty, #helpModalIcon:empty { display: none; }
+    .preview-placeholder { color: var(--ink-2); }
+
+    /* ── Sub-pestañas de administración: como la navegación ── */
+    .admin-sub-tab {
+      min-height: 40px; border-radius: var(--radius);
+      background: transparent; border: 1px solid var(--line); color: var(--ink-2);
+      font: 500 14px/1 var(--font-sans);
+      transition: background-color 150ms ease, color 150ms ease;
+    }
+    .admin-sub-tab:hover { background: var(--hover); color: var(--ink-1); }
+    .admin-sub-tab:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    .admin-sub-tab.active { background: var(--ink-1); color: var(--bg); border-color: var(--ink-1); }
+
+    /* ── Selección, arrastre y plantillas: acento en vez de naranja/brillo ── */
+    .upload-zone, .batch-upload-box { border: 1px dashed var(--line-mid, var(--line)); background: transparent; border-radius: var(--radius); }
+    .upload-zone:hover, .upload-zone.drag-over,
+    .batch-upload-box:hover, .batch-upload-box.dragover {
+      border-color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 6%, transparent);
+    }
+    .flow-template-card, .strategy-choice { border-width: 1px; border-radius: var(--radius); }
+    .flow-template-card:hover { border-color: var(--accent-ink); transform: none; }
+    .flow-template-card.selected, .strategy-choice.selected { border-color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 8%, transparent); }
+    .layer-item-card.active { border-color: var(--accent-ink); box-shadow: inset 0 0 0 1px var(--accent-ink); }
+    .scope-pill { border-radius: var(--radius); }
+
+    /* ── Lienzos y previews: escenario neutro ── */
+    .preview-canvas, .canvas-preview-wrap { background: var(--stage); border-color: var(--line); border-radius: var(--radius); }
+    .canvas-preview-wrap canvas { border-radius: 0; box-shadow: 0 8px 24px rgba(0, 0, 0, .35); }
+
+    /* ── Ayuda contextual "?" ── */
+    .field-tooltip-btn {
+      position: relative;
+      width: 18px; height: 18px; min-width: 18px;
+      background: transparent; color: var(--ink-2);
+      border: 1px solid var(--ink-3); box-shadow: none;
+      font: 600 11px/1 var(--font-sans);
+      transition: color 150ms ease, border-color 150ms ease;
+    }
+    .field-tooltip-btn::after { content: ""; position: absolute; inset: -9px; }   /* área táctil de 36px */
+    .field-tooltip-btn:hover, .field-tooltip-btn:focus-visible { transform: none; background: transparent; color: var(--accent-ink); border-color: var(--accent-ink); }
+    .field-tooltip-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    .field-tooltip-bubble {
+      background: var(--ink-1); color: var(--bg);
+      border: 0; border-radius: var(--radius);
+      font-family: var(--font-sans); font-size: 13px;
+      box-shadow: 0 8px 24px rgba(0, 0, 0, .28);
+    }
+    .field-tooltip-bubble::before { border-color: transparent var(--ink-1) transparent transparent; }
+    .field-tooltip-bubble::after { border-color: transparent var(--ink-1) transparent transparent; }
+
+    /* ── Cabecera: Modo Explicativo, modo de almacenamiento y tema ── */
+    .help-toggle-btn {
+      height: 44px; padding: 0 12px; gap: 8px;
+      background: transparent; border: 1px solid var(--line); border-radius: var(--radius);
+      color: var(--ink-1); font: 500 14px/1 var(--font-sans);
+      transition: background-color 150ms ease, color 150ms ease;
+    }
+    .help-toggle-btn:hover { background: var(--hover); }
+    .help-toggle-btn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+    .help-toggle-btn.active { background: var(--accent); border-color: var(--accent); color: #FFFFFF; box-shadow: none; }
+    #helpModeIcon, #themeToggleIco {
+      display: inline-block; width: 18px; height: 18px; flex: none;
+      font-size: 0; line-height: 0; color: transparent; overflow: hidden;   /* el JS escribe texto aquí: se oculta */
+      background: var(--icon-ink, currentColor);
+      -webkit-mask: var(--ico) center / contain no-repeat; mask: var(--ico) center / contain no-repeat;
+    }
+    .help-toggle-btn #helpModeIcon { --icon-ink: currentColor; }
+    .help-toggle-btn:not(.active) #helpModeIcon { --icon-ink: var(--ink-1); }
+    #helpModeIcon {
+      --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Ccircle cx='12' cy='12' r='9'/%3E%3Cpath d='M9.6 9.3a2.5 2.5 0 0 1 4.8.9c0 1.7-2.4 2.2-2.4 3.6'/%3E%3Cpath d='M12 17h.01'/%3E%3C/svg%3E");
+    }
+    #themeToggleIco {
+      --icon-ink: var(--ink-1);
+      --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5z'/%3E%3C/svg%3E");
+    }
+    .btn-sec:hover #themeToggleIco { --icon-ink: var(--surface); }
+    html[data-theme="light"] #themeToggleIco {
+      --ico: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='black' stroke-width='1.75' stroke-linecap='round'%3E%3Ccircle cx='12' cy='12' r='4'/%3E%3Cpath d='M12 2.5v2M12 19.5v2M4.6 4.6l1.4 1.4M18 18l1.4 1.4M2.5 12h2M19.5 12h2M4.6 19.4L6 18M18 6l1.4-1.4'/%3E%3C/svg%3E");
+    }
+    /* El JS pinta el modo con colores de neón: se normaliza al sistema */
+    #storageModeBadge {
+      color: var(--ink-2) !important;
+      background: transparent !important;
+      border: 1px solid var(--line) !important;
+      height: 32px; line-height: 30px; max-width: 30ch;
+    }
+
+    /* ── Modales ── */
+    .help-modal-overlay { backdrop-filter: none; background: rgba(8, 9, 12, .62); }
+    .help-modal { border-radius: var(--radius); border-color: var(--line); box-shadow: 0 16px 40px rgba(0, 0, 0, .35); }
+    .help-modal-title { font-weight: 600; }
+    .help-item-label { text-transform: none; letter-spacing: 0; font: 500 12px/1.4 var(--font-mono); }
+    body.help-mode-active [data-help-title],
+    body.help-mode-active button,
+    body.help-mode-active input,
+    body.help-mode-active select,
+    body.help-mode-active textarea { outline: 1px dashed color-mix(in srgb, var(--accent-ink) 70%, transparent) !important; }
+
+    /* ── Estilos en línea heredados: misma voz tipográfica ── */
+    #mainContent [style*="text-transform:uppercase"],
+    #mainContent [style*="text-transform: uppercase"] { text-transform: none !important; letter-spacing: 0 !important; }
+    #mainContent [style*="font-weight:800"], #mainContent [style*="font-weight: 800"] { font-weight: 700 !important; }
+    #mainContent [style*="border-radius:4px"], #mainContent [style*="border-radius:6px"],
+    #mainContent [style*="border-radius:8px"], #mainContent [style*="border-radius:3px"] { border-radius: var(--radius) !important; }
+
+    /* ── Barras de desplazamiento ── */
+    ::-webkit-scrollbar { width: 10px; height: 10px; }
+    ::-webkit-scrollbar-thumb { background: var(--line); border-radius: 0; border: 2px solid transparent; background-clip: padding-box; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--ink-3); background-clip: padding-box; }
+
+    /* El escenario del compositor es oscuro en ambos temas: su contenido usa tintas de oscuro */
+    .canvas-preview-wrap, .preview-canvas, #tab-editor .editor-canvas-wrap {
+      color-scheme: dark;
+      --ink-1: #F0F4F8; --ink-2: #98A7BD; --ink-3: #8794AA;
+      --line: #3B4860; --line-soft: #2B3547; --hover: #262E3E; --field: #161A24;
+      --accent-ink: #9AABFF; --focus: #8EA2FF;
+      color: var(--ink-1);
+    }
+    .canvas-preview-wrap input, .canvas-preview-wrap select, .canvas-preview-wrap textarea { border-color: #66758E; }
+
+    /* Botones de logo oficial: muestra de color + texto, no texto coloreado */
+    .logo-swatch::before {
+      content: ""; width: 12px; height: 12px; flex: none;
+      background: var(--sw); box-shadow: inset 0 0 0 1px rgba(127, 127, 127, .55);
+    }
+
+    /* Insignias sobre miniaturas: fondo sólido para que lean sobre cualquier imagen */
+    #mainContent [style*="position:absolute"] > .badge { background: var(--surface); }
+    .badge-success { color: var(--success); border: 1px solid color-mix(in srgb, var(--success) 40%, transparent); }
+    .badge-danger  { color: var(--danger);  border: 1px solid color-mix(in srgb, var(--danger) 40%, transparent); }
+    /* Hover de tarjetas pintado por JS: sin saltos, acento en vez de naranja */
+    #mainContent [onmouseover*="borderColor"] { transform: none !important; }
+    #mainContent [onmouseover*="borderColor"]:hover { border-color: var(--accent-ink) !important; }
+
+    /* Deslizadores y casillas: sin caja de campo */
+    input[type="range"] { border: 0 !important; box-shadow: none !important; padding: 0; min-height: 0 !important; }
+    input[type="checkbox"], input[type="radio"] { width: auto; }
+
+    /* ── Editor nativo (su <style> propio va en el body: se sube la especificidad con #tab-editor) ── */
+    #tab-editor .editor-panel { border-color: var(--line); border-radius: var(--radius); }
+    #tab-editor .editor-panel-header,
+    #tab-editor .editor-tool-group label {
+      text-transform: none; letter-spacing: 0;
+      font: 600 13px/1.4 var(--font-sans); color: var(--ink-2);
+    }
+    #tab-editor .editor-panel-header { color: var(--ink-1); border-bottom-color: var(--line); }
+    #tab-editor .tool-btn, #tab-editor .preset-btn, #tab-editor .format-tab { border-radius: var(--radius); font-family: var(--font-sans); }
+    #tab-editor .tool-btn:hover { border-color: var(--accent-ink); background: var(--hover); }
+    #tab-editor .tool-btn:active { transform: none; }
+    #tab-editor .tool-btn.danger { border-color: color-mix(in srgb, var(--danger) 45%, transparent); }
+    #tab-editor .tool-btn.danger:hover { border-color: var(--danger); background: color-mix(in srgb, var(--danger) 8%, transparent); }
+    #tab-editor .preset-btn:hover { border-color: var(--accent-ink); color: var(--ink-1); background: var(--hover); }
+    #tab-editor .preset-btn.active,
+    #tab-editor .format-tab:hover, #tab-editor .format-tab.active {
+      border-color: var(--accent-ink); color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 10%, transparent);
+    }
+    #tab-editor .format-tab { font-size: 12px; font-weight: 600; }
+    #tab-editor .slider-row label span { color: var(--ink-1); }
+    #tab-editor .slider-row input[type=range] { background: var(--line); height: 4px; }
+    #tab-editor .slider-row input[type=range]::-webkit-slider-thumb { background: var(--accent-ink); box-shadow: 0 0 0 3px var(--surface-card); }
+    #tab-editor .editor-info-pill { border-radius: var(--radius); background: var(--hover); }
+    #tab-editor .editor-upload-btn {
+      background: transparent; border: 1px dashed var(--line-mid, var(--line)); border-radius: var(--radius);
+      color: var(--ink-1); font-family: var(--font-sans);
+    }
+    #tab-editor .editor-upload-btn:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); border-color: var(--accent-ink); }
+    #tab-editor .editor-version-tag { color: var(--accent-ink); }
+    #tab-editor .editor-version-item, #tab-editor .log-entry { border-bottom-color: var(--line-soft); }
+    #tab-editor .crop-overlay { border-color: var(--accent-ink); background: color-mix(in srgb, var(--accent) 6%, transparent); }
+    #tab-editor #editorLog { background: var(--field); border-radius: var(--radius); }
+    #tab-editor .editor-canvas-wrap { background: var(--stage); }
+    #tab-editor #editorCanvas { border-radius: 0; box-shadow: 0 8px 24px rgba(0, 0, 0, .35); }
+    #tab-editor .editor-no-image { color: var(--ink-2); }
+    #tab-editor .editor-no-image .icon:empty { display: none; }
+
+    #tab-editor .editor-status-bar, #tab-editor #editorLog { font-size: 12px; }
+
+    /* Login en oscuro: placeholder y tinta terciaria con contraste AA */
+    html[data-theme="dark"] #loginModal { --ink-3: #8794AA; }
+    html[data-theme="dark"] .lm-input::placeholder { color: #8794AA; }
+
+    /* Elevación de modales: línea, sin halo */
+    .btn-primary:hover, .btn-orange:hover { box-shadow: none; }
+    .help-modal { box-shadow: none; }
+    #newInitiativeModal > div { border-color: var(--line) !important; box-shadow: none !important; }
+    #newInitiativeModal { background: rgba(8, 9, 12, .62) !important; }
+
+    /* Las burbujas ocultas no deben ensanchar la página */
+    .field-tooltip-wrap:not(:hover):not(.active) .field-tooltip-btn:not(:focus) .field-tooltip-bubble,
+    .field-tooltip-wrap:not(:hover):not(.active) > .field-tooltip-bubble { display: none; }
+
+    /* Los hijos de rejilla pueden encogerse (evita que una tabla o un input fije el ancho de la columna) */
+    .grid-2 > *, .grid-3 > *, .compositor-grid > *, .editor-layout > *,
+    #mainContent [style*="display:grid"] > *, #mainContent [style*="display: grid"] > * { min-width: 0; }
+
+    /* ── Móvil: las rejillas en línea colapsan y nada desborda ── */
+    @media (max-width: 640px) {
+      #mainContent .section-head { margin: -16px -12px 20px; padding: 20px 12px 16px; }
+    }
+    @media (max-width: 900px) {
+      #mainContent table { display: block; max-width: 100%; overflow-x: auto; }
+      #mainContent [style*="grid-template-columns:1fr 1fr"],
+      #mainContent [style*="grid-template-columns: 1fr 1fr"],
+      #mainContent [style*="grid-template-columns: 2fr"],
+      #mainContent [style*="grid-template-columns:2fr"],
+      #mainContent [style*="grid-template-columns: 280px"] { grid-template-columns: minmax(0, 1fr) !important; }
+      #mainContent .card-header { flex-wrap: wrap; gap: 12px; }
+      #mainContent input, #mainContent select, #mainContent textarea { max-width: 100%; min-width: 0; }
+    }
+    @media (max-width: 960px) {
+      /* Fila de sesión en móvil: icono solo, como Tema y Cerrar sesión */
+      .help-toggle-btn { width: 44px; padding: 0; justify-content: center; flex: none; }
+      #helpModeText { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+      .session { min-width: 0; }
+      .session > * { flex-shrink: 0; }
+      #storageModeBadge { flex: 0 1 auto; min-width: 0; max-width: none; }
+      .session > .role-badge { flex-shrink: 1; min-width: 0; overflow: hidden; }
+      #roleLabel { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+    }
+    @media (max-width: 480px) {
+      /* Sin sitio para el modo de almacenamiento: sigue disponible en la vista de escritorio y en el login */
+      #storageModeBadge { display: none; }
+    }
+    @media (pointer: coarse) {
+      .btn, .admin-sub-tab, .help-toggle-btn { min-height: 44px; }
+      #mainContent input:not([type="checkbox"]):not([type="radio"]):not([type="range"]), #mainContent select { min-height: 44px; }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .help-modal { animation: none; }
+      .field-tooltip-bubble { transition: none; }
+    }
+
   </style>
 </head>
 <body>
@@ -1465,7 +1831,7 @@
 
       <div class="session">
         <button type="button" id="helpModeBtn" class="help-toggle-btn" onclick="toggleHelpMode()" title="Activa el Modo Explicativo para ver la descripción de cada botón y campo al hacer click">
-          <span id="helpModeIcon">💡</span> <span id="helpModeText">Modo Explicativo</span>
+          <span id="helpModeIcon"></span> <span id="helpModeText">Modo Explicativo</span>
         </button>
         <span id="storageModeBadge" class="mode-badge" title="Política de ejecución activa">● MODO: LOCAL</span>
 
@@ -1482,7 +1848,7 @@
         <div id="roleBadge" class="role-badge"><span id="roleIcon"></span><span id="roleLabel"></span></div>
 
         <button type="button" class="btn-sec" onclick="toggleTheme()" id="themeToggleBtn" title="Alternar Modo Claro / Oscuro">
-          <span id="themeToggleIco">🌓</span>
+          <span id="themeToggleIco"></span>
           <span class="btn-sec__txt" id="themeToggleTxt">Tema Oscuro</span>
         </button>
 
@@ -1569,16 +1935,16 @@
           <div class="card-header">
             <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
               <div>
-                <h2 class="card-title">🛡️ Validación de Mandamientos BCP</h2>
+                <h2 class="card-title">Validación de Mandamientos BCP</h2>
                 <span class="badge badge-info" id="govDecisionBadge">LISTO</span>
               </div>
               <button type="button" class="btn btn-secondary btn-sm" onclick="openNewInitiativeModal()" title="Permite dar de alta una nueva iniciativa o caso de uso en MongoDB Atlas y en todo el sistema.">
-                ➕ Nuevo Caso de Uso / Iniciativa
+                Nuevo Caso de Uso / Iniciativa
               </button>
             </div>
           </div>
           <div class="form-row">
-            <label>ID de Iniciativa</label>
+            <label for="govInitiativeId">ID de Iniciativa</label>
             <select id="govInitiativeId">
               <option value="INIT-BCP-CAMP-2026-01">INIT-BCP-CAMP-2026-01 | Préstamo al Toque</option>
               <option value="INIT-BCP-CARD-2026-02">INIT-BCP-CARD-2026-02 | Visa Signature Gastronomía</option>
@@ -1587,7 +1953,7 @@
             </select>
           </div>
           <div class="form-row">
-            <label>Intención del Activo</label>
+            <label for="govIntention">Intención del Activo</label>
             <select id="govIntention">
               <option value="PROMOTION">PROMOTION (Promoción estándar)</option>
               <option value="ONBOARDING">ONBOARDING (Bienvenida cliente)</option>
@@ -1596,7 +1962,7 @@
             </select>
           </div>
           <div class="form-row">
-            <label>Canal Destino</label>
+            <label for="govChannel">Canal Destino</label>
             <select id="govChannel">
               <option value="AJO_INWEB">Adobe Journey Optimizer (InWeb)</option>
               <option value="WHATSAPP">WhatsApp Cloud API (Meta)</option>
@@ -1605,18 +1971,18 @@
             </select>
           </div>
           <div class="form-row">
-            <label>Brief / Prompt Propuesto</label>
+            <label for="govBrief">Brief / Prompt Propuesto</label>
             <textarea id="govBrief" rows="3" placeholder="Ej: Banner para tarjeta de crédito con beneficios en restaurantes de Lima...">Banner moderno para cliente de cuenta sueldo invitando a desembolsar préstamo al toque desde la app.</textarea>
           </div>
           <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
             <button class="btn btn-primary" onclick="testGovernanceValidation()">Verificar Mandamientos</button>
-            <button class="btn btn-secondary" onclick="injectHallucinationSample()">Probar Alucinación ⚠️</button>
+            <button class="btn btn-secondary" onclick="injectHallucinationSample()">Probar Alucinación</button>
           </div>
         </div>
 
         <div class="card">
           <div class="card-header">
-            <h2 class="card-title">📋 Resultado de Evaluación & Reutilización</h2>
+            <h2 class="card-title">Resultado de Evaluación & Reutilización</h2>
           </div>
           <div id="govResultOutput" class="result-box">Presione 'Verificar Mandamientos' para evaluar la solicitud contra las políticas de BCP en MongoDB Atlas...</div>
         </div>
@@ -1632,7 +1998,7 @@
       <div class="grid-2">
         <div class="card">
           <div class="card-header">
-            <h2 class="card-title">🎨 DAM Craft Automation Engine</h2>
+            <h2 class="card-title">DAM Craft Automation Engine</h2>
             <span class="badge badge-info">MCP ENABLED</span>
           </div>
 
@@ -1640,7 +2006,7 @@
           <div class="form-row" style="margin-bottom:1rem;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
               <label style="margin:0; font-size:0.8rem; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--ink-2);">
-                📦 Seleccionar Activo del Catálogo (Sin re-subir)
+                Seleccionar Activo del Catálogo (Sin re-subir)
               </label>
               <span style="font-size:0.75rem; color:var(--ink-3);" id="pcCatalogCountLabel">0 disponibles</span>
             </div>
@@ -1657,7 +2023,6 @@
             <div class="upload-zone" id="uploadZone">
               <input type="file" id="sourceImageFile" accept="image/*" onchange="handleFileUpload(event)">
               <div id="uploadPlaceholder">
-                <span style="font-size:1.5rem; display:block; margin-bottom:0.3rem;">📁</span>
                 <span style="font-size:0.88rem; color:var(--ink-2);">Arrastra una imagen o haz click para seleccionar</span>
                 <div id="uploadedFileName" style="margin-top:0.5rem; font-size:0.8rem; color:var(--bcp-orange); display:none;"></div>
               </div>
@@ -1665,7 +2030,7 @@
           </div>
 
           <div class="form-row">
-            <label>Operación de Transformación</label>
+            <label for="pcOperation">Operación de Transformación</label>
             <select id="pcOperation">
               <option value="AJO_INWEB_BANNER">AJO InWeb Banner (1200x628, Brand Watermark)</option>
               <option value="WHATSAPP_CARD">WhatsApp Header (800x800, 1:1, Compression)</option>
@@ -1680,18 +2045,18 @@
           <div id="customDimensions" style="display:none;">
             <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.75rem;">
               <div class="form-row">
-                <label>Ancho (px)</label>
+                <label for="customWidth">Ancho (px)</label>
                 <input type="number" id="customWidth" value="1200" min="1">
               </div>
               <div class="form-row">
-                <label>Alto (px)</label>
+                <label for="customHeight">Alto (px)</label>
                 <input type="number" id="customHeight" value="628" min="1">
               </div>
             </div>
           </div>
 
           <div class="form-row">
-            <label>Formato de Salida</label>
+            <label for="pcFormat">Formato de Salida</label>
             <select id="pcFormat">
               <option value="jpg">JPEG (Optimizado Web)</option>
               <option value="png">PNG (Transparencia / Hi-Fi)</option>
@@ -1720,27 +2085,27 @@
           </div>
 
           <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-            <button class="btn btn-orange" onclick="runDamCraftJob()">⚡ Ejecutar Transformación</button>
-            <button class="btn btn-secondary" onclick="generateWithAI()">🤖 Generar con IA</button>
+            <button class="btn btn-orange" onclick="runDamCraftJob()">Ejecutar Transformación</button>
+            <button class="btn btn-secondary" onclick="generateWithAI()">Generar con IA</button>
           </div>
         </div>
 
         <div class="card">
           <div class="card-header">
-            <h2 class="card-title">👁️ Previsualización del Candidato</h2>
+            <h2 class="card-title">Previsualización del Candidato</h2>
             <div id="pcJobStatus" style="font-size:0.8rem; color:var(--ink-2);"></div>
           </div>
           <div id="pcPreviewBox" class="preview-canvas">
             <div class="preview-placeholder">
-              <span class="icon">🖼️</span>
+              <span class="icon"></span>
               Sin operaciones ejecutadas
             </div>
           </div>
           <div id="pcResultOutput" class="result-box" style="margin-top:1rem;">Logs del job aparecerán aquí...</div>
           <div id="pcActionsBar" style="margin-top:1rem; display:none; gap:0.5rem; flex-wrap:wrap;">
-            <a id="pcDownloadLink" class="btn btn-success btn-sm" download>⬇️ Descargar Asset</a>
-            <button class="btn btn-primary btn-sm" onclick="submitForApproval()">📤 Enviar a Aprobación</button>
-            <button class="btn btn-secondary btn-sm" onclick="viewInDamCraft()">🖊️ Abrir en DAM Craft</button>
+            <a id="pcDownloadLink" class="btn btn-success btn-sm" download>Descargar Asset</a>
+            <button class="btn btn-primary btn-sm" onclick="submitForApproval()">Enviar a Aprobación</button>
+            <button class="btn btn-secondary btn-sm" onclick="viewInDamCraft()">Abrir en DAM Craft</button>
           </div>
         </div>
       </div>
@@ -1756,7 +2121,7 @@
       <div class="card" style="margin-bottom:1.5rem;" id="compositorSection">
         <div class="card-header">
           <div>
-            <h2 class="card-title">🎨 Mesa de Montaje Multicapa (Compositor de Piezas)</h2>
+            <h2 class="card-title">Mesa de Montaje Multicapa (Compositor de Piezas)</h2>
             <p style="font-size:0.82rem; color:var(--ink-2); margin-top:0.25rem;">
               Traslapa imágenes JPG/PNG locales o piezas aprobadas del catálogo DAM para componer un nuevo activo visual de alto impacto.
             </p>
@@ -1770,7 +2135,7 @@
               <option value="1080x1920">Stories / TikTok Vertical (1080×1920)</option>
               <option value="600x300">Email Header (600×300)</option>
             </select>
-            <button type="button" class="btn btn-secondary btn-sm" onclick="clearAllLayers()" title="Elimina todas las capas montadas en el lienzo.">🗑️ Limpiar Lienzo</button>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="clearAllLayers()" title="Elimina todas las capas montadas en el lienzo.">Limpiar Lienzo</button>
           </div>
         </div>
 
@@ -1780,40 +2145,40 @@
             <!-- Cargar imagen local como capa -->
             <div style="background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:0.85rem;">
               <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-2); display:block; margin-bottom:0.5rem;">
-                📁 Imagen Local como Capa
+                Imagen Local como Capa
               </span>
               <input type="file" id="compositorFileInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;" onchange="handleCompositorLocalFile(event)" multiple>
               <button type="button" class="btn btn-primary btn-sm" onclick="document.getElementById('compositorFileInput').click()" style="width:100%; margin-bottom:0.4rem;"
                 title="Carga una o varias imágenes JPG, PNG o WebP desde tu computadora para traslaparlas inmediatamente en el lienzo.">
-                ➕ Cargar JPG / PNG Local
+                Cargar JPG / PNG Local
               </button>
               <button type="button" class="btn btn-secondary btn-sm" onclick="addCustomBadgeLayer()" style="width:100%; margin-bottom:0.4rem;"
                 title="Añade un sello corporativo BCP u oferta comercial prediseñada al lienzo.">
-                🏷️ Añadir Sello BCP
+                Añadir Sello BCP
               </button>
               <button type="button" class="btn btn-secondary btn-sm" onclick="toggleTextLayerPanel()" style="width:100%;"
                 title="Añade texto dinámico con variables CDP o WhatsApp (ej: {{first_name}}, {{monto}}).">
-                ✍️ + Capa de Texto (CDP / WhatsApp)
+                + Capa de Texto (CDP / WhatsApp)
               </button>
             </div>
 
             <!-- Panel de Configuración de Capa de Texto Dinámico -->
             <div id="textLayerPanel" style="display:none; background:var(--surface-2); border:1px solid var(--bcp-orange); border-radius:var(--radius-sm); padding:0.85rem;">
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
-                <span style="font-size:0.78rem; font-weight:700; color:var(--bcp-orange); text-transform:uppercase;">✍️ Texto Dinámico CDP</span>
+                <span style="font-size:0.78rem; font-weight:700; color:var(--bcp-orange); text-transform:uppercase;">Texto Dinámico CDP</span>
                 <button type="button" onclick="toggleTextLayerPanel()" class="icon-btn" style="font-size:0.8rem;">✕</button>
               </div>
               <div class="form-row" style="margin-bottom:0.4rem;">
-                <label style="font-size:0.72rem;">Plantilla de Texto (Soporta {{first_name}}, {{monto}}, {{tarjeta}}):</label>
+                <label for="textLayerContent" style="font-size:0.75rem;">Plantilla de Texto (Soporta {{first_name}}, {{monto}}, {{tarjeta}}):</label>
                 <textarea id="textLayerContent" rows="2" style="font-size:0.8rem; padding:0.4rem; width:100%;">¡Hola {{first_name}}! Tu tarjeta {{tarjeta}} tiene {{monto}} disponible.</textarea>
               </div>
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.4rem; margin-bottom:0.4rem;">
                 <div>
-                  <label style="font-size:0.72rem;">Tamaño (px):</label>
+                  <label for="textLayerSize" style="font-size:0.75rem;">Tamaño (px):</label>
                   <input type="number" id="textLayerSize" value="32" min="12" max="96" style="padding:0.3rem; font-size:0.8rem; width:100%;">
                 </div>
                 <div>
-                  <label style="font-size:0.72rem;">Color:</label>
+                  <label for="textLayerColor" style="font-size:0.75rem;">Color:</label>
                   <select id="textLayerColor" style="padding:0.3rem; font-size:0.8rem; width:100%;">
                     <option value="#FFFFFF">Blanco (#FFFFFF)</option>
                     <option value="#FF7800">Naranja BCP (#FF7800)</option>
@@ -1823,27 +2188,27 @@
                 </div>
               </div>
               <div style="display:flex; gap:0.4rem;">
-                <button type="button" class="btn btn-orange btn-sm" onclick="confirmAddTextLayer()" style="flex:1;">➕ Insertar en Lienzo</button>
+                <button type="button" class="btn btn-orange btn-sm" onclick="confirmAddTextLayer()" style="flex:1;">Insertar en Lienzo</button>
               </div>
             </div>
 
             <!-- Selector de Logos Oficiales BCP -->
             <div style="background:var(--surface-2); border:1px solid var(--border); border-radius:var(--radius-sm); padding:0.85rem;">
               <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-2); display:block; margin-bottom:0.5rem;">
-                🏷️ Logos Oficiales BCP (Todos los Formatos)
+                Logos Oficiales BCP (Todos los Formatos)
               </span>
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.4rem;">
-                <button type="button" class="btn btn-secondary btn-sm" onclick="addOfficialBcpLogo('orange')" style="font-size:0.75rem; padding:0.35rem; background:rgba(255,120,0,0.15); border-color:#FF7800; color:#FF7800;" title="Inserta el logo BCP en color naranja oficial">
-                  🟧 Logo Naranja
+                <button type="button" class="btn btn-secondary btn-sm logo-swatch" onclick="addOfficialBcpLogo('orange')" style="font-size:0.75rem; padding:0.35rem; --sw:#FF7800;" title="Inserta el logo BCP en color naranja oficial">
+                  Logo Naranja
                 </button>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="addOfficialBcpLogo('blue')" style="font-size:0.75rem; padding:0.35rem; background:rgba(0,42,143,0.3); border-color:#0084FF; color:#0084FF;" title="Inserta el logo BCP en color azul corporativo">
-                  🟦 Logo Azul
+                <button type="button" class="btn btn-secondary btn-sm logo-swatch" onclick="addOfficialBcpLogo('blue')" style="font-size:0.75rem; padding:0.35rem; --sw:#002A8F;" title="Inserta el logo BCP en color azul corporativo">
+                  Logo Azul
                 </button>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="addOfficialBcpLogo('white')" style="font-size:0.75rem; padding:0.35rem; background:rgba(255,255,255,0.1); border-color:#fff; color:#fff;" title="Inserta el logo BCP en blanco puro para fondos oscuros">
-                  ⬜ Logo Blanco
+                <button type="button" class="btn btn-secondary btn-sm logo-swatch" onclick="addOfficialBcpLogo('white')" style="font-size:0.75rem; padding:0.35rem; --sw:#FFFFFF;" title="Inserta el logo BCP en blanco puro para fondos oscuros">
+                  Logo Blanco
                 </button>
                 <button type="button" class="btn btn-secondary btn-sm" onclick="addOfficialBcpLogo('chevron')" style="font-size:0.75rem; padding:0.35rem;" title="Inserta los dos chevrones oficiales entrelazados de BCP">
-                  🔷 Emblema BCP
+                  Emblema BCP
                 </button>
               </div>
             </div>
@@ -1852,13 +2217,13 @@
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.4rem;">
                 <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-2);">
-                  💎 Piezas Aprobadas
+                  Piezas Aprobadas
                 </span>
-                <span style="font-size:0.72rem; color:var(--ink-3);" id="compositorPiecesCount">0</span>
+                <span style="font-size:0.75rem; color:var(--ink-3);" id="compositorPiecesCount">0</span>
               </div>
               <!-- Buscador en vivo de piezas por nombre o ID -->
               <div style="margin-bottom:0.5rem;">
-                <input type="text" id="compositorAssetSearch" placeholder="🔍 Buscar por nombre o ID..." oninput="filterCompositorPicker(this.value)"
+                <input type="text" id="compositorAssetSearch" placeholder="Buscar por nombre o ID..." oninput="filterCompositorPicker(this.value)"
                        style="padding:0.35rem 0.6rem; font-size:0.78rem; width:100%; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); color:var(--ink-1);">
               </div>
               <div id="compositorAssetPicker" style="display:flex; flex-direction:column; gap:0.5rem; max-height:280px; overflow-y:auto; padding-right:0.25rem;">
@@ -1873,9 +2238,9 @@
               <span id="canvasStatsLabel">0 capas activas (Arrastra las capas con el mouse)</span>
               <!-- Barra de Alineación de la Capa Seleccionada -->
               <div style="display:flex; gap:0.3rem;" id="canvasAlignBar">
-                <button type="button" class="btn btn-secondary btn-sm" onclick="alignSelectedLayer('centerH')" style="font-size:0.72rem; padding:0.2rem 0.4rem;" title="Centrar horizontalmente la capa seleccionada">↔ Centrar H</button>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="alignSelectedLayer('centerV')" style="font-size:0.72rem; padding:0.2rem 0.4rem;" title="Centrar verticalmente la capa seleccionada">↕ Centrar V</button>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="alignSelectedLayer('centerBoth')" style="font-size:0.72rem; padding:0.2rem 0.4rem;" title="Centrar al centro exacto del lienzo">🎯 Centrar Todo</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="alignSelectedLayer('centerH')" style="font-size:0.75rem; padding:0.2rem 0.4rem;" title="Centrar horizontalmente la capa seleccionada">↔ Centrar H</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="alignSelectedLayer('centerV')" style="font-size:0.75rem; padding:0.2rem 0.4rem;" title="Centrar verticalmente la capa seleccionada">↕ Centrar V</button>
+                <button type="button" class="btn btn-secondary btn-sm" onclick="alignSelectedLayer('centerBoth')" style="font-size:0.75rem; padding:0.2rem 0.4rem;" title="Centrar al centro exacto del lienzo">Centrar Todo</button>
               </div>
             </div>
             <canvas id="multiLayerCanvas" width="1200" height="628"></canvas>
@@ -1883,29 +2248,29 @@
             <!-- Controles de exportación / generación -->
             <div style="width:100%; margin-top:1rem; display:grid; grid-template-columns:1fr 1fr; gap:0.75rem; align-items:end;">
               <div>
-                <label style="font-size:0.72rem; font-weight:700; color:var(--ink-2); display:block; margin-bottom:0.25rem;">Familia de Iniciativa / Caso de Uso:</label>
+                <label for="compositeInitiativeSelect" style="font-size:0.75rem; font-weight:700; color:var(--ink-2); display:block; margin-bottom:0.25rem;">Familia de Iniciativa / Caso de Uso:</label>
                 <select id="compositeInitiativeSelect" style="padding:0.4rem 0.6rem; font-size:0.8rem; width:100%; margin-bottom:0.4rem;">
                   <option value="INIT-BCP-CAMP-2026-01">INIT-BCP-CAMP-2026-01 | Campaña Verano BCP</option>
                   <option value="INIT-BCP-CARD-2026-02">INIT-BCP-CARD-2026-02 | Visa Signature Gastronomía</option>
                   <option value="INIT-BCP-MORT-2026-03">INIT-BCP-MORT-2026-03 | Hipotecario MiVivienda Verde</option>
                 </select>
-                <label style="font-size:0.72rem; font-weight:700; color:var(--ink-2); display:block; margin-bottom:0.25rem;">Título del Nuevo Activo Compuesto:</label>
+                <label for="compositeAssetTitle" style="font-size:0.75rem; font-weight:700; color:var(--ink-2); display:block; margin-bottom:0.25rem;">Título del Nuevo Activo Compuesto:</label>
                 <input type="text" id="compositeAssetTitle" value="BCP_Composicion_Multicapa_2026" style="padding:0.4rem 0.6rem; font-size:0.8rem; width:100%; margin-bottom:0.4rem;">
-                <label style="font-size:0.72rem; font-weight:700; color:var(--ink-2); display:block; margin-bottom:0.25rem;">🔗 DeepLink / URL de Destino (CDP / AJO CTA):</label>
+                <label for="compositeDeepLink" style="font-size:0.75rem; font-weight:700; color:var(--ink-2); display:block; margin-bottom:0.25rem;">DeepLink / URL de Destino (CDP / AJO CTA):</label>
                 <input type="text" id="compositeDeepLink" value="bcp://bancamovil/tarjeta?lead={{profile.lead_id}}&camp=verano2026" style="padding:0.4rem 0.6rem; font-size:0.8rem; width:100%;" placeholder="https://viabcp.com/... o bcp://app/...">
               </div>
               <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
                 <button type="button" class="btn btn-orange" id="btnGenerateComposite" onclick="generateAndCertifyComposite()" style="flex:1; min-width:140px;"
                   title="Exporta la composición en alta resolución como imagen binaria real y la registra en el catálogo DAM y Workfront.">
-                  ✨ Certificar en DAM
+                  Certificar en DAM
                 </button>
                 <button type="button" class="btn btn-success" id="btnDownloadCompositor" onclick="downloadCompositorPng()" style="flex:1; min-width:130px;"
                   title="Descarga directa del montaje en formato PNG binario de alta resolución.">
-                  ⬇️ Descargar PNG
+                  Descargar PNG
                 </button>
                 <button type="button" class="btn btn-secondary" id="btnExportVideo" onclick="exportCompositorAnimation()" style="flex:1; min-width:140px;"
                   title="Graba y exporta un clip animado en formato MP4 nativo usando MediaRecorder de HTML5 Canvas.">
-                  🎬 Exportar Video (.mp4)
+                  Exportar Video (.mp4)
                 </button>
               </div>
             </div>
@@ -1920,9 +2285,9 @@
           <div style="display:flex; flex-direction:column;">
             <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.5rem;">
               <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.07em; color:var(--ink-2);">
-                📑 Pila de Capas (Z-Index)
+                Pila de Capas (Z-Index)
               </span>
-              <span style="font-size:0.72rem; color:var(--ink-3);">Arrastre o use ▲ ▼</span>
+              <span style="font-size:0.75rem; color:var(--ink-3);">Arrastre o use ▲ ▼</span>
             </div>
             <div id="layerStackList" style="flex:1; max-height:420px; overflow-y:auto; padding-right:0.25rem;">
               <div style="font-size:0.85rem; color:var(--ink-3); text-align:center; padding:1.5rem;">
@@ -1937,7 +2302,7 @@
       <div class="card" style="margin-bottom:1.5rem;">
         <div class="card-header">
           <div>
-            <h2 class="card-title">📦 Carga Masiva de Activos (Batch Upload)</h2>
+            <h2 class="card-title">Carga Masiva de Activos (Batch Upload)</h2>
             <p style="font-size:0.82rem; color:var(--ink-2); margin-top:0.25rem;">
               Ingesta simultáneamente múltiples imágenes (JPG, PNG, WebP) para alimentarlas al Catálogo DAM y ponerlas a disposición del compositor.
             </p>
@@ -1946,7 +2311,6 @@
 
         <div class="batch-upload-box" id="batchDropZone" onclick="document.getElementById('batchFileInput').click()">
           <input type="file" id="batchFileInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;" onchange="handleBatchFileSelect(event)" multiple>
-          <div style="font-size:2rem; margin-bottom:0.5rem;">📤</div>
           <div style="font-weight:700; font-size:0.95rem; color:var(--ink-1); margin-bottom:0.25rem;">
             Arrastra y suelta múltiples archivos de imagen aquí, o haz clic para explorar
           </div>
@@ -1959,7 +2323,7 @@
 
         <div style="display:grid; grid-template-columns:1fr 1fr auto; gap:0.75rem; align-items:end;">
           <div>
-            <label style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:var(--ink-2); display:block; margin-bottom:0.3rem;">Iniciativa BCP:</label>
+            <label for="batchInitiativeSelect" style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--ink-2); display:block; margin-bottom:0.3rem;">Iniciativa BCP:</label>
             <select id="batchInitiativeSelect" style="padding:0.45rem 0.6rem; font-size:0.82rem; width:100%;">
               <option value="INIT-BCP-CAMP-2026-01">INIT-BCP-CAMP-2026-01 (Campaña Verano BCP)</option>
               <option value="INIT-BCP-CARD-2026-02">INIT-BCP-CARD-2026-02 (Tarjetas & Promociones)</option>
@@ -1967,7 +2331,7 @@
             </select>
           </div>
           <div>
-            <label style="font-size:0.72rem; font-weight:700; text-transform:uppercase; color:var(--ink-2); display:block; margin-bottom:0.3rem;">Categoría / Rol de Pieza:</label>
+            <label for="batchCategorySelect" style="font-size:0.75rem; font-weight:700; text-transform:uppercase; color:var(--ink-2); display:block; margin-bottom:0.3rem;">Categoría / Rol de Pieza:</label>
             <select id="batchCategorySelect" style="padding:0.45rem 0.6rem; font-size:0.82rem; width:100%;">
               <option value="PIECE_APPROVED">PIECE_APPROVED (Pieza Lista para Componer)</option>
               <option value="BACKGROUND">BACKGROUND (Fondo / Textura)</option>
@@ -1978,7 +2342,7 @@
           </div>
           <div>
             <button type="button" class="btn btn-primary" id="btnBatchUpload" onclick="executeBatchUpload()" style="white-space:nowrap;">
-              🚀 Ingestar Activos en Lote
+              Ingestar Activos en Lote
             </button>
           </div>
         </div>
@@ -1987,7 +2351,7 @@
 
 <div class="card">
         <div class="card-header">
-          <h2 class="card-title">📦 Catálogo Oficial de Assets</h2>
+          <h2 class="card-title">Catálogo Oficial de Assets</h2>
           <div style="display:flex; gap:0.5rem; align-items:center;">
             <select id="catalogStatusFilter" onchange="loadCatalog()" style="width:auto; padding:0.4rem 0.7rem; font-size:0.85rem;">
               <option value="">Todos los estados</option>
@@ -1996,14 +2360,14 @@
               <option value="DRAFT">DRAFT</option>
               <option value="REJECTED">REJECTED</option>
             </select>
-            <button class="btn btn-secondary btn-sm" onclick="loadCatalog()">🔄 Refrescar</button>
+            <button class="btn btn-secondary btn-sm" onclick="loadCatalog()">Refrescar</button>
           </div>
         </div>
         <div id="catalogViewModeControls" style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; padding:0 0.5rem;">
           <div style="font-size:0.85rem; color:var(--ink-2);" id="catalogSummaryCount">Cargando catálogo...</div>
           <div style="display:flex; gap:0.5rem;">
-            <button type="button" class="btn btn-secondary btn-sm" id="btnViewGrid" onclick="toggleCatalogView('grid')">🖼️ Vista Cuadrícula</button>
-            <button type="button" class="btn btn-secondary btn-sm" id="btnViewJson" onclick="toggleCatalogView('json')">📄 Ver JSON Crudo</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="btnViewGrid" onclick="toggleCatalogView('grid')">Vista Cuadrícula</button>
+            <button type="button" class="btn btn-secondary btn-sm" id="btnViewJson" onclick="toggleCatalogView('json')">Ver JSON Crudo</button>
           </div>
         </div>
         <div id="catalogGrid" style="display:grid; grid-template-columns:repeat(auto-fill, minmax(280px, 1fr)); gap:1rem; margin-bottom:1rem;"></div>
@@ -2021,7 +2385,7 @@
       <div id="providersGrid" class="providers-grid">Cargando proveedores...</div>
       <div class="card">
         <div class="card-header">
-          <h2 class="card-title">🤖 Probar Prompt con Multi-Key Fallback</h2>
+          <h2 class="card-title">Probar Prompt con Multi-Key Fallback</h2>
         </div>
         <div class="form-row">
           <textarea id="routerPromptInput" rows="2" placeholder="Escriba un prompt para probar el router...">Genera un titular atractivo de 1 línea para el préstamo al toque BCP.</textarea>
@@ -2039,7 +2403,7 @@
       </div>
       <div class="card" style="margin-bottom:1.5rem;">
         <div class="card-header">
-          <h2 class="card-title">⚡ Flow Studio — Seleccionar Plantilla</h2>
+          <h2 class="card-title">Flow Studio — Seleccionar Plantilla</h2>
           <a href="/flow_studio/index.html" target="_blank" class="btn btn-orange btn-sm">Abrir Editor Completo ↗</a>
         </div>
         <div class="flow-template-grid" id="flowTemplateGrid">Cargando plantillas...</div>
@@ -2050,8 +2414,8 @@
           <div class="form-row" style="flex:2; min-width:260px; margin:0;">
             <input type="text" id="flowPromptInput" placeholder="Prompt IA: ej. Enrutamiento WhatsApp Flows a Azure Function e ingesta CDP..." style="margin-bottom:0;">
           </div>
-          <button class="btn btn-primary" onclick="generateFlowPreview()">⚡ Generar con Agente IA</button>
-          <button class="btn btn-secondary" onclick="downloadFlowHtml()">⬇️ Descargar HTML</button>
+          <button class="btn btn-primary" onclick="generateFlowPreview()">Generar con Agente IA</button>
+          <button class="btn btn-secondary" onclick="downloadFlowHtml()">Descargar HTML</button>
         </div>
       </div>
       <div class="card" style="height:600px; padding:0; overflow:hidden;">
@@ -2066,8 +2430,8 @@
         <h1>Aprobaciones</h1>
       </div>
       <div class="card-header" style="margin-bottom:1.25rem;">
-        <h2 style="font-size:1.1rem; font-weight:700;">🔔 Assets Pendientes de Aprobación</h2>
-        <button class="btn btn-secondary btn-sm" onclick="loadNotifications()">🔄 Actualizar</button>
+        <h2 style="font-size:1.1rem; font-weight:700;">Assets Pendientes de Aprobación</h2>
+        <button class="btn btn-secondary btn-sm" onclick="loadNotifications()">Actualizar</button>
       </div>
       <div id="notificationsContainer">
         <div style="text-align:center; padding:2rem; color:var(--ink-2);">Cargando notificaciones...</div>
@@ -2084,10 +2448,10 @@
       <!-- ── CARD: DIAGNÓSTICO & CONEXIÓN .ENV.LOCAL ── -->
       <div class="card" style="margin-bottom:1.5rem;">
         <div class="card-header">
-          <h2 class="card-title">🔌 Estado de Conectividad con .env.local</h2>
+          <h2 class="card-title">Estado de Conectividad con .env.local</h2>
           <div style="display:flex; gap:0.5rem; align-items:center;">
             <span class="badge badge-success" id="envLocalStatusBadge">.env.local DETECTADO</span>
-            <button class="btn btn-secondary btn-sm" onclick="loadEnvStatus()">🔄 Probar Conexión</button>
+            <button class="btn btn-secondary btn-sm" onclick="loadEnvStatus()">Probar Conexión</button>
           </div>
         </div>
         <p style="color:var(--ink-2); font-size:0.88rem; margin-bottom:1rem;">
@@ -2101,14 +2465,14 @@
       <div class="grid-2">
         <div class="card">
           <div class="card-header">
-            <h2 class="card-title">🔗 Nueva Conexión a Base de Datos</h2>
+            <h2 class="card-title">Nueva Conexión a Base de Datos</h2>
           </div>
           <div class="form-row">
-            <label>Nombre de la Conexión</label>
+            <label for="connName">Nombre de la Conexión</label>
             <input type="text" id="connName" placeholder="Ej: Produccion Atlas BCP">
           </div>
           <div class="form-row">
-            <label>Tipo de Base de Datos</label>
+            <label for="connType">Tipo de Base de Datos</label>
             <select id="connType">
               <option value="mongodb">MongoDB Atlas / Community</option>
               <option value="postgres">PostgreSQL</option>
@@ -2118,23 +2482,23 @@
             </select>
           </div>
           <div class="form-row">
-            <label>Host / URI de Conexión</label>
+            <label for="connHost">Host / URI de Conexión</label>
             <input type="text" id="connHost" placeholder="mongodb+srv://user:pass@cluster.mongodb.net/">
           </div>
           <div class="form-row">
-            <label>Base de Datos</label>
+            <label for="connDatabase">Base de Datos</label>
             <input type="text" id="connDatabase" placeholder="nombre-de-base-de-datos">
           </div>
           <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
-            <button class="btn btn-primary" onclick="saveDbConnection()">💾 Guardar Conexión</button>
-            <button class="btn btn-secondary" onclick="provisionPolicies()">⚡ Provisionar Estructura DAM</button>
+            <button class="btn btn-primary" onclick="saveDbConnection()">Guardar Conexión</button>
+            <button class="btn btn-secondary" onclick="provisionPolicies()">Provisionar Estructura DAM</button>
           </div>
           <div id="connOutput" class="result-box" style="margin-top:1rem;">Configure una conexión para provisionar la estructura de políticas DAM automáticamente.</div>
         </div>
 
         <div class="card">
           <div class="card-header">
-            <h2 class="card-title">📋 Conexiones Registradas</h2>
+            <h2 class="card-title">Conexiones Registradas</h2>
           </div>
           <div id="connectionsList">
             <div style="color:var(--ink-2); font-size:0.9rem;">Cargando conexiones...</div>
@@ -2150,11 +2514,11 @@
         <h1>Panel de administración</h1>
       </div>
       <div class="admin-sub-tabs">
-        <button class="admin-sub-tab active" onclick="switchAdminTab('users')">👥 Usuarios</button>
-        <button class="admin-sub-tab" onclick="switchAdminTab('policies')">📋 Políticas DAM</button>
-        <button class="admin-sub-tab" onclick="switchAdminTab('squads')">🏆 Squads</button>
-        <button class="admin-sub-tab" onclick="switchAdminTab('apikeys')">🔑 API Keys</button>
-        <button class="admin-sub-tab" onclick="switchAdminTab('codegen')">⚙️ Generador de Códigos</button>
+        <button class="admin-sub-tab active" onclick="switchAdminTab('users')">Usuarios</button>
+        <button class="admin-sub-tab" onclick="switchAdminTab('policies')">Políticas DAM</button>
+        <button class="admin-sub-tab" onclick="switchAdminTab('squads')">Squads</button>
+        <button class="admin-sub-tab" onclick="switchAdminTab('apikeys')">API Keys</button>
+        <button class="admin-sub-tab" onclick="switchAdminTab('codegen')">Generador de Códigos</button>
       </div>
 
       <!-- Users sub-tab -->
@@ -2162,23 +2526,23 @@
         <div class="grid-2">
           <div class="card">
             <div class="card-header">
-              <h2 class="card-title">➕ Crear / Actualizar Usuario</h2>
+              <h2 class="card-title">Crear / Actualizar Usuario</h2>
             </div>
-            <div class="form-row"><label>Usuario</label><input type="text" id="newUsername" placeholder="username"></div>
-            <div class="form-row"><label>Nombre Completo</label><input type="text" id="newFullName" placeholder="Nombre completo"></div>
-            <div class="form-row"><label>Contraseña</label><input type="password" id="newPassword" placeholder="Nueva contraseña (vacío = no cambiar)"></div>
+            <div class="form-row"><label for="newUsername">Usuario</label><input type="text" id="newUsername" placeholder="username"></div>
+            <div class="form-row"><label for="newFullName">Nombre Completo</label><input type="text" id="newFullName" placeholder="Nombre completo"></div>
+            <div class="form-row"><label for="newPassword">Contraseña</label><input type="password" id="newPassword" placeholder="Nueva contraseña (vacío = no cambiar)"></div>
             <div class="form-row">
-              <label>Rol</label>
+              <label for="newRole">Rol</label>
               <select id="newRole">
-                <option value="ADMIN">🔐 ADMIN — Acceso Completo</option>
-                <option value="MARTECH">⚙️ MARTECH — Reglas & Aprobaciones</option>
-                <option value="VCD">🎨 VCD — Creación de Assets</option>
-                <option value="VIEWER">👁️ VIEWER — Solo Lectura</option>
+                <option value="ADMIN">ADMIN — Acceso Completo</option>
+                <option value="MARTECH">MARTECH — Reglas & Aprobaciones</option>
+                <option value="VCD">VCD — Creación de Assets</option>
+                <option value="VIEWER">VIEWER — Solo Lectura</option>
               </select>
             </div>
-            <div class="form-row"><label>Grupo de Red</label><input type="text" id="newNetworkGroup" placeholder="Ej: MARTECH_TEAM"></div>
+            <div class="form-row"><label for="newNetworkGroup">Grupo de Red</label><input type="text" id="newNetworkGroup" placeholder="Ej: MARTECH_TEAM"></div>
             <div style="display:flex; gap:0.5rem;">
-              <button class="btn btn-primary" onclick="createUser()">💾 Guardar Usuario</button>
+              <button class="btn btn-primary" onclick="createUser()">Guardar Usuario</button>
               <label style="display:flex; align-items:center; gap:0.4rem; text-transform:none; font-size:0.88rem; color:var(--ink-1); cursor:pointer;">
                 <input type="checkbox" id="newIsActive" style="width:auto;" checked> Activo
               </label>
@@ -2187,8 +2551,8 @@
           </div>
           <div class="card">
             <div class="card-header">
-              <h2 class="card-title">👥 Usuarios Registrados</h2>
-              <button class="btn btn-secondary btn-sm" onclick="loadUsers()">🔄</button>
+              <h2 class="card-title">Usuarios Registrados</h2>
+              <button class="btn btn-secondary btn-sm" onclick="loadUsers()">Actualizar</button>
             </div>
             <div id="usersList" style="overflow-x:auto;">
               <div style="color:var(--ink-2); font-size:0.9rem;">Cargando usuarios...</div>
@@ -2201,22 +2565,22 @@
       <div id="admin-policies" class="admin-sub-content" style="display:none;">
         <div class="grid-2">
           <div class="card">
-            <div class="card-header"><h2 class="card-title">➕ Crear Política DAM</h2></div>
-            <div class="form-row"><label>Nombre de la Política</label><input type="text" id="polName" placeholder="Ej: Política de Imagen Corporativa"></div>
-            <div class="form-row"><label>Descripción</label><textarea id="polDesc" rows="2" placeholder="Descripción breve de la política..."></textarea></div>
-            <div class="form-row"><label>Canales Permitidos (separados por coma)</label><input type="text" id="polChannels" value="AJO_INWEB,EMAIL,WHATSAPP"></div>
-            <div class="form-row"><label>Términos Prohibidos (separados por coma)</label><textarea id="polForbidden" rows="2">100% garantizado,sin evaluación,dinero fácil</textarea></div>
+            <div class="card-header"><h2 class="card-title">Crear Política DAM</h2></div>
+            <div class="form-row"><label for="polName">Nombre de la Política</label><input type="text" id="polName" placeholder="Ej: Política de Imagen Corporativa"></div>
+            <div class="form-row"><label for="polDesc">Descripción</label><textarea id="polDesc" rows="2" placeholder="Descripción breve de la política..."></textarea></div>
+            <div class="form-row"><label for="polChannels">Canales Permitidos (separados por coma)</label><input type="text" id="polChannels" value="AJO_INWEB,EMAIL,WHATSAPP"></div>
+            <div class="form-row"><label for="polForbidden">Términos Prohibidos (separados por coma)</label><textarea id="polForbidden" rows="2">100% garantizado,sin evaluación,dinero fácil</textarea></div>
             <div class="form-row">
-              <label>Intenciones que requieren revisión humana</label>
+              <label for="polSensitive">Intenciones que requieren revisión humana</label>
               <input type="text" id="polSensitive" value="CREDIT_DEFAULT,COLLECTIONS,LEGAL_NOTICE">
             </div>
-            <button class="btn btn-primary" onclick="createPolicy()">💾 Guardar Política</button>
+            <button class="btn btn-primary" onclick="createPolicy()">Guardar Política</button>
             <div id="policyCreateResult" class="result-box" style="margin-top:1rem; display:none;"></div>
           </div>
           <div class="card">
             <div class="card-header">
-              <h2 class="card-title">📋 Políticas Activas</h2>
-              <button class="btn btn-secondary btn-sm" onclick="loadPolicies()">🔄</button>
+              <h2 class="card-title">Políticas Activas</h2>
+              <button class="btn btn-secondary btn-sm" onclick="loadPolicies()">Actualizar</button>
             </div>
             <div id="policiesList" class="result-box" style="max-height:450px;">Cargando políticas...</div>
           </div>
@@ -2227,11 +2591,11 @@
       <div id="admin-squads" class="admin-sub-content" style="display:none;">
         <div class="grid-2">
           <div class="card">
-            <div class="card-header"><h2 class="card-title">🏆 Crear Squad</h2></div>
-            <div class="form-row"><label>Nombre del Squad</label><input type="text" id="squadName" placeholder="Ej: Squad Tarjetas Digitales"></div>
-            <div class="form-row"><label>Descripción</label><input type="text" id="squadDesc" placeholder="Descripción del squad..."></div>
-            <div class="form-row"><label>Grupo de Red</label><input type="text" id="squadNetworkGroup" placeholder="MARTECH_TEAM"></div>
-            <div class="form-row"><label>Líder del Squad</label><input type="text" id="squadLeader" placeholder="username del líder"></div>
+            <div class="card-header"><h2 class="card-title">Crear Squad</h2></div>
+            <div class="form-row"><label for="squadName">Nombre del Squad</label><input type="text" id="squadName" placeholder="Ej: Squad Tarjetas Digitales"></div>
+            <div class="form-row"><label for="squadDesc">Descripción</label><input type="text" id="squadDesc" placeholder="Descripción del squad..."></div>
+            <div class="form-row"><label for="squadNetworkGroup">Grupo de Red</label><input type="text" id="squadNetworkGroup" placeholder="MARTECH_TEAM"></div>
+            <div class="form-row"><label for="squadLeader">Líder del Squad</label><input type="text" id="squadLeader" placeholder="username del líder"></div>
             <div class="form-row">
               <label>Roles permitidos en el squad</label>
               <div style="display:flex; gap:0.75rem; flex-wrap:wrap; margin-top:0.4rem;">
@@ -2240,11 +2604,11 @@
                 <label style="display:flex;align-items:center;gap:0.3rem;text-transform:none;color:var(--ink-1);font-size:0.88rem;cursor:pointer;"><input type="checkbox" value="VIEWER" style="width:auto;" class="squadRole"> VIEWER</label>
               </div>
             </div>
-            <button class="btn btn-primary" onclick="createSquad()">💾 Crear Squad</button>
+            <button class="btn btn-primary" onclick="createSquad()">Crear Squad</button>
             <div id="squadCreateResult" class="result-box" style="margin-top:1rem; display:none;"></div>
           </div>
           <div class="card">
-            <div class="card-header"><h2 class="card-title">🏆 Squads Activos</h2><button class="btn btn-secondary btn-sm" onclick="loadSquads()">🔄</button></div>
+            <div class="card-header"><h2 class="card-title">Squads Activos</h2><button class="btn btn-secondary btn-sm" onclick="loadSquads()">Actualizar</button></div>
             <div id="squadsList" class="result-box" style="max-height:450px;">Cargando squads...</div>
           </div>
         </div>
@@ -2254,8 +2618,8 @@
       <div id="admin-apikeys" class="admin-sub-content" style="display:none;">
         <div class="grid-2">
           <div class="card">
-            <div class="card-header"><h2 class="card-title">🔑 Generar API Key</h2></div>
-            <div class="form-row"><label>Label / Nombre de la API Key</label><input type="text" id="apiKeyLabel" placeholder="Ej: Workfront Integration Key"></div>
+            <div class="card-header"><h2 class="card-title">Generar API Key</h2></div>
+            <div class="form-row"><label for="apiKeyLabel">Label / Nombre de la API Key</label><input type="text" id="apiKeyLabel" placeholder="Ej: Workfront Integration Key"></div>
             <div class="form-row">
               <label>Permisos</label>
               <div style="display:flex; flex-direction:column; gap:0.4rem; margin-top:0.4rem;">
@@ -2265,14 +2629,14 @@
                 <label style="display:flex;align-items:center;gap:0.4rem;text-transform:none;color:var(--ink-1);font-size:0.88rem;cursor:pointer;"><input type="checkbox" value="APPROVE_ASSETS" style="width:auto;" class="apiPerm"> APPROVE_ASSETS</label>
               </div>
             </div>
-            <button class="btn btn-primary" onclick="createApiKey()">🔑 Generar API Key</button>
+            <button class="btn btn-primary" onclick="createApiKey()">Generar API Key</button>
             <div id="apiKeyResult" class="result-box" style="margin-top:1rem; display:none;"></div>
           </div>
           <div class="card">
-            <div class="card-header"><h2 class="card-title">📋 API Keys Activas</h2></div>
+            <div class="card-header"><h2 class="card-title">API Keys Activas</h2></div>
             <div id="apiKeysList" class="result-box" style="max-height:450px;">Cargando API keys...</div>
             <div style="margin-top:1rem; padding:1rem; background:rgba(0,132,255,0.05); border:1px solid rgba(0,132,255,0.15); border-radius:8px; font-size:0.82rem; color:var(--ink-2);">
-              💡 <strong style="color:var(--ink-1);">Uso de API Pública:</strong> Incluya el header <code style="background:rgba(255,255,255,0.05); padding:0.1rem 0.3rem; border-radius:3px;">X-API-Key: [su_key]</code> en las peticiones a <code>GET /api/public/assets</code>
+              <strong style="color:var(--ink-1);">Uso de API Pública:</strong> Incluya el header <code style="background:rgba(255,255,255,0.05); padding:0.1rem 0.3rem; border-radius:3px;">X-API-Key: [su_key]</code> en las peticiones a <code>GET /api/public/assets</code>
             </div>
           </div>
         </div>
@@ -2281,9 +2645,9 @@
       <!-- Code Generator sub-tab -->
       <div id="admin-codegen" class="admin-sub-content" style="display:none;">
         <div class="card" style="max-width:600px;">
-          <div class="card-header"><h2 class="card-title">⚙️ Generador de Códigos e IDs</h2></div>
+          <div class="card-header"><h2 class="card-title">Generador de Códigos e IDs</h2></div>
           <div class="form-row">
-            <label>Prefijo del Código</label>
+            <label for="codePrefix">Prefijo del Código</label>
             <select id="codePrefix">
               <option value="ACC">ACC — Código de Acceso</option>
               <option value="INIT">INIT — ID de Iniciativa</option>
@@ -2293,7 +2657,7 @@
               <option value="NG">NG — Grupo de Red</option>
             </select>
           </div>
-          <button class="btn btn-primary" onclick="generateCode()">⚡ Generar Código</button>
+          <button class="btn btn-primary" onclick="generateCode()">Generar Código</button>
           <div id="codeGenResult" class="result-box" style="margin-top:1rem; display:none;"></div>
         </div>
       </div>
@@ -2562,7 +2926,7 @@
           user-select:none;
         "
           title="Haz clic para expandir/colapsar el panel de contexto geográfico y propuesta de assets por región y estacionalidad hemisférica.">
-          🌍 <span>Propuesta de Assets por Región y Estacionalidad Hemisférica</span>
+          <span>Propuesta de Assets por Región y Estacionalidad Hemisférica</span>
           <span id="geoToggleIcon" style="margin-left:auto;font-size:0.95rem;">▲</span>
         </summary>
         <div style="
@@ -2585,11 +2949,10 @@
             gap:0.6rem;
             align-items:flex-start;
           ">
-            <span style="font-size:1.1rem;">ℹ️</span>
             <span>
               <strong>Anti-Alucinación Hemisférica:</strong> En LATAM, el 25 de diciembre es
-              <strong>VERANO ☀️</strong> (playa, calor 26-31°C). En Norteamérica/Europa es
-              <strong>INVIERNO ❄️</strong> (nieve, frío). El motor ajusta automáticamente las
+              <strong>VERANO</strong> (playa, calor 26-31°C). En Norteamérica/Europa es
+              <strong>INVIERNO</strong> (nieve, frío). El motor ajusta automáticamente las
               propuestas de assets e imágenes según la región y la época del año seleccionada.
             </span>
           </div>
@@ -2597,47 +2960,47 @@
           <div style="display:grid;grid-template-columns:1fr 1fr 1fr auto;gap:0.75rem;align-items:end;flex-wrap:wrap;" id="geoFormRow">
             <!-- Region -->
             <div>
-              <label style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-2);display:block;margin-bottom:0.4rem;"
+              <label for="geoRegion" style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-2);display:block;margin-bottom:0.4rem;"
                 title="Selecciona la región geográfica del caso de uso para ajustar las propuestas visuales según el hemisferio y el clima local.">
-                🗺️ Región / Mercado
+                Región / Mercado
               </label>
               <select id="geoRegion" style="width:100%;padding:0.5rem 0.6rem;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--ink-1);font-size:0.82rem;"
                 title="LATAM_COSTA: Perú costa (Lima, Trujillo) · LATAM_ANDINA: Sierra andina (Cusco, Arequipa) · LATAM_SUR: Cono Sur (Chile, Argentina) · NORTEAMERICA: USA/Canadá/México · EUROPA: España/Europa">
                 <option value="LATAM_COSTA">🇵🇪 LATAM Costa (Lima, Trujillo…)</option>
-                <option value="LATAM_ANDINA">🏔️ LATAM Andina (Cusco, Sierra…)</option>
-                <option value="LATAM_SUR">🌊 LATAM Sur (Chile, Argentina)</option>
-                <option value="LATAM_CARIBE">🌴 LATAM Caribe (Colombia, Panamá)</option>
+                <option value="LATAM_ANDINA">LATAM Andina (Cusco, Sierra…)</option>
+                <option value="LATAM_SUR">LATAM Sur (Chile, Argentina)</option>
+                <option value="LATAM_CARIBE">LATAM Caribe (Colombia, Panamá)</option>
                 <option value="NORTEAMERICA">🇺🇸 Norteamérica (USA/MX/CA)</option>
                 <option value="EUROPA">🇪🇺 Europa (España, UK…)</option>
-                <option value="ASIA_PAC">🌏 Asia-Pacífico</option>
+                <option value="ASIA_PAC">Asia-Pacífico</option>
               </select>
             </div>
 
             <!-- Occasion/Season -->
             <div>
-              <label style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-2);display:block;margin-bottom:0.4rem;"
+              <label for="geoSeason" style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-2);display:block;margin-bottom:0.4rem;"
                 title="Selecciona la época o festividad para proponer assets visuales culturalmente correctos. En el hemisferio sur, diciembre = verano.">
-                📅 Época / Festividad
+                Época / Festividad
               </label>
               <select id="geoSeason" style="width:100%;padding:0.5rem 0.6rem;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--ink-1);font-size:0.82rem;"
                 title="Navidad Dic-25: hemisferio sur=verano, norte=invierno · Fiestas Patrias: 28 Jul para Perú · Black Friday: noviembre · etc.">
-                <option value="NAVIDAD_DIC_25">🎄 Navidad (Dic 25)</option>
-                <option value="VERANO_ENE_MAR">☀️ Verano Ene-Mar (HemSur)</option>
-                <option value="INVIERNO_JUN_AGO">❄️ Invierno Jun-Ago (HemSur)</option>
-                <option value="FIESTAS_PATRIAS_JUL_28">🎆 Fiestas Patrias (28 Jul)</option>
-                <option value="BLACK_FRIDAY_NOV">🛍️ Black Friday (Nov)</option>
-                <option value="VERANO_JUL_AGO_NORTE">🏖️ Verano Jul-Ago (HemNor)</option>
-                <option value="SAN_VALENTIN_FEB">💕 San Valentín (Feb)</option>
-                <option value="DIA_MADRE_MAY">🌷 Día de la Madre (May)</option>
-                <option value="GENERICO">📆 Campaña Genérica</option>
+                <option value="NAVIDAD_DIC_25">Navidad (Dic 25)</option>
+                <option value="VERANO_ENE_MAR">Verano Ene-Mar (HemSur)</option>
+                <option value="INVIERNO_JUN_AGO">Invierno Jun-Ago (HemSur)</option>
+                <option value="FIESTAS_PATRIAS_JUL_28">Fiestas Patrias (28 Jul)</option>
+                <option value="BLACK_FRIDAY_NOV">Black Friday (Nov)</option>
+                <option value="VERANO_JUL_AGO_NORTE">Verano Jul-Ago (HemNor)</option>
+                <option value="SAN_VALENTIN_FEB">San Valentín (Feb)</option>
+                <option value="DIA_MADRE_MAY">Día de la Madre (May)</option>
+                <option value="GENERICO">Campaña Genérica</option>
               </select>
             </div>
 
             <!-- Use Case -->
             <div>
-              <label style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-2);display:block;margin-bottom:0.4rem;"
+              <label for="geoUseCase" style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-2);display:block;margin-bottom:0.4rem;"
                 title="Describe brevemente el caso de uso o campaña para personalizar las propuestas de assets e imágenes. Ej: 'préstamos personales', 'tarjeta Visa Gold', 'descuentos restaurantes'.">
-                🎯 Caso de Uso / Campaña
+                Caso de Uso / Campaña
               </label>
               <input type="text" id="geoUseCase" placeholder="Ej: préstamos personales, Visa Gold…"
                 style="width:100%;padding:0.5rem 0.6rem;background:var(--surface-2);border:1px solid var(--border);border-radius:var(--radius-sm);color:var(--ink-1);font-size:0.82rem;"
@@ -2650,7 +3013,7 @@
               <button class="btn btn-primary" onclick="proposeGeoAssets()"
                 style="white-space:nowrap;width:100%;"
                 title="Genera una propuesta de paleta de colores, imágenes y assets visuales adaptados a la región geográfica y la estacionalidad hemisférica seleccionada. Incluye advertencias anti-alucinación para evitar errores culturales (ej: nieve en Lima en diciembre).">
-                🌎 Proponer Assets por Región
+                Proponer Assets por Región
               </button>
             </div>
           </div>
@@ -2671,8 +3034,8 @@
 
           <!-- Asset Proposal Grid -->
           <div id="geoAssetGrid" style="display:none;margin-top:1rem;">
-            <p style="font-size:0.72rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-2);margin-bottom:0.6rem;">
-              🖼️ Assets Propuestos para esta Región/Estación
+            <p style="font-size:0.75rem;font-weight:700;text-transform:uppercase;letter-spacing:0.07em;color:var(--ink-2);margin-bottom:0.6rem;">
+              Assets Propuestos para esta Región/Estación
             </p>
             <div id="geoAssetGridItems" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:0.75rem;"></div>
           </div>
@@ -2681,7 +3044,7 @@
           <details style="margin-top:1rem;" id="geoLocationPanel">
             <summary style="font-size:0.78rem;font-weight:600;color:var(--ink-2);cursor:pointer;padding:0.4rem 0;"
               title="Busca una sede o dirección específica para enriquecer el contexto geográfico del activo visual (barrio, clima local, referencias culturales).">
-              📍 Enriquecer con ubicación específica (sede / evento)
+              Enriquecer con ubicación específica (sede / evento)
             </summary>
             <div style="display:flex;gap:0.6rem;margin-top:0.6rem;">
               <input type="text" id="placesQuery" value="San Isidro"
@@ -2691,7 +3054,7 @@
               />
               <button class="btn btn-secondary btn-sm" onclick="lookupLocation()"
                 title="Consulta el contexto de la ubicación ingresada para enriquecer la propuesta visual con datos geográficos y culturales locales.">
-                📍 Consultar
+                Consultar
               </button>
             </div>
             <div id="placesOutput" class="result-box" style="margin-top:0.6rem;font-size:0.78rem;">
@@ -2704,14 +3067,14 @@
       <!-- Header de la sección -->
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1.25rem;">
         <div>
-          <h1 style="font-size:1.3rem; font-weight:800; margin-bottom:0.25rem;">🖊️ Editor Nativo de Assets</h1>
+          <h1 style="font-size:1.3rem; font-weight:800; margin-bottom:0.25rem;">Editor Nativo de Assets</h1>
           <p style="font-size:0.82rem; color:var(--ink-2);">HTML5 Canvas · Sin dependencias externas · Sirve a humanos y agentes MCP — <span style="color:var(--success);">IMPLEMENTADO</span></p>
         </div>
         <div style="display:flex; gap:0.5rem; flex-wrap:wrap;">
           <button class="btn btn-secondary btn-sm" onclick="editorUndo()" id="editorUndoBtn" disabled title="Deshacer">↩ Deshacer</button>
           <button class="btn btn-secondary btn-sm" onclick="editorRedo()" id="editorRedoBtn" disabled title="Rehacer">↪ Rehacer</button>
-          <button class="btn btn-primary btn-sm" onclick="editorExport()" id="editorExportBtn" disabled>⬇️ Exportar</button>
-          <button class="btn btn-orange btn-sm" onclick="editorSendToApproval()" id="editorApprovalBtn" disabled>📤 Enviar</button>
+          <button class="btn btn-primary btn-sm" onclick="editorExport()" id="editorExportBtn" disabled>Exportar</button>
+          <button class="btn btn-orange btn-sm" onclick="editorSendToApproval()" id="editorApprovalBtn" disabled>Enviar</button>
         </div>
       </div>
 
@@ -2720,12 +3083,12 @@
 
         <!-- ── COLUMNA IZQUIERDA: Herramientas ── -->
         <div class="editor-panel">
-          <div class="editor-panel-header">🎨 Herramientas</div>
+          <div class="editor-panel-header">Herramientas</div>
           <div class="editor-panel-body">
 
             <!-- Upload -->
             <label class="editor-upload-btn" for="editorFileInput" title="Formatos: PNG, JPG, JPEG, WebP, SVG">
-              📁 Cargar Imagen
+              Cargar Imagen
               <input type="file" id="editorFileInput" accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none" onchange="editorLoadImage(event)">
             </label>
 
@@ -2738,7 +3101,7 @@
 
             <!-- Presets BCP / AJO -->
             <div class="editor-tool-group">
-              <label>📐 Presets de Canal BCP</label>
+              <label>Presets de Canal BCP</label>
               <div class="preset-grid" id="editorPresetGrid">
                 <div class="preset-btn" onclick="editorApplyPreset('AJO_INWEB_BANNER')" data-preset="AJO_INWEB_BANNER">AJO InWeb<br>1200×628</div>
                 <div class="preset-btn" onclick="editorApplyPreset('WHATSAPP_CARD')" data-preset="WHATSAPP_CARD">WhatsApp<br>800×800</div>
@@ -2751,7 +3114,7 @@
 
             <!-- Transformaciones -->
             <div class="editor-tool-group">
-              <label>🔄 Transformaciones</label>
+              <label>Transformaciones</label>
               <div class="editor-tool-row">
                 <button class="tool-btn" onclick="editorRotate(-90)" title="Girar 90° izquierda">↺ -90°</button>
                 <button class="tool-btn" onclick="editorRotate(90)" title="Girar 90° derecha">↻ +90°</button>
@@ -2764,27 +3127,27 @@
 
             <!-- Ajustes de imagen -->
             <div class="editor-tool-group">
-              <label>🌟 Ajustes</label>
+              <label>Ajustes</label>
               <div class="slider-row">
-                <label>Brillo <span id="lblBrightness">0</span></label>
+                <label for="slBrightness">Brillo <span id="lblBrightness">0</span></label>
                 <input type="range" id="slBrightness" min="-100" max="100" value="0" oninput="editorOnSlider('brightness', this.value)">
               </div>
               <div class="slider-row">
-                <label>Contraste <span id="lblContrast">0</span></label>
+                <label for="slContrast">Contraste <span id="lblContrast">0</span></label>
                 <input type="range" id="slContrast" min="-100" max="100" value="0" oninput="editorOnSlider('contrast', this.value)">
               </div>
               <div class="slider-row">
-                <label>Saturación <span id="lblSaturation">0</span></label>
+                <label for="slSaturation">Saturación <span id="lblSaturation">0</span></label>
                 <input type="range" id="slSaturation" min="-100" max="100" value="0" oninput="editorOnSlider('saturation', this.value)">
               </div>
             </div>
 
             <!-- Acciones destructivas -->
             <div class="editor-tool-group">
-              <label>⚙️ Acciones</label>
+              <label>Acciones</label>
               <div class="editor-tool-row">
-                <button class="tool-btn" onclick="editorAddBrandOverlay()" title="Añadir logo BCP">🏷️ Marca BCP</button>
-                <button class="tool-btn danger" onclick="editorReset()" title="Restaurar imagen original">🔄 Reset</button>
+                <button class="tool-btn" onclick="editorAddBrandOverlay()" title="Añadir logo BCP">Marca BCP</button>
+                <button class="tool-btn danger" onclick="editorReset()" title="Restaurar imagen original">Reset</button>
               </div>
             </div>
 
@@ -2794,12 +3157,12 @@
         <!-- ── COLUMNA CENTRAL: Canvas ── -->
         <div class="editor-panel">
           <div class="editor-panel-header">
-            🖼️ Previsualización
-            <span id="editorCanvasInfo" style="font-family:var(--font-mono); font-size:0.7rem; margin-left:auto; color:var(--ink-3);">Sin imagen cargada</span>
+            Previsualización
+            <span id="editorCanvasInfo" style="font-family:var(--font-mono); font-size:0.75rem; margin-left:auto; color:var(--ink-3);">Sin imagen cargada</span>
           </div>
           <div class="editor-canvas-wrap" id="editorCanvasWrap">
             <div class="editor-no-image" id="editorNoImage">
-              <span class="icon">🖼️</span>
+              <span class="icon"></span>
               <p>Carga una imagen para comenzar a editar</p>
               <p style="margin-top:0.5rem; font-size:0.75rem;">Formatos: PNG · JPEG · WebP · SVG</p>
             </div>
@@ -2808,13 +3171,13 @@
           </div>
           <div class="editor-status-bar">
             <span id="editorStatusMsg">Listo — Carga una imagen para comenzar</span>
-            <span id="editorOpsCount" style="color:var(--bcp-orange); font-family:var(--font-mono); font-size:0.7rem;">0 ops</span>
+            <span id="editorOpsCount" style="color:var(--bcp-orange); font-family:var(--font-mono); font-size:0.75rem;">0 ops</span>
           </div>
         </div><!-- /canvas panel -->
 
         <!-- ── COLUMNA DERECHA: Exportar + Log + Versiones ── -->
         <div class="editor-panel">
-          <div class="editor-panel-header">📦 Exportar & Versiones</div>
+          <div class="editor-panel-header">Exportar & Versiones</div>
           <div class="editor-panel-body">
 
             <!-- Formato de exportación -->
@@ -2833,11 +3196,11 @@
               <label>Dimensiones (px)</label>
               <div style="display:grid; grid-template-columns:1fr 1fr; gap:0.4rem;">
                 <div>
-                  <label style="font-size:0.68rem; color:var(--ink-3); margin-bottom:0.2rem; display:block;">Ancho</label>
+                  <label for="editorTargetW" style="font-size:0.75rem; color:var(--ink-3); margin-bottom:0.2rem; display:block;">Ancho</label>
                   <input type="number" id="editorTargetW" value="1200" min="1" max="8000" style="width:100%; background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:0.4rem 0.6rem; color:var(--ink-1); font-size:0.85rem;">
                 </div>
                 <div>
-                  <label style="font-size:0.68rem; color:var(--ink-3); margin-bottom:0.2rem; display:block;">Alto</label>
+                  <label for="editorTargetH" style="font-size:0.75rem; color:var(--ink-3); margin-bottom:0.2rem; display:block;">Alto</label>
                   <input type="number" id="editorTargetH" value="628" min="1" max="8000" style="width:100%; background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:0.4rem 0.6rem; color:var(--ink-1); font-size:0.85rem;">
                 </div>
               </div>
@@ -2845,25 +3208,25 @@
 
             <!-- Actor -->
             <div class="editor-tool-group">
-              <label>Actor (auditoría)</label>
+              <label for="editorActorInput">Actor (auditoría)</label>
               <input type="text" id="editorActorInput" placeholder="Ej: designer1" style="width:100%; background:var(--bg); border:1px solid var(--border); border-radius:6px; padding:0.4rem 0.6rem; color:var(--ink-1); font-size:0.85rem;">
             </div>
 
             <!-- Botones de exportar -->
             <div style="display:flex; flex-direction:column; gap:0.5rem;">
-              <button class="btn btn-orange" id="editorExportBtn2" onclick="editorExport()" disabled>⬇️ Descargar Export</button>
-              <button class="btn btn-primary" id="editorSendToSrv" onclick="editorSendToServer()" disabled>☁️ Registrar en Servidor</button>
+              <button class="btn btn-orange" id="editorExportBtn2" onclick="editorExport()" disabled>Descargar Export</button>
+              <button class="btn btn-primary" id="editorSendToSrv" onclick="editorSendToServer()" disabled>Registrar en Servidor</button>
             </div>
 
             <!-- Log de operaciones -->
             <div style="margin-top:1.25rem;">
-              <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-2); margin-bottom:0.4rem;">📋 Log de Operaciones</div>
+              <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-2); margin-bottom:0.4rem;">Log de Operaciones</div>
               <div id="editorLog"><div class="log-entry log-info">Sin operaciones registradas.</div></div>
             </div>
 
             <!-- Historial de versiones -->
             <div style="margin-top:1.25rem;">
-              <div style="font-size:0.72rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-2); margin-bottom:0.4rem;">🗂️ Historial de Versiones</div>
+              <div style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--ink-2); margin-bottom:0.4rem;">Historial de Versiones</div>
               <div class="editor-version-list" id="editorVersionList">
                 <div class="editor-version-item"><span class="editor-version-tag">v1.0-ORIGINAL</span><span>Base</span></div>
               </div>
@@ -2885,7 +3248,7 @@
       <!-- Ingesta Masiva de Múltiples Assets -->
       <div class="card" style="margin-bottom:1.5rem;">
         <div class="card-header">
-          <h2 class="card-title">📥 Ingesta Masiva de Múltiples Assets</h2>
+          <h2 class="card-title">Ingesta Masiva de Múltiples Assets</h2>
           <span class="badge badge-info">BATCH DAM UPLOAD</span>
         </div>
         <p style="color:var(--ink-2); font-size:0.88rem; margin-bottom:1rem;">
@@ -2894,7 +3257,6 @@
 
         <div class="batch-upload-box" onclick="document.getElementById('batchFileInput').click()">
           <input type="file" id="batchFileInput" multiple accept="image/png,image/jpeg,image/webp,image/svg+xml" style="display:none;" onchange="handleBatchFileSelect(event)">
-          <div style="font-size:2.2rem; margin-bottom:0.5rem;">📂</div>
           <div style="font-weight:700; color:var(--ink-1); font-size:1rem;">Haz clic o arrastra varios assets aquí</div>
           <div style="font-size:0.8rem; color:var(--ink-3); margin-top:0.25rem;">Formatos soportados: PNG, JPEG, WebP, SVG</div>
           <div id="batchSelectedSummary" style="margin-top:0.75rem; font-weight:600; color:var(--bcp-orange); display:none;"></div>
@@ -2922,7 +3284,7 @@
         </div>
 
         <button type="button" class="btn btn-primary" id="btnBatchUpload" onclick="executeBatchUpload()">
-          🚀 Ingestar Activos en Lote al Catálogo
+          Ingestar Activos en Lote al Catálogo
         </button>
         <div id="batchUploadStatus" class="result-box" style="margin-top:0.75rem; display:none;"></div>
       </div>
@@ -2930,7 +3292,7 @@
       <!-- Mesa de Montaje Multicapa Grid -->
       <div class="card">
         <div class="card-header">
-          <h2 class="card-title">🧩 Mesa de Montaje Multicapa & Composición de Nuevo Asset</h2>
+          <h2 class="card-title">Mesa de Montaje Multicapa & Composición de Nuevo Asset</h2>
           <div style="display:flex; gap:0.5rem; align-items:center;">
             <select id="canvasFormatPreset" onchange="updateCanvasPreset(this.value)" style="width:auto; padding:0.4rem 0.6rem; font-size:0.85rem;">
               <option value="1200x628">AJO InWeb Banner (1200×628)</option>
@@ -2947,15 +3309,15 @@
           <!-- Columna 1: Piezas Disponibles del Catálogo -->
           <div>
             <div style="font-weight:700; font-size:0.85rem; color:var(--ink-1); margin-bottom:0.6rem; display:flex; justify-content:space-between; align-items:center;">
-              <span>📚 Piezas Aprobadas</span>
-              <button type="button" class="btn btn-secondary btn-sm" onclick="populateCompositorPicker()">🔄</button>
+              <span>Piezas Aprobadas</span>
+              <button type="button" class="btn btn-secondary btn-sm" onclick="populateCompositorPicker()">Actualizar</button>
             </div>
             <div id="compositorAssetPicker" style="display:flex; flex-direction:column; gap:0.5rem; max-height:480px; overflow-y:auto; padding-right:4px;">
               <!-- Piezas pobladas por JS -->
             </div>
             <div style="margin-top:0.75rem;">
               <button type="button" class="btn btn-orange btn-sm" onclick="addCustomBadgeLayer()" style="width:100%;">
-                🏷️ + Sello Oficial Campaña BCP
+                + Sello Oficial Campaña BCP
               </button>
             </div>
           </div>
@@ -2972,7 +3334,7 @@
           <div style="display:flex; flex-direction:column; gap:1rem;">
             <div>
               <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:0.6rem;">
-                <span style="font-weight:700; font-size:0.85rem; color:var(--ink-1);">📑 Pila de Capas</span>
+                <span style="font-weight:700; font-size:0.85rem; color:var(--ink-1);">Pila de Capas</span>
                 <button type="button" class="btn btn-secondary btn-sm" onclick="clearAllLayers()" style="padding:0.2rem 0.5rem; font-size:0.75rem;">Limpiar</button>
               </div>
               <div id="layerStackList" style="display:flex; flex-direction:column; gap:0.5rem; max-height:260px; overflow-y:auto;">
@@ -2996,7 +3358,7 @@
                 </select>
               </div>
               <button type="button" class="btn btn-primary" id="btnGenerateComposite" onclick="generateAndCertifyComposite()" style="width:100%;">
-                ✨ Generar y Certificar Nuevo Activo
+                Generar y Certificar Nuevo Activo
               </button>
               <div id="compositingStatus" class="result-box" style="margin-top:0.75rem; display:none;"></div>
             </div>
@@ -3016,7 +3378,7 @@
       <div class="strategy-card">
         <div style="display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:0.5rem;">
           <div>
-            <h2 style="font-size:1.05rem; font-weight:700; color:var(--ink-1); margin:0;">🔀 Estrategia Activa de Integración Workfront</h2>
+            <h2 style="font-size:1.05rem; font-weight:700; color:var(--ink-1); margin:0;">Estrategia Activa de Integración Workfront</h2>
             <p style="font-size:0.82rem; color:var(--ink-2); margin:0.2rem 0 0;">Alterna entre conexión directa API / Webhooks y orquestación con Workfront Fusion iPaaS.</p>
           </div>
           <span class="badge badge-success" id="wfActiveStrategyBadge">FUSION ACTIVADO</span>
@@ -3043,10 +3405,10 @@
         <div style="margin-top:1.2rem; border-top:1px solid var(--border); padding-top:1rem;">
           <span style="font-size:0.75rem; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--ink-2);">Alcance de la Estrategia (Scope de Automatización):</span>
           <div class="scope-pill-group">
-            <label class="scope-pill"><input type="checkbox" id="scopeBriefs" checked onchange="handleScopeChange()"> 📥 Ingesta de Briefs desde Tareas</label>
-            <label class="scope-pill"><input type="checkbox" id="scopeApprovals" checked onchange="handleScopeChange()"> ✅ Aprobaciones & Proofing Formal</label>
-            <label class="scope-pill"><input type="checkbox" id="scopeCompositing" checked onchange="handleScopeChange()"> 🧩 Composición Multi-Asset</label>
-            <label class="scope-pill"><input type="checkbox" id="scopeAjoSync" checked onchange="handleScopeChange()"> ⚡ Sincronización AEM Dynamic Media & AJO</label>
+            <label class="scope-pill"><input type="checkbox" id="scopeBriefs" checked onchange="handleScopeChange()"> Ingesta de Briefs desde Tareas</label>
+            <label class="scope-pill"><input type="checkbox" id="scopeApprovals" checked onchange="handleScopeChange()"> Aprobaciones & Proofing Formal</label>
+            <label class="scope-pill"><input type="checkbox" id="scopeCompositing" checked onchange="handleScopeChange()"> Composición Multi-Asset</label>
+            <label class="scope-pill"><input type="checkbox" id="scopeAjoSync" checked onchange="handleScopeChange()"> Sincronización AEM Dynamic Media & AJO</label>
           </div>
         </div>
       </div>
@@ -3079,7 +3441,7 @@
         <!-- Tarjeta 1: Simulador de Aprobación / Rechazo desde Workfront -->
         <div class="card">
           <div class="card-header">
-            <h2 class="card-title">📝 Simular Webhook de Aprobación (Workfront)</h2>
+            <h2 class="card-title">Simular Webhook de Aprobación (Workfront)</h2>
             <span class="badge badge-info">RFC WEBHOOK</span>
           </div>
           <p style="color:var(--ink-2); font-size:0.88rem; margin-bottom:1rem;">
@@ -3087,7 +3449,7 @@
           </p>
 
           <div class="form-row">
-            <label>Activo / Documento de Workfront:</label>
+            <label for="wfApprovalAssetSelect">Activo / Documento de Workfront:</label>
             <select id="wfApprovalAssetSelect">
               <option value="aem_asset_visa_signature_card">Render Tarjeta Visa Signature (ast_003)</option>
               <option value="aem_asset_hipotecario_social_draft">Boceto Campaña Crédito Verde (ast_004)</option>
@@ -3096,7 +3458,7 @@
           </div>
 
           <div class="form-row">
-            <label>Decisión de Aprobación:</label>
+            <label for="wfApprovalStatus">Decisión de Aprobación:</label>
             <select id="wfApprovalStatus">
               <option value="APPROVED">APPROVED (Aprobado - Habilita Entrega Dynamic Media)</option>
               <option value="REJECTED">REJECTED (Rechazado - Devuelve a edición)</option>
@@ -3105,17 +3467,17 @@
           </div>
 
           <div class="form-row">
-            <label>Aprobador (Workfront User ID / Email):</label>
+            <label for="wfApproverActor">Aprobador (Workfront User ID / Email):</label>
             <input type="text" id="wfApproverActor" value="maria.santos@bcp.com.pe">
           </div>
 
           <div class="form-row">
-            <label>Comentarios / Observaciones de Aprobación:</label>
+            <label for="wfApprovalComments">Comentarios / Observaciones de Aprobación:</label>
             <textarea id="wfApprovalComments" rows="2" placeholder="Cumple con mandamientos de línea gráfica y paleta oficial BCP.">Aprobado formalmente en sesión de comité creativo BCP.</textarea>
           </div>
 
           <button type="button" class="btn btn-primary" id="btnSubmitWfApproval" onclick="simulateWorkfrontApprovalEvent()">
-            📩 Enviar Webhook de Decisión Workfront
+            Enviar Webhook de Decisión Workfront
           </button>
           <div id="wfApprovalResult" style="margin-top:0.75rem; font-size:0.85rem; display:none;"></div>
         </div>
@@ -3123,7 +3485,7 @@
         <!-- Tarjeta 2: Ingesta de Briefs y Alternador con Workfront Fusion -->
         <div class="card">
           <div class="card-header">
-            <h2 class="card-title">⚡ Ingesta de Briefs & Alternador Fusion</h2>
+            <h2 class="card-title">Ingesta de Briefs & Alternador Fusion</h2>
             <span class="badge badge-success">WORKFRONT FUSION</span>
           </div>
           <p style="color:var(--ink-2); font-size:0.88rem; margin-bottom:1rem;">
@@ -3131,17 +3493,17 @@
           </p>
 
           <div class="form-row">
-            <label>Acción de Orquestación:</label>
+            <label for="wfOrchestrationAction">Acción de Orquestación:</label>
             <select id="wfOrchestrationAction" onchange="handleWfActionChange(this.value)">
-              <option value="INGEST_BRIEF">📥 Ingestar Caso de Uso / Brief desde Tarea Workfront</option>
-              <option value="ALTERNATE_FLOW">🔄 Alternar Flujo Fase 2 (Workfront Fusion Scenario)</option>
-              <option value="SYNC_ASSET_STATUS">🔗 Sincronizar Estado con Adobe Journey Optimizer</option>
+              <option value="INGEST_BRIEF">Ingestar Caso de Uso / Brief desde Tarea Workfront</option>
+              <option value="ALTERNATE_FLOW">Alternar Flujo Fase 2 (Workfront Fusion Scenario)</option>
+              <option value="SYNC_ASSET_STATUS">Sincronizar Estado con Adobe Journey Optimizer</option>
             </select>
           </div>
 
           <div id="wfBriefInputs">
             <div class="form-row">
-              <label>Iniciativa:</label>
+              <label for="wfBriefInitiative">Iniciativa:</label>
               <select id="wfBriefInitiative">
                 <option value="INIT-BCP-CAMP-2026-01">INIT-BCP-CAMP-2026-01 (Campaña Verano BCP)</option>
                 <option value="INIT-BCP-CARD-2026-02">INIT-BCP-CARD-2026-02 (Tarjetas & Promociones)</option>
@@ -3149,11 +3511,11 @@
               </select>
             </div>
             <div class="form-row">
-              <label>Título del Caso de Uso / Brief:</label>
+              <label for="wfBriefTitle">Título del Caso de Uso / Brief:</label>
               <input type="text" id="wfBriefTitle" value="Promoción Remoto Playas 2026">
             </div>
             <div class="form-row">
-              <label>Canal Destino:</label>
+              <label for="wfBriefChannel">Canal Destino:</label>
               <select id="wfBriefChannel">
                 <option value="AJO_INWEB">AJO InWeb Banner (1200x628)</option>
                 <option value="WHATSAPP">WhatsApp Flow Card (800x800)</option>
@@ -3161,14 +3523,14 @@
               </select>
             </div>
             <div class="form-row">
-              <label>Prompt / Requerimientos Creativos:</label>
+              <label for="wfBriefDesc">Prompt / Requerimientos Creativos:</label>
               <textarea id="wfBriefDesc" rows="2">Campaña de verano para banca móvil con logo BCP y fondo azul marino.</textarea>
             </div>
           </div>
 
           <div id="wfFusionInputs" style="display:none;">
             <div class="form-row">
-              <label>Escenario de Workfront Fusion:</label>
+              <label for="wfFusionScenario">Escenario de Workfront Fusion:</label>
               <select id="wfFusionScenario">
                 <option value="SCENARIO_1_BRIEF_TO_DAMCRAFT">Escenario 1: Brief Workfront -> DAM Craft Variantes</option>
                 <option value="SCENARIO_2_COMPOSITING_APPROVAL">Escenario 2: Traslape Aprobado -> Certificación Workfront</option>
@@ -3178,7 +3540,7 @@
           </div>
 
           <button type="button" class="btn btn-secondary" id="btnExecuteWfAction" onclick="executeWorkfrontAction()">
-            ⚡ Ejecutar en Workfront / Fusion
+            Ejecutar en Workfront / Fusion
           </button>
           <div id="wfActionResult" style="margin-top:0.75rem; font-size:0.85rem; display:none;"></div>
         </div>
@@ -3188,7 +3550,6 @@
       <div class="card" style="margin-top:1.5rem; border:1px solid rgba(0, 132, 255, 0.4); background: rgba(0, 42, 143, 0.08);">
         <div class="card-header">
           <div style="display:flex; align-items:center; gap:0.6rem;">
-            <span style="font-size:1.4rem;">⚡</span>
             <div>
               <h2 class="card-title" style="margin-bottom:0.2rem;">Adobe Workfront Fusion — Conexión en Vivo con Data Store</h2>
               <p style="font-size:0.8rem; color:var(--ink-2);">
@@ -3201,29 +3562,29 @@
 
         <div style="display:grid; grid-template-columns: 2fr 1fr 1fr; gap:0.75rem; margin-bottom:1rem;">
           <div>
-            <label style="font-size:0.72rem; font-weight:700; color:var(--ink-2); display:block; margin-bottom:0.3rem;">Webhook URL de Workfront Fusion:</label>
+            <label for="liveFusionUrl" style="font-size:0.75rem; font-weight:700; color:var(--ink-2); display:block; margin-bottom:0.3rem;">Webhook URL de Workfront Fusion:</label>
             <input type="text" id="liveFusionUrl" value="https://hook.fusion.adobe.com/nxb3d90rt8tc32zeu98fz9sr7it9hg5o" style="font-family:var(--font-mono); font-size:0.8rem; width:100%;">
           </div>
           <div>
-            <label style="font-size:0.72rem; font-weight:700; color:var(--ink-2); display:block; margin-bottom:0.3rem;">Usuario (authUser):</label>
+            <label for="liveFusionUser" style="font-size:0.75rem; font-weight:700; color:var(--ink-2); display:block; margin-bottom:0.3rem;">Usuario (authUser):</label>
             <input type="text" id="liveFusionUser" value="DYNAMICTEST" style="font-family:var(--font-mono); font-size:0.8rem; width:100%;">
           </div>
           <div>
-            <label style="font-size:0.72rem; font-weight:700; color:var(--ink-2); display:block; margin-bottom:0.3rem;">Contraseña (authPass):</label>
+            <label for="liveFusionPass" style="font-size:0.75rem; font-weight:700; color:var(--ink-2); display:block; margin-bottom:0.3rem;">Contraseña (authPass):</label>
             <input type="password" id="liveFusionPass" value="DYNAMICTEST01" style="font-family:var(--font-mono); font-size:0.8rem; width:100%;">
           </div>
         </div>
 
         <div class="form-row">
-          <label style="font-size:0.72rem; font-weight:700; color:var(--ink-2); display:block; margin-bottom:0.3rem;">Payload / Datos enviados en el nodo "data" hacia el Data Store:</label>
+          <label for="liveFusionPayloadText" style="font-size:0.75rem; font-weight:700; color:var(--ink-2); display:block; margin-bottom:0.3rem;">Payload / Datos enviados en el nodo "data" hacia el Data Store:</label>
           <textarea id="liveFusionPayloadText" rows="3" style="font-family:var(--font-mono); font-size:0.8rem; width:100%;">{"action":"USE_CASE_EVALUATION","initiativeId":"INIT-BCP-CAMP-2026-01","projectName":"Campaña BCP Dynamic Media Verano","assetId":"ast_003","status":"APPROVED","channel":"AJO_INWEB","actor":"martech.lead@viabcp.com","notes":"Verificado contra mandamientos de gobernanza BCP y listo para Dynamic Media."}</textarea>
         </div>
 
         <div style="display:flex; gap:0.75rem; align-items:center;">
           <button type="button" class="btn btn-primary" id="btnSendLiveFusion" onclick="sendLiveWorkfrontFusion()">
-            ⚡ Disparar al Webhook de Fusion (Data Store)
+            Disparar al Webhook de Fusion (Data Store)
           </button>
-          <span id="liveFusionSpinner" style="display:none; font-size:0.85rem; color:var(--bcp-orange);">⏳ Transmitiendo por puerto seguro HTTPS 443...</span>
+          <span id="liveFusionSpinner" style="display:none; font-size:0.85rem; color:var(--bcp-orange);">Transmitiendo por puerto seguro HTTPS 443...</span>
         </div>
 
         <div id="liveFusionResult" style="display:none; margin-top:1rem; padding:0.85rem; background:rgba(0,0,0,0.3); border:1px solid var(--border); border-radius:var(--radius-sm); font-family:var(--font-mono); font-size:0.82rem;"></div>
@@ -3232,9 +3593,9 @@
       <!-- Tarjeta 3: Consola de Auditoría y Eventos Webhook en Tiempo Real -->
       <div class="card" style="margin-top:1.5rem;">
         <div class="card-header">
-          <h2 class="card-title">📡 Registro de Eventos Webhook & Integraciones (Audit Trail)</h2>
+          <h2 class="card-title">Registro de Eventos Webhook & Integraciones (Audit Trail)</h2>
           <div style="display:flex; gap:0.5rem; align-items:center;">
-            <button class="btn btn-secondary btn-sm" onclick="loadWorkfrontEvents()">🔄 Refrescar Registro</button>
+            <button class="btn btn-secondary btn-sm" onclick="loadWorkfrontEvents()">Refrescar Registro</button>
           </div>
         </div>
         <div style="overflow-x:auto;">
@@ -3289,7 +3650,7 @@
       const txt = document.getElementById("themeToggleTxt");
       const ico = document.getElementById("themeToggleIco");
       if (txt) txt.textContent = isDark ? "Tema Oscuro" : "Tema Claro";
-      if (ico) ico.textContent = isDark ? "🌙" : "☀️";
+      if (ico) ico.textContent = isDark ? "" : "";
     }
 
     function toggleTheme() {
@@ -3312,7 +3673,7 @@
       try {
         const resp = await apiFetch("/api/system/env-status");
         if (badge) {
-          badge.textContent = resp.hasEnvLocal ? "✅ .env.local ACTIVO" : (resp.hasEnv ? "⚠️ .env DETECTADO" : "ℹ️ ENTORNO DEL SISTEMA");
+          badge.textContent = resp.hasEnvLocal ? ".env.local ACTIVO" : (resp.hasEnv ? ".env DETECTADO" : "ENTORNO DEL SISTEMA");
           badge.className = resp.hasEnvLocal ? "badge badge-success" : "badge badge-warning";
         }
 
@@ -3326,14 +3687,14 @@
             <div style="background:var(--surface-2); border:1px solid ${statusBorder}; border-radius:var(--radius-sm); padding:0.85rem; display:flex; flex-direction:column; gap:0.35rem;">
               <div style="display:flex; justify-content:space-between; align-items:center;">
                 <span style="font-family:var(--font-mono); font-size:0.75rem; font-weight:700; color:var(--ink-1);">${key}</span>
-                <span style="font-size:0.7rem; font-weight:700; color:${statusColor}; background:${statusBg}; padding:0.15rem 0.4rem; border-radius:3px;">
+                <span style="font-size:0.75rem; font-weight:700; color:${statusColor}; background:${statusBg}; padding:0.15rem 0.4rem; border-radius:3px;">
                   ${isOk ? "CONFIGURADO" : "NO DEFINIDO"}
                 </span>
               </div>
-              <div style="font-family:var(--font-mono); font-size:0.72rem; color:var(--ink-2); word-break:break-all;">
+              <div style="font-family:var(--font-mono); font-size:0.75rem; color:var(--ink-2); word-break:break-all;">
                 ${item.preview || '<span style="color:var(--ink-3);">Sin valor</span>'}
               </div>
-              <div style="font-size:0.7rem; color:var(--ink-3); margin-top:auto;">
+              <div style="font-size:0.75rem; color:var(--ink-3); margin-top:auto;">
                 ${item.description}
               </div>
             </div>
@@ -3711,7 +4072,7 @@
     async function testGovernanceValidation() {
       const output = document.getElementById("govResultOutput");
       const badge = document.getElementById("govDecisionBadge");
-      output.innerText = "⏳ Evaluando mandamientos en MongoDB Atlas...";
+      output.innerText = "Evaluando mandamientos en MongoDB Atlas...";
 
       try {
         const data = await apiFetch("/api/governance/validate", {
@@ -3726,9 +4087,9 @@
         output.innerText = JSON.stringify(data, null, 2);
 
         badge.className = "badge";
-        if (data.decision === "ALLOW") { badge.classList.add("badge-allow"); badge.innerText = "✅ AUTORIZADO"; }
-        else if (data.decision === "DENY") { badge.classList.add("badge-deny"); badge.innerText = "🚫 BLOQUEADO"; }
-        else { badge.classList.add("badge-review"); badge.innerText = "⚠️ REVISIÓN"; }
+        if (data.decision === "ALLOW") { badge.classList.add("badge-allow"); badge.innerText = "AUTORIZADO"; }
+        else if (data.decision === "DENY") { badge.classList.add("badge-deny"); badge.innerText = "BLOQUEADO"; }
+        else { badge.classList.add("badge-review"); badge.innerText = "REVISIÓN"; }
       } catch (err) {
         output.innerText = "Error: " + err.message;
       }
@@ -3754,7 +4115,7 @@
       const file = event.target.files[0];
       if (!file) return;
       const nameEl = document.getElementById("uploadedFileName");
-      nameEl.textContent = "📎 " + file.name;
+      nameEl.textContent = "" + file.name;
       nameEl.style.display = "block";
       uploadedFilePath = file.name;
 
@@ -3762,7 +4123,7 @@
       reader.onload = (e) => {
         currentDamCraftDataUrl = e.target.result;
         previewCurrentDamCraftAsset(file.name);
-        showToast(`📁 Imagen cargada y previsualizada: ${file.name}`, "success");
+        showToast(`Imagen cargada y previsualizada: ${file.name}`, "success");
       };
       reader.readAsDataURL(file);
     }
@@ -3770,7 +4131,7 @@
     function selectCatalogAssetForDamCraft(assetId, title, deliveryUrl) {
       uploadedFilePath = assetId;
       const nameEl = document.getElementById("uploadedFileName");
-      nameEl.textContent = "📦 Catálogo: " + title;
+      nameEl.textContent = "Catálogo: " + title;
       nameEl.style.display = "block";
 
       if (deliveryUrl && deliveryUrl.startsWith("data:image/")) {
@@ -3794,7 +4155,7 @@
         };
         img.src = deliveryUrl || "/damcraft/jobs/sample_card/visa_signature.png";
       }
-      showToast(`📦 Activo cargado en DAM Craft: ${title}`, "info");
+      showToast(`Activo cargado en DAM Craft: ${title}`, "info");
     }
 
     function previewCurrentDamCraftAsset(title) {
@@ -3802,7 +4163,7 @@
       const statusEl = document.getElementById("pcJobStatus");
       if (!previewBox) return;
 
-      statusEl.textContent = "👁️ Candidato listo para transformar";
+      statusEl.textContent = "Candidato listo para transformar";
       previewBox.innerHTML = `
         <div style="position:relative; width:100%; height:100%; display:flex; align-items:center; justify-content:center; overflow:hidden; background:#000; border-radius:var(--radius-sm);">
           <img src="${currentDamCraftDataUrl}" style="max-width:100%; max-height:100%; object-fit:contain;" alt="${title}">
@@ -3852,9 +4213,9 @@
              onmouseover="this.style.borderColor='var(--bcp-orange)'" onmouseout="this.style.borderColor='var(--border)'"
              title="Clic para seleccionar ${a.title}">
           <div style="width:100%; height:46px; background:#002A8F; border-radius:4px; display:flex; align-items:center; justify-content:center; overflow:hidden;">
-            ${a.deliveryUrl ? `<img src="${a.deliveryUrl}" style="width:100%; height:100%; object-fit:cover;" onerror="this.parentElement.innerHTML='🖼️'">` : '🖼️'}
+            ${a.deliveryUrl ? `<img src="${a.deliveryUrl}" style="width:100%; height:100%; object-fit:cover;" onerror="this.parentElement.innerHTML=''">` : ''}
           </div>
-          <div style="font-size:0.72rem; font-weight:600; color:var(--ink-1); margin-top:0.3rem; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; width:100%; text-align:center;">
+          <div style="font-size:0.75rem; font-weight:600; color:var(--ink-1); margin-top:0.3rem; white-space:nowrap; text-overflow:ellipsis; overflow:hidden; width:100%; text-align:center;">
             ${a.title}
           </div>
         </div>
@@ -3881,8 +4242,8 @@
       const statusEl = document.getElementById("pcJobStatus");
       const actionsBar = document.getElementById("pcActionsBar");
       
-      output.innerText = "⏳ Iniciando job de DAM Craft...";
-      statusEl.textContent = "⏳ Procesando...";
+      output.innerText = "Iniciando job de DAM Craft...";
+      statusEl.textContent = "Procesando...";
       actionsBar.style.display = "none";
 
       const dims = getDimensions();
@@ -3972,26 +4333,26 @@
           
           // Preview: use SVG viewer for svg, img for others
           if (url) {
-            statusEl.textContent = `✅ Job ${jobId} completado`;
+            statusEl.textContent = `Job ${jobId} completado`;
             if (ext === "svg") {
               preview.innerHTML = `<iframe src="${url}" style="width:100%;height:100%;border:none;background:#000;"></iframe>`;
             } else {
-              preview.innerHTML = `<img src="${url}" style="max-width:100%; max-height:100%; object-fit:contain;" alt="DAM Craft Preview" onerror="this.onerror=null;this.parentElement.innerHTML='<div style=\\'text-align:center;padding:1rem;color:#64748B;\\'>🖼️ Imagen generada en:<br><code style=\\'font-size:0.75rem;\\'>' + '${url}' + '</code></div>'">`;
+              preview.innerHTML = `<img src="${url}" style="max-width:100%; max-height:100%; object-fit:contain;" alt="DAM Craft Preview" onerror="this.onerror=null;this.parentElement.innerHTML='<div style=\\'text-align:center;padding:1rem;color:#64748B;\\'>Imagen generada en:<br><code style=\\'font-size:0.75rem;\\'>' + '${url}' + '</code></div>'">`;
             }
             
             // Show actions bar
             document.getElementById("pcDownloadLink").href = url;
             document.getElementById("pcDownloadLink").download = `damcraft_${jobId}.${ext}`;
             actionsBar.style.display = "flex";
-            showToast("✅ Job DAM Craft completado exitosamente", "success");
+            showToast("Job DAM Craft completado exitosamente", "success");
           } else {
-            preview.innerHTML = `<div class="preview-placeholder"><span class="icon">✅</span>Job completado — ver output_metadata.json</div>`;
+            preview.innerHTML = `<div class="preview-placeholder"><span class="icon"></span>Job completado — ver output_metadata.json</div>`;
           }
         }
       } catch (err) {
         output.innerText = "Error ejecutando DAM Craft: " + err.message;
-        statusEl.textContent = "❌ Error";
-        showToast("❌ Error en DAM Craft: " + err.message, "error");
+        statusEl.textContent = "Error";
+        showToast("Error en DAM Craft: " + err.message, "error");
       }
     }
 
@@ -4001,8 +4362,8 @@
       const statusEl = document.getElementById("pcJobStatus");
       const actionsBar = document.getElementById("pcActionsBar");
 
-      output.innerText = "⏳ Consultando Router IA para brief de alta conversión...";
-      statusEl.textContent = "⏳ Generando con IA...";
+      output.innerText = "Consultando Router IA para brief de alta conversión...";
+      statusEl.textContent = "Generando con IA...";
 
       try {
         const data = await apiFetch("/api/generate-brief", {
@@ -4107,28 +4468,28 @@
             <img src="${aiBannerDataUrl}" style="max-width:100%; max-height:100%; object-fit:contain;" alt="AI Generated Banner">
           </div>
         `;
-        statusEl.textContent = "✅ Asset generado por IA listo";
+        statusEl.textContent = "Asset generado por IA listo";
         const downloadLink = document.getElementById("pcDownloadLink");
         downloadLink.href = aiBannerDataUrl;
         downloadLink.download = "BCP_AI_Campaign_Banner.png";
         actionsBar.style.display = "flex";
 
-        showToast("🤖 ¡Asset visual generado con IA exitosamente!", "success");
+        showToast("¡Asset visual generado con IA exitosamente!", "success");
       } catch (err) {
         output.innerText = "Error generando con IA: " + err.message;
-        statusEl.textContent = "❌ Error";
+        statusEl.textContent = "Error";
         showToast("Error: " + err.message, "error");
       }
     }
 
     async function submitForApproval() {
       if (!lastPcJobMeta) return;
-      showToast("📤 Enviando a cola de aprobación...", "success");
+      showToast("Enviando a cola de aprobación...", "success");
       // Register in catalog as PENDING_APPROVAL
       try {
         const assetId = `AST-${Date.now()}`;
         await apiFetch("/api/catalog", { method: "POST", body: JSON.stringify({}) });
-        showToast(`✅ Asset ${assetId} enviado a revisión`, "success");
+        showToast(`Asset ${assetId} enviado a revisión`, "success");
         loadNotifications();
       } catch (err) {
         showToast("Error al enviar: " + err.message, "error");
@@ -4170,8 +4531,8 @@
       const list = document.getElementById("catalogList");
       const countEl = document.getElementById("catalogSummaryCount");
 
-      if (countEl) countEl.innerText = "⏳ Consultando catálogo en Atlas / Local...";
-      if (list) list.innerText = "⏳ Consultando catálogo...";
+      if (countEl) countEl.innerText = "Consultando catálogo en Atlas / Local...";
+      if (list) list.innerText = "Consultando catálogo...";
 
       try {
         const status = document.getElementById("catalogStatusFilter")?.value;
@@ -4198,7 +4559,6 @@
           if (assets.length === 0) {
             grid.innerHTML = `
               <div style="grid-column:1/-1; text-align:center; padding:3rem; background:var(--surface-2); border-radius:var(--radius-sm); border:1px dashed var(--border);">
-                <div style="font-size:2rem; margin-bottom:0.5rem;">📂</div>
                 <div style="font-weight:700; color:var(--ink-1);">No se encontraron activos en el Catálogo</div>
                 <div style="font-size:0.85rem; color:var(--ink-2); margin-top:0.3rem;">Sube piezas en DAM Craft o Carga Masiva para empezar.</div>
               </div>
@@ -4234,7 +4594,7 @@
                   <div style="position:absolute; top:8px; right:8px;">
                     <span class="badge ${badgeClass}">${a.status}</span>
                   </div>
-                  <div style="position:absolute; bottom:8px; left:8px; background:rgba(0,0,0,0.7); font-size:0.7rem; color:#FFFFFF; padding:0.15rem 0.4rem; border-radius:4px;">
+                  <div style="position:absolute; bottom:8px; left:8px; background:rgba(0,0,0,0.7); font-size:0.75rem; color:#FFFFFF; padding:0.15rem 0.4rem; border-radius:4px;">
                     ${dims} · ${a.mimeType ? a.mimeType.replace('image/', '').toUpperCase() : 'PNG'}
                   </div>
                 </div>
@@ -4253,13 +4613,13 @@
                   <!-- Actions -->
                   <div style="display:flex; gap:0.4rem; margin-top:0.75rem; flex-wrap:wrap;">
                     <a href="${thumbUrl}" download="${a.assetId}.png" class="btn btn-secondary btn-sm" style="flex:1; text-align:center; padding:0.3rem 0.5rem; font-size:0.78rem;" title="Descargar activo binario">
-                      ⬇️ Descargar
+                      Descargar
                     </a>
                     <button type="button" class="btn btn-primary btn-sm" onclick="addAssetLayerToCompositor('${a.assetId}', '${encodeURIComponent(a.title)}', '${thumbUrl}')" style="flex:1; padding:0.3rem 0.5rem; font-size:0.78rem;" title="Añadir como capa al compositor">
-                      🎨 + Capa
+                      + Capa
                     </button>
                     <button type="button" class="btn btn-secondary btn-sm" onclick="switchTab('damcraft'); selectCatalogAssetForDamCraft('${a.assetId}', '${encodeURIComponent(a.title)}', '${thumbUrl}')" style="padding:0.3rem 0.5rem; font-size:0.78rem;" title="Editar en DAM Craft">
-                      🖌️ Editar
+                      Editar
                     </button>
                   </div>
                 </div>
@@ -4269,7 +4629,7 @@
         }
       } catch (err) {
         if (list) list.innerText = "Error cargando catálogo: " + err.message;
-        if (countEl) countEl.innerText = "❌ Error al consultar catálogo: " + err.message;
+        if (countEl) countEl.innerText = "Error al consultar catálogo: " + err.message;
       }
     }
 
@@ -4289,7 +4649,7 @@
                 <span class="status-dot ${p.isConfigured ? 'dot-green' : 'dot-gray'}"></span>
               </div>
               <div style="font-size:0.75rem; color:var(--ink-2);">${p.type}</div>
-              <div style="font-size:0.72rem; color:var(--ink-3);">Keys: ${p.keyCount} • Activa: #${p.activeKeyIndex + 1}</div>
+              <div style="font-size:0.75rem; color:var(--ink-3);">Keys: ${p.keyCount} • Activa: #${p.activeKeyIndex + 1}</div>
             </div>
           `).join("");
         }
@@ -4300,7 +4660,7 @@
 
     async function testRouterPrompt() {
       const output = document.getElementById("routerOutput");
-      output.innerText = "⏳ Enviando al router de IA...";
+      output.innerText = "Enviando al router de IA...";
       try {
         const data = await apiFetch("/api/generate-brief", {
           method: "POST",
@@ -4343,7 +4703,7 @@
       const frame = document.getElementById("flowFrame");
       const title = document.getElementById("flowTitle").value;
       frame.src = "";
-      frame.srcdoc = `<div style='color:#fff;padding:2rem;font-family:sans-serif;background:#05080E;height:100vh;display:flex;align-items:center;justify-content:center;'>⏳ Generando diagrama...</div>`;
+      frame.srcdoc = `<div style='color:#fff;padding:2rem;font-family:sans-serif;background:#05080E;height:100vh;display:flex;align-items:center;justify-content:center;'>Generando diagrama...</div>`;
       try {
         const res = await fetch("/api/flow-studio/generate", {
           method: "POST",
@@ -4352,7 +4712,7 @@
         });
         const html = await res.text();
         frame.srcdoc = html;
-        showToast("⚡ Diagrama generado exitosamente", "success");
+        showToast("Diagrama generado exitosamente", "success");
       } catch (err) {
         frame.srcdoc = `<div style='color:red;padding:2rem;'>Error: ${err.message}</div>`;
       }
@@ -4367,7 +4727,7 @@
       a.href = URL.createObjectURL(blob);
       a.download = `${title.toLowerCase().replace(/[^a-z0-9]/g, "_")}.html`;
       a.click();
-      showToast("⬇️ HTML descargado", "success");
+      showToast("HTML descargado", "success");
     }
 
     // ═══════════════════════════════════════════════════
@@ -4391,23 +4751,23 @@
         }
 
         if (items.length === 0) {
-          container.innerHTML = `<div style="text-align:center;padding:3rem;color:var(--ink-2);">✅ No hay assets pendientes de aprobación</div>`;
+          container.innerHTML = `<div style="text-align:center;padding:3rem;color:var(--ink-2);">No hay assets pendientes de aprobación</div>`;
           return;
         }
 
         container.innerHTML = items.map(item => `
           <div class="notif-item" id="notif-${item.assetId || item._id}">
-            <div class="notif-icon">🎨</div>
+            <div class="notif-icon"></div>
             <div class="notif-body">
               <div class="notif-title">${item.title || item.assetId || "Asset sin título"}</div>
               <div class="notif-meta">
                 ${item.category || "—"} • ${item.initiativeId || "—"} • 
                 Creado: ${item.createdAt ? new Date(item.createdAt).toLocaleString("es-PE") : "—"}
               </div>
-              ${item.deliveryUrl ? `<div class="notif-meta" style="margin-top:0.25rem;"><a href="${item.deliveryUrl}" target="_blank" style="color:var(--info);">🔗 ${item.deliveryUrl}</a></div>` : ""}
+              ${item.deliveryUrl ? `<div class="notif-meta" style="margin-top:0.25rem;"><a href="${item.deliveryUrl}" target="_blank" style="color:var(--info);">${item.deliveryUrl}</a></div>` : ""}
               <div class="notif-actions">
-                <button class="btn btn-success btn-sm" onclick="approveItem('${item.assetId}')">✅ Aprobar</button>
-                <button class="btn btn-danger btn-sm" onclick="rejectItem('${item.assetId}')">❌ Rechazar</button>
+                <button class="btn btn-success btn-sm" onclick="approveItem('${item.assetId}')">Aprobar</button>
+                <button class="btn btn-danger btn-sm" onclick="rejectItem('${item.assetId}')">Rechazar</button>
               </div>
             </div>
           </div>
@@ -4426,7 +4786,7 @@
           body: JSON.stringify({ comment: comment || "" })
         });
         if (data.success) {
-          showToast(`✅ Asset ${assetId} aprobado`, "success");
+          showToast(`Asset ${assetId} aprobado`, "success");
           document.getElementById(`notif-${assetId}`)?.remove();
           loadNotifications();
         }
@@ -4444,7 +4804,7 @@
           body: JSON.stringify({ reason: reason || "" })
         });
         if (data.success) {
-          showToast(`🚫 Asset ${assetId} rechazado`, "error");
+          showToast(`Asset ${assetId} rechazado`, "error");
           loadNotifications();
         }
       } catch (err) {
@@ -4457,7 +4817,7 @@
     // ═══════════════════════════════════════════════════
     async function saveDbConnection() {
       const output = document.getElementById("connOutput");
-      output.innerText = "⏳ Guardando conexión...";
+      output.innerText = "Guardando conexión...";
       try {
         const data = await apiFetch("/api/connections", {
           method: "POST",
@@ -4470,7 +4830,7 @@
           })
         });
         output.innerText = JSON.stringify(data, null, 2);
-        showToast("✅ Conexión guardada: " + data.connId, "success");
+        showToast("Conexión guardada: " + data.connId, "success");
         loadConnections();
       } catch (err) {
         output.innerText = "Error: " + err.message;
@@ -4479,11 +4839,11 @@
 
     async function provisionPolicies() {
       const output = document.getElementById("connOutput");
-      output.innerText = "⏳ Provisionando estructura de políticas DAM...";
+      output.innerText = "Provisionando estructura de políticas DAM...";
       try {
         const data = await apiFetch("/api/connections/CONN-MAIN/provision", { method: "POST" });
         output.innerText = JSON.stringify(data, null, 2);
-        showToast("⚡ Estructura DAM provisionada", "success");
+        showToast("Estructura DAM provisionada", "success");
       } catch (err) {
         output.innerText = "Error: " + err.message;
       }
@@ -4522,7 +4882,7 @@
     async function createUser() {
       const result = document.getElementById("userCreateResult");
       result.style.display = "block";
-      result.innerText = "⏳ Guardando usuario...";
+      result.innerText = "Guardando usuario...";
       try {
         const data = await apiFetch("/api/admin/users", {
           method: "POST",
@@ -4536,7 +4896,7 @@
           })
         });
         result.innerText = JSON.stringify(data, null, 2);
-        showToast("✅ Usuario guardado exitosamente", "success");
+        showToast("Usuario guardado exitosamente", "success");
         loadUsers();
       } catch (err) {
         result.innerText = "Error: " + err.message;
@@ -4561,7 +4921,7 @@
                 <tr>
                   <td><code style="font-size:0.82rem;">${u.username}</code></td>
                   <td>${u.fullName || "—"}</td>
-                  <td><span class="role-badge ${u.role}" style="font-size:0.72rem; padding:0.2rem 0.5rem;">${u.permissions?.icon || ""} ${u.role}</span></td>
+                  <td><span class="role-badge ${u.role}" style="font-size:0.75rem; padding:0.2rem 0.5rem;">${u.permissions?.icon || ""} ${u.role}</span></td>
                   <td style="font-size:0.82rem; color:var(--ink-2);">${u.networkGroup || "—"}</td>
                   <td><span class="status-dot ${u.isActive ? 'dot-green' : 'dot-gray'}"></span></td>
                 </tr>
@@ -4580,7 +4940,7 @@
     async function createPolicy() {
       const result = document.getElementById("policyCreateResult");
       result.style.display = "block";
-      result.innerText = "⏳ Creando política...";
+      result.innerText = "Creando política...";
       try {
         const data = await apiFetch("/api/admin/policies", {
           method: "POST",
@@ -4593,7 +4953,7 @@
           })
         });
         result.innerText = JSON.stringify(data, null, 2);
-        showToast("✅ Política creada: " + data.policyId, "success");
+        showToast("Política creada: " + data.policyId, "success");
         loadPolicies();
       } catch (err) {
         result.innerText = "Error: " + err.message;
@@ -4617,7 +4977,7 @@
     async function createSquad() {
       const result = document.getElementById("squadCreateResult");
       result.style.display = "block";
-      result.innerText = "⏳ Creando squad...";
+      result.innerText = "Creando squad...";
       const allowedRoles = [...document.querySelectorAll(".squadRole:checked")].map(c => c.value);
       try {
         const data = await apiFetch("/api/admin/squads", {
@@ -4631,7 +4991,7 @@
           })
         });
         result.innerText = JSON.stringify(data, null, 2);
-        showToast("✅ Squad creado: " + data.squadId, "success");
+        showToast("Squad creado: " + data.squadId, "success");
         loadSquads();
       } catch (err) {
         result.innerText = "Error: " + err.message;
@@ -4655,15 +5015,15 @@
     async function createApiKey() {
       const result = document.getElementById("apiKeyResult");
       result.style.display = "block";
-      result.innerText = "⏳ Generando API Key...";
+      result.innerText = "Generando API Key...";
       const permissions = [...document.querySelectorAll(".apiPerm:checked")].map(c => c.value);
       try {
         const data = await apiFetch("/api/admin/api-keys", {
           method: "POST",
           body: JSON.stringify({ label: document.getElementById("apiKeyLabel").value, permissions })
         });
-        result.innerText = `✅ API Key generada:\n\n${JSON.stringify(data, null, 2)}\n\n⚠️ Copie esta key ahora. No se mostrará completa nuevamente.`;
-        showToast("🔑 API Key generada exitosamente", "success");
+        result.innerText = `API Key generada:\n\n${JSON.stringify(data, null, 2)}\n\nCopie esta key ahora. No se mostrará completa nuevamente.`;
+        showToast("API Key generada exitosamente", "success");
         loadApiKeys();
       } catch (err) {
         result.innerText = "Error: " + err.message;
@@ -4687,14 +5047,14 @@
     async function generateCode() {
       const result = document.getElementById("codeGenResult");
       result.style.display = "block";
-      result.innerText = "⏳ Generando...";
+      result.innerText = "Generando...";
       try {
         const data = await apiFetch("/api/admin/generate-code", {
           method: "POST",
           body: JSON.stringify({ prefix: document.getElementById("codePrefix").value })
         });
         result.innerText = `Código generado:\n\n${JSON.stringify(data, null, 2)}`;
-        showToast("⚡ Código generado: " + data.code, "success");
+        showToast("Código generado: " + data.code, "success");
       } catch (err) {
         result.innerText = "Error: " + err.message;
       }
@@ -4726,7 +5086,7 @@
       const grid = document.getElementById('geoAssetGrid');
       const gridItems = document.getElementById('geoAssetGridItems');
 
-      output.textContent = '⏳ Consultando propuesta geográfica…';
+      output.textContent = 'Consultando propuesta geográfica…';
       grid.style.display = 'none';
 
       try {
@@ -4735,20 +5095,20 @@
 
         let txt = '';
         if (data.antiHallucinationWarning) {
-          txt += `🚫 ADVERTENCIA ANTI-ALUCINACIÓN:\n${data.antiHallucinationWarning}\n\n`;
+          txt += `ADVERTENCIA ANTI-ALUCINACIÓN:\n${data.antiHallucinationWarning}\n\n`;
         }
         if (data.hemisphere) {
-          txt += `🌐 Hemisferio: ${data.hemisphere}\n`;
+          txt += `Hemisferio: ${data.hemisphere}\n`;
         }
         if (data.season) {
-          txt += `🌡️ Estación real: ${data.season}\n`;
+          txt += `Estación real: ${data.season}\n`;
         }
         if (data.palette) {
-          txt += `\n🎨 Paleta sugerida:\n`;
+          txt += `\nPaleta sugerida:\n`;
           (data.palette || []).forEach(c => { txt += `  • ${c}\n`; });
         }
         if (data.imageSuggestions?.length) {
-          txt += `\n🖼️ Imágenes sugeridas:\n`;
+          txt += `\nImágenes sugeridas:\n`;
           data.imageSuggestions.forEach(img => { txt += `  • ${img}\n`; });
           // Build grid
           gridItems.innerHTML = data.imageSuggestions.map(img => `
@@ -4758,7 +5118,7 @@
               border-radius:var(--radius-sm);
               padding:0.75rem 0.5rem;
               text-align:center;
-              font-size:0.72rem;
+              font-size:0.75rem;
               color:var(--ink-2);
               cursor:pointer;
               transition:border-color 0.15s;
@@ -4767,28 +5127,27 @@
             onmouseover="this.style.borderColor='var(--bcp-orange)'"
             onmouseout="this.style.borderColor='var(--border)'"
             title="Asset propuesto para ${region} en ${season}: ${img}">
-              <span style="font-size:1.5rem;display:block;margin-bottom:0.4rem;">🖼️</span>
               <span>${img}</span>
             </div>
           `).join('');
           grid.style.display = 'block';
         }
         if (data.copyTone) {
-          txt += `\n✍️ Tono de copy: ${data.copyTone}\n`;
+          txt += `\nTono de copy: ${data.copyTone}\n`;
         }
         if (data.notes) {
-          txt += `\n📝 Notas: ${data.notes}\n`;
+          txt += `\nNotas: ${data.notes}\n`;
         }
         output.textContent = txt || JSON.stringify(data, null, 2);
       } catch (err) {
-        output.textContent = `❌ Error al consultar propuesta geográfica: ${err.message}\n\nVerifica que el servidor esté activo en localhost:3000`;
+        output.textContent = `Error al consultar propuesta geográfica: ${err.message}\n\nVerifica que el servidor esté activo en localhost:3000`;
       }
     }
 
     async function lookupLocation() {
       const query = document.getElementById("placesQuery").value;
       const output = document.getElementById("placesOutput");
-      output.innerText = "⏳ Consultando contexto de ubicación...";
+      output.innerText = "Consultando contexto de ubicación...";
       try {
         const data = await apiFetch("/api/places/enrich", {
           method: "POST",
@@ -4865,12 +5224,12 @@
 
       const allowed = ["image/png", "image/jpeg", "image/webp", "image/svg+xml"];
       if (!allowed.includes(file.type)) {
-        editorLog(`❌ Formato no soportado: ${file.type}. Use PNG, JPEG, WebP o SVG.`, "warn");
+        editorLog(`Formato no soportado: ${file.type}. Use PNG, JPEG, WebP o SVG.`, "warn");
         showToast("Formato no soportado. Use PNG, JPEG, WebP o SVG.", "danger");
         return;
       }
 
-      editorLog(`📂 Cargando imagen: ${file.name} (${(file.size/1024).toFixed(1)} KB)`, "info");
+      editorLog(`Cargando imagen: ${file.name} (${(file.size/1024).toFixed(1)} KB)`, "info");
 
       try {
         const url = URL.createObjectURL(file);
@@ -4917,11 +5276,11 @@
         editorUpdateButtons(true);
         editorUpdateVersionList();
         editorUpdateStatus(`Imagen cargada: ${img.width}×${img.height}px`);
-        editorLog(`✅ Imagen cargada. Dimensiones originales: ${_ed.originalImg.width}×${_ed.originalImg.height}px`, "ok");
-        showToast(`✅ Imagen cargada: ${file.name}`, "success");
+        editorLog(`Imagen cargada. Dimensiones originales: ${_ed.originalImg.width}×${_ed.originalImg.height}px`, "ok");
+        showToast(`Imagen cargada: ${file.name}`, "success");
         URL.revokeObjectURL(url);
       } catch(err) {
-        editorLog(`❌ Error cargando imagen: ${err.message}`, "warn");
+        editorLog(`Error cargando imagen: ${err.message}`, "warn");
         showToast("Error al cargar la imagen.", "danger");
       }
     }
@@ -5088,7 +5447,7 @@
       _ed.operations.push({ type: "rotate", degrees: deg, ts: new Date().toLocaleTimeString() });
       editorDraw();
       editorUpdateStatus(`Rotación: ${_ed.rotation}°`);
-      editorLog(`🔄 Rotar ${deg > 0 ? "+" : ""}${deg}° → acumulado: ${_ed.rotation}°`, "ok");
+      editorLog(`Rotar ${deg > 0 ? "+" : ""}${deg}° → acumulado: ${_ed.rotation}°`, "ok");
     }
 
     // ── Flip ───────────────────────────────────────────
@@ -5112,7 +5471,7 @@
         editorSaveUndo();
         _ed.operations.push({ type: "adjust", adjustments: { ..._ed.adjustments }, ts: new Date().toLocaleTimeString() });
         editorDraw();
-        editorLog(`🌟 Ajuste: brillo=${_ed.adjustments.brightness} contraste=${_ed.adjustments.contrast} sat=${_ed.adjustments.saturation}`, "ok");
+        editorLog(`Ajuste: brillo=${_ed.adjustments.brightness} contraste=${_ed.adjustments.contrast} sat=${_ed.adjustments.saturation}`, "ok");
       }, 400);
     }
 
@@ -5131,7 +5490,7 @@
       _ed.operations.push({ type: "crop", width: p.width, height: p.height, preset: key, ts: new Date().toLocaleTimeString() });
       editorDraw();
       editorUpdateStatus(`Preset aplicado: ${p.label} (${p.width}×${p.height})`);
-      editorLog(`📐 Preset ${p.label}: ${p.width}×${p.height}px`, "ok");
+      editorLog(`Preset ${p.label}: ${p.width}×${p.height}px`, "ok");
       showToast(`Preset: ${p.label}`, "success");
     }
 
@@ -5142,7 +5501,7 @@
       _ed.hasBrandOverlay = !_ed.hasBrandOverlay;
       _ed.operations.push({ type: "brand_overlay", brand: "BCP_OFFICIAL", active: _ed.hasBrandOverlay, ts: new Date().toLocaleTimeString() });
       editorDraw();
-      editorLog(`🏷️ Overlay de marca BCP: ${_ed.hasBrandOverlay ? "activado" : "desactivado"}`, "ok");
+      editorLog(`Overlay de marca BCP: ${_ed.hasBrandOverlay ? "activado" : "desactivado"}`, "ok");
     }
 
     // ── Reset al original ──────────────────────────────
@@ -5160,7 +5519,7 @@
       document.querySelectorAll(".preset-btn").forEach(b => b.classList.remove("active"));
       _ed.operations.push({ type: "reset", ts: new Date().toLocaleTimeString() });
       editorDraw();
-      editorLog("🔄 Reset al original aplicado.", "warn");
+      editorLog("Reset al original aplicado.", "warn");
       showToast("Imagen restaurada al original.", "success");
     }
 
@@ -5204,8 +5563,8 @@
       const vTag = `v1.${_ed.versions.length}`;
       _ed.versions.push({ tag: vTag, label: `Export ${fmt.toUpperCase()} — ${_ed.operations.length} ops`, ts: new Date().toLocaleTimeString() });
       editorUpdateVersionList();
-      editorLog(`⬇️ Exportado: ${filename} (${_ed.canvas.width}×${_ed.canvas.height}, ${fmt.toUpperCase()}) — VERIFICADO: archivo descargado.`, "ok");
-      showToast(`✅ Exportado: ${filename}`, "success");
+      editorLog(`Exportado: ${filename} (${_ed.canvas.width}×${_ed.canvas.height}, ${fmt.toUpperCase()}) — VERIFICADO: archivo descargado.`, "ok");
+      showToast(`Exportado: ${filename}`, "success");
 
       if (fmt !== "svg") URL.revokeObjectURL(dataUrl);
     }
@@ -5217,7 +5576,7 @@
       const tw = parseInt(document.getElementById("editorTargetW").value) || _ed.canvas.width;
       const th = parseInt(document.getElementById("editorTargetH").value) || _ed.canvas.height;
 
-      editorLog("☁️ Registrando transformación en servidor...", "info");
+      editorLog("Registrando transformación en servidor...", "info");
       try {
         const result = await apiFetch("/api/editor/transform", {
           method: "POST",
@@ -5233,13 +5592,13 @@
           const vTag = result.version || `v1.${_ed.versions.length}`;
           _ed.versions.push({ tag: vTag, label: `Servidor — ${actor}`, ts: new Date().toLocaleTimeString() });
           editorUpdateVersionList();
-          editorLog(`✅ Registrado en servidor: ${vTag} | Job: ${result.jobId} — VERIFICADO: respuesta HTTP 200.`, "ok");
+          editorLog(`Registrado en servidor: ${vTag} | Job: ${result.jobId} — VERIFICADO: respuesta HTTP 200.`, "ok");
           showToast(`Versión ${vTag} registrada.`, "success");
         } else {
-          editorLog(`⚠️ Servidor respondió sin éxito: ${JSON.stringify(result)}`, "warn");
+          editorLog(`Servidor respondió sin éxito: ${JSON.stringify(result)}`, "warn");
         }
       } catch(err) {
-        editorLog(`❌ Error al registrar en servidor: ${err.message} — SIMULADO: operación local.`, "warn");
+        editorLog(`Error al registrar en servidor: ${err.message} — SIMULADO: operación local.`, "warn");
         showToast("Error de conexión. Operación guardada localmente.", "danger");
       }
     }
@@ -5248,7 +5607,7 @@
     async function editorSendToApproval() {
       if (!_ed.canvas || !_ed.canvas.width) return;
       showToast("Para enviar a aprobación, primero exporta y luego usa 'Enviar a Aprobación' del catálogo.", "info");
-      editorLog("📤 Para enviar a aprobación: exporta el asset y regístralo en el catálogo desde la tab Catálogo DAM.", "info");
+      editorLog("Para enviar a aprobación: exporta el asset y regístralo en el catálogo desde la tab Catálogo DAM.", "info");
     }
 
     // ── Actualizar historial UI ────────────────────────
@@ -5256,7 +5615,7 @@
       const el = document.getElementById("editorVersionList");
       if (!el) return;
       el.innerHTML = _ed.versions.map(v =>
-        `<div class="editor-version-item"><span class="editor-version-tag">${v.tag}</span><span style="font-size:0.68rem;">${v.label} <br><span style="color:var(--ink-3);">${v.ts}</span></span></div>`
+        `<div class="editor-version-item"><span class="editor-version-tag">${v.tag}</span><span style="font-size:0.75rem;">${v.label} <br><span style="color:var(--ink-3);">${v.ts}</span></span></div>`
       ).join("");
     }
 
@@ -5579,13 +5938,13 @@
       if (window.helpModeActive) {
         document.body.classList.add("help-mode-active");
         if (btn) btn.classList.add("active");
-        if (icon) icon.innerText = "🔍";
+        if (icon) icon.innerText = "";
         if (txt) txt.innerText = "Modo Explicativo: ON";
-        showToast("💡 Modo Explicativo ACTIVO: Haz click en cualquier campo o botón para ver su descripción.", "info");
+        showToast("Modo Explicativo ACTIVO: Haz click en cualquier campo o botón para ver su descripción.", "info");
       } else {
         document.body.classList.remove("help-mode-active");
         if (btn) btn.classList.remove("active");
-        if (icon) icon.innerText = "💡";
+        if (icon) icon.innerText = "";
         if (txt) txt.innerText = "Modo Explicativo";
       }
     }
@@ -5646,7 +6005,7 @@
 
       if (files.length > 0) {
         summary.style.display = "block";
-        summary.innerText = `✅ ${files.length} archivo(s) listo(s) para carga: ${files.map(f => f.name).slice(0, 3).join(", ")}${files.length > 3 ? '...' : ''}`;
+        summary.innerText = `${files.length} archivo(s) listo(s) para carga: ${files.map(f => f.name).slice(0, 3).join(", ")}${files.length > 3 ? '...' : ''}`;
       } else {
         summary.style.display = "none";
       }
@@ -5664,7 +6023,7 @@
       const category = document.getElementById("batchCategorySelect")?.value || "GENERAL";
 
       btn.disabled = true;
-      btn.innerText = "⏳ Cargando activos...";
+      btn.innerText = "Cargando activos...";
       statusBox.style.display = "block";
       statusBox.innerHTML = `<span style="color:var(--info);">Subiendo ${selectedBatchFiles.length} archivos a la plataforma...</span>`;
 
@@ -5679,7 +6038,7 @@
           body: formData
         });
 
-        statusBox.innerHTML = `<span style="color:var(--success);">✅ Carga completada: ${resp.uploadedCount || selectedBatchFiles.length} activos incorporados al catálogo con éxito.</span>`;
+        statusBox.innerHTML = `<span style="color:var(--success);">Carga completada: ${resp.uploadedCount || selectedBatchFiles.length} activos incorporados al catálogo con éxito.</span>`;
         showToast(`${selectedBatchFiles.length} activos cargados exitosamente.`, "success");
 
         // Limpiar selección y refrescar catálogo y compositor
@@ -5689,11 +6048,11 @@
         loadCatalog();
         setTimeout(initCompositor, 400);
       } catch (err) {
-        statusBox.innerHTML = `<span style="color:var(--danger);">❌ Error al subir: ${err.message}</span>`;
+        statusBox.innerHTML = `<span style="color:var(--danger);">Error al subir: ${err.message}</span>`;
         showToast(err.message, "danger");
       } finally {
         btn.disabled = false;
-        btn.innerText = "🚀 Ingestar Activos en Lote";
+        btn.innerText = "Ingestar Activos en Lote";
       }
     }
 
@@ -5782,18 +6141,18 @@
         resultDiv.style.display = "block";
         resultDiv.innerHTML = `
           <div style="color:var(--success); font-weight:bold; margin-bottom:0.4rem;">
-            ✅ Estado: ${resp.statusText || 'Accepted'} (HTTP ${resp.statusCode || 200})
+            Estado: ${resp.statusText || 'Accepted'} (HTTP ${resp.statusCode || 200})
           </div>
           <div style="color:var(--ink-2); font-size:0.75rem; margin-bottom:0.4rem;">
             Event ID: <code>${resp.eventId}</code> | Latencia: <code>${resp.latencyMs}ms</code> | Destino: <code>${resp.targetUrl}</code>
           </div>
           <pre style="background:rgba(0,0,0,0.5); padding:0.5rem; border-radius:4px; overflow-x:auto; color:var(--ink-1); margin:0;">${JSON.stringify(resp.dataResponse || resp, null, 2)}</pre>
         `;
-        showToast("✅ Evento transmitido exitosamente a Workfront Fusion.", "success");
+        showToast("Evento transmitido exitosamente a Workfront Fusion.", "success");
         loadWorkfrontEvents();
       } catch (err) {
         resultDiv.style.display = "block";
-        resultDiv.innerHTML = `<div style="color:var(--danger);">❌ Error de transmisión: ${err.message}</div>`;
+        resultDiv.innerHTML = `<div style="color:var(--danger);">Error de transmisión: ${err.message}</div>`;
         showToast(err.message, "danger");
       } finally {
         btn.disabled = false;
@@ -5984,7 +6343,7 @@
       selectedLayerIndex = compositorLayers.length - 1;
       renderCompositorCanvas();
       updateLayerStackUI();
-      showToast(`🏷️ ${title} insertado en el lienzo (arrástralo con el mouse)`, "success");
+      showToast(`${title} insertado en el lienzo (arrástralo con el mouse)`, "success");
     }
 
     // ─── BUSCADOR EN VIVO DE PIEZAS APROBADAS ──────────────────────────────────
@@ -6023,11 +6382,11 @@
         <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:0.4rem 0.6rem;">
           <div style="display:flex; align-items:center; gap:0.5rem; overflow:hidden;">
             <div style="width:30px; height:30px; border-radius:4px; background:#002A8F; display:flex; align-items:center; justify-content:center; font-size:0.8rem; flex-shrink:0;">
-              🖼️
+              
             </div>
             <div style="overflow:hidden;">
               <div style="font-size:0.82rem; font-weight:600; color:var(--ink-1); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${a.title}</div>
-              <div style="font-size:0.72rem; color:var(--ink-3);">${a.category || 'ASSET'} · ${a.assetId}</div>
+              <div style="font-size:0.75rem; color:var(--ink-3);">${a.category || 'ASSET'} · ${a.assetId}</div>
             </div>
           </div>
           <button type="button" class="btn btn-secondary btn-sm" onclick="addAssetLayerToCompositor('${a.assetId}', '${encodeURIComponent(a.title)}', '${a.deliveryUrl || ''}')" style="padding:0.25rem 0.5rem; font-size:0.75rem; flex-shrink:0;">
@@ -6095,7 +6454,7 @@
           })
         });
 
-        showToast(`✅ Caso de uso '${name}' registrado exitosamente en Atlas/Local`, "success");
+        showToast(`Caso de uso '${name}' registrado exitosamente en Atlas/Local`, "success");
         closeNewInitiativeModal();
         await loadGovernanceInitiatives();
       } catch (err) {
@@ -6112,8 +6471,8 @@
       }
 
       const btn = document.getElementById("btnExportVideo");
-      if (btn) { btn.disabled = true; btn.innerText = "🎬 Grabando video .mp4..."; }
-      showToast("🎬 Grabando animación de 3 segundos desde Canvas en formato MP4...", "info");
+      if (btn) { btn.disabled = true; btn.innerText = "Grabando video .mp4..."; }
+      showToast("Grabando animación de 3 segundos desde Canvas en formato MP4...", "info");
 
       try {
         const stream = compositorCanvas.captureStream(30);
@@ -6143,8 +6502,8 @@
           a.href = url;
           a.download = `${title}_${Date.now()}.mp4`;
           a.click();
-          if (btn) { btn.disabled = false; btn.innerText = "🎬 Exportar Video (.mp4)"; }
-          showToast("🎬 ¡Video animado .mp4 exportado y descargado exitosamente!", "success");
+          if (btn) { btn.disabled = false; btn.innerText = "Exportar Video (.mp4)"; }
+          showToast("¡Video animado .mp4 exportado y descargado exitosamente!", "success");
         };
 
         recorder.start();
@@ -6163,7 +6522,7 @@
         }
         requestAnimationFrame(animateFrame);
       } catch (err) {
-        if (btn) { btn.disabled = false; btn.innerText = "🎬 Exportar Video (.mp4)"; }
+        if (btn) { btn.disabled = false; btn.innerText = "Exportar Video (.mp4)"; }
         showToast("Error al exportar video: " + err.message, "danger");
       }
     }
@@ -6187,11 +6546,11 @@
         <div style="display:flex; align-items:center; justify-content:space-between; gap:0.5rem; background:var(--surface); border:1px solid var(--border); border-radius:var(--radius-sm); padding:0.4rem 0.6rem;">
           <div style="display:flex; align-items:center; gap:0.5rem; overflow:hidden;">
             <div style="width:28px; height:28px; border-radius:4px; background:#002A8F; display:flex; align-items:center; justify-content:center; font-size:0.8rem; flex-shrink:0;">
-              🖼️
+              
             </div>
             <div style="overflow:hidden;">
               <div style="font-size:0.82rem; font-weight:600; color:var(--ink-1); white-space:nowrap; text-overflow:ellipsis; overflow:hidden;">${a.title}</div>
-              <div style="font-size:0.72rem; color:var(--ink-3);">${a.category} · ${a.assetId}</div>
+              <div style="font-size:0.75rem; color:var(--ink-3);">${a.category} · ${a.assetId}</div>
             </div>
           </div>
           <button type="button" class="btn btn-secondary btn-sm" onclick="addAssetLayerToCompositor('${a.assetId}', '${encodeURIComponent(a.title)}', '${a.deliveryUrl || ''}')" style="padding:0.25rem 0.5rem; font-size:0.75rem; flex-shrink:0;">
@@ -6513,7 +6872,7 @@
       renderCompositorCanvas();
       updateLayerStackUI();
       toggleTextLayerPanel();
-      showToast("✍️ Capa de texto dinámico insertada en el lienzo", "success");
+      showToast("Capa de texto dinámico insertada en el lienzo", "success");
     }
 
     function downloadCompositorPng() {
@@ -6523,7 +6882,7 @@
       link.download = `${title}_${Date.now()}.png`;
       link.href = compositorCanvas.toDataURL("image/png");
       link.click();
-      showToast("⬇️ Montaje descargado en formato PNG de alta resolución", "success");
+      showToast("Montaje descargado en formato PNG de alta resolución", "success");
     }
 
     async function exportCompositorAnimation() {
@@ -6534,8 +6893,8 @@
       }
 
       const btn = document.getElementById("btnExportVideo");
-      if (btn) { btn.disabled = true; btn.innerText = "🎬 Grabando video..."; }
-      showToast("🎬 Grabando animación de 3 segundos desde Canvas...", "info");
+      if (btn) { btn.disabled = true; btn.innerText = "Grabando video..."; }
+      showToast("Grabando animación de 3 segundos desde Canvas...", "info");
 
       try {
         const stream = compositorCanvas.captureStream(30);
@@ -6558,8 +6917,8 @@
           a.href = url;
           a.download = `${title}_${Date.now()}.webm`;
           a.click();
-          if (btn) { btn.disabled = false; btn.innerText = "🎬 Exportar Video (WebM)"; }
-          showToast("🎬 ¡Video animado WebM exportado y descargado exitosamente!", "success");
+          if (btn) { btn.disabled = false; btn.innerText = "Exportar Video (WebM)"; }
+          showToast("¡Video animado WebM exportado y descargado exitosamente!", "success");
         };
 
         recorder.start();
@@ -6578,7 +6937,7 @@
         }
         requestAnimationFrame(animateFrame);
       } catch (err) {
-        if (btn) { btn.disabled = false; btn.innerText = "🎬 Exportar Video (WebM)"; }
+        if (btn) { btn.disabled = false; btn.innerText = "Exportar Video (WebM)"; }
         showToast("Error al exportar video: " + err.message, "danger");
       }
     }
@@ -6604,7 +6963,7 @@
       const btn = document.getElementById("btnGenerateComposite");
 
       btn.disabled = true;
-      btn.innerText = "⏳ Generando activo...";
+      btn.innerText = "Generando activo...";
       statusBox.style.display = "block";
       statusBox.innerHTML = '<span style="color:var(--info);">Generando activo compuesto de alta resolución y registrando linaje...</span>';
 
@@ -6624,15 +6983,15 @@
           })
         });
 
-        statusBox.innerHTML = `<span style="color:var(--success);">✨ ¡Activo Compuesto Generado! URN: ${resp.assetId || 'urn:aaid:aem:composite_2026'}. Linaje verificado con ${parentIds.length} piezas aprobadas.</span>`;
+        statusBox.innerHTML = `<span style="color:var(--success);">¡Activo Compuesto Generado! URN: ${resp.assetId || 'urn:aaid:aem:composite_2026'}. Linaje verificado con ${parentIds.length} piezas aprobadas.</span>`;
         showToast("Activo compuesto registrado en Catálogo DAM.", "success");
         loadCatalog();
       } catch (err) {
-        statusBox.innerHTML = `<span style="color:var(--danger);">❌ Error: ${err.message}</span>`;
+        statusBox.innerHTML = `<span style="color:var(--danger);">Error: ${err.message}</span>`;
         showToast(err.message, "danger");
       } finally {
         btn.disabled = false;
-        btn.innerText = "✨ Generar y Certificar Activo";
+        btn.innerText = "Generar y Certificar Activo";
       }
     }
 
@@ -6695,12 +7054,12 @@
           })
         });
 
-        resultBox.innerHTML = `<span style="color:var(--success);">✅ Webhook procesado con éxito (Status 200). Estado del activo actualizado a <b>${status}</b> en el Catálogo DAM.</span>`;
+        resultBox.innerHTML = `<span style="color:var(--success);">Webhook procesado con éxito (Status 200). Estado del activo actualizado a <b>${status}</b> en el Catálogo DAM.</span>`;
         showToast(`Decisión Workfront '${status}' registrada.`, "success");
         loadWorkfrontEvents();
         loadCatalog();
       } catch (err) {
-        resultBox.innerHTML = `<span style="color:var(--danger);">❌ Error: ${err.message}</span>`;
+        resultBox.innerHTML = `<span style="color:var(--danger);">Error: ${err.message}</span>`;
         showToast(err.message, "danger");
       } finally {
         btn.disabled = false;
@@ -6748,7 +7107,7 @@
             })
           });
 
-          resultBox.innerHTML = `<span style="color:var(--success);">✅ Brief ingestado desde Workfront: ${title}. Registrado en auditoría.</span>`;
+          resultBox.innerHTML = `<span style="color:var(--success);">Brief ingestado desde Workfront: ${title}. Registrado en auditoría.</span>`;
           showToast("Brief ingestado desde Workfront.", "success");
         } else {
           const scenario = document.getElementById("wfFusionScenario")?.value;
@@ -6762,12 +7121,12 @@
             })
           });
 
-          resultBox.innerHTML = `<span style="color:var(--success);">⚡ Escenario Fusion '${scenario}' disparado con éxito por túnel HTTPS 443.</span>`;
+          resultBox.innerHTML = `<span style="color:var(--success);">Escenario Fusion '${scenario}' disparado con éxito por túnel HTTPS 443.</span>`;
           showToast("Escenario Fusion disparado.", "success");
         }
         loadWorkfrontEvents();
       } catch (err) {
-        resultBox.innerHTML = `<span style="color:var(--danger);">❌ Error: ${err.message}</span>`;
+        resultBox.innerHTML = `<span style="color:var(--danger);">Error: ${err.message}</span>`;
         showToast(err.message, "danger");
       } finally {
         btn.disabled = false;
@@ -6795,7 +7154,7 @@
       setTimeout(() => {
         const badge = document.getElementById("storageModeBadge");
         if (badge) {
-          badge.innerText = "🛡️ MODO: GITHUB PAGES (HTTPS 443 / LOCAL MOCK)";
+          badge.innerText = "MODO: GITHUB PAGES (HTTPS 443 / LOCAL MOCK)";
           badge.style.color = "#10B981";
         }
       }, 500);
@@ -6808,7 +7167,7 @@
     <div class="help-modal" role="dialog" aria-labelledby="helpModalTitle" aria-modal="true">
       <div class="help-modal-header">
         <div class="help-modal-title">
-          <span id="helpModalIcon">ℹ️</span>
+          <span id="helpModalIcon"></span>
           <span id="helpModalTitle">Descripción de Elemento</span>
         </div>
         <button type="button" class="icon-btn" onclick="closeHelpModal()" aria-label="Cerrar modal">
@@ -6841,19 +7200,19 @@
   <div id="newInitiativeModal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:9999; align-items:center; justify-content:center; padding:1rem;">
     <div style="background:var(--surface); border:1px solid var(--bcp-orange); border-radius:var(--radius); max-width:540px; width:100%; padding:1.5rem; box-shadow:0 12px 48px rgba(0,0,0,0.8);">
       <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:1rem; border-bottom:1px solid var(--border); padding-bottom:0.75rem;">
-        <h3 style="font-size:1.1rem; font-weight:700; color:var(--ink-1); margin:0;">➕ Registrar Nuevo Caso de Uso / Iniciativa BCP</h3>
+        <h3 style="font-size:1.1rem; font-weight:700; color:var(--ink-1); margin:0;">Registrar Nuevo Caso de Uso / Iniciativa BCP</h3>
         <button type="button" class="icon-btn" onclick="closeNewInitiativeModal()">✕</button>
       </div>
       <div class="form-row">
-        <label>Código de Iniciativa (ej: INIT-BCP-HIPO-2026-04):</label>
+        <label for="newInitId">Código de Iniciativa (ej: INIT-BCP-HIPO-2026-04):</label>
         <input type="text" id="newInitId" placeholder="INIT-BCP-CAMP-..." style="text-transform:uppercase;">
       </div>
       <div class="form-row">
-        <label>Nombre del Caso de Uso / Campaña:</label>
+        <label for="newInitName">Nombre del Caso de Uso / Campaña:</label>
         <input type="text" id="newInitName" placeholder="Campaña Hipotecario Tasa Baja 2026">
       </div>
       <div class="form-row">
-        <label>Intención Principal:</label>
+        <label for="newInitIntention">Intención Principal:</label>
         <select id="newInitIntention">
           <option value="PROMOTION">PROMOTION (Promoción comercial)</option>
           <option value="ONBOARDING">ONBOARDING (Bienvenida cliente)</option>
@@ -6862,12 +7221,12 @@
         </select>
       </div>
       <div class="form-row">
-        <label>Público Objetivo (CDP Audience):</label>
+        <label for="newInitAudience">Público Objetivo (CDP Audience):</label>
         <input type="text" id="newInitAudience" value="CLIENTES_BCP_PREAPROBADOS">
       </div>
       <div style="display:flex; gap:0.5rem; margin-top:1.25rem;">
         <button type="button" class="btn btn-secondary" onclick="closeNewInitiativeModal()" style="flex:1;">Cancelar</button>
-        <button type="button" class="btn btn-orange" onclick="saveNewInitiative()" style="flex:1;">💾 Guardar en Atlas / Local</button>
+        <button type="button" class="btn btn-orange" onclick="saveNewInitiative()" style="flex:1;">Guardar en Atlas / Local</button>
       </div>
     </div>
   </div>
